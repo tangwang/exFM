@@ -7,7 +7,6 @@
 
 using utils::Dict;
 
-
 class SparseFeaConfig : public CommonFeaConfig {
  public:
   int vocab_size;
@@ -18,7 +17,7 @@ class SparseFeaConfig : public CommonFeaConfig {
   mutable shared_ptr<ParamContainer> param_container;
   mutable vector<Mutex_t> mutexes;
   int mutex_nums;
-  Mutex_t * GetMutexByFeaID(feaid_t id) const {
+  Mutex_t* GetMutexByFeaID(feaid_t id) const {
     return &mutexes[id % mutex_nums];
   }
 
@@ -60,10 +59,11 @@ class SparseFeaContext : public CommonFeaContext {
 
   bool valid() const { return fea_id != cfg_.default_value; }
 
-  void forward(vector<ParamContext> &forward_params);
+  void forward(vector<ParamContext>& forward_params);
   void backward();
 
-  int feedRawData(const char* line, vector<ParamContext> & forward_params, vector<ParamContext> & backward_params);
+  int feedRawData(const char* line, vector<ParamContext>& forward_params,
+                  vector<ParamContext>& backward_params);
 
   SparseFeaContext(const SparseFeaConfig& cfg);
   ~SparseFeaContext();

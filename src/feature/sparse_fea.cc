@@ -13,7 +13,9 @@ int SparseFeaConfig::initParams() {
   // TODO 暂时都不用词典映射
   if (train_opt.disable_feaid_mapping) {
     use_id_mapping = 0;
+    vocab_size = max_id + 2;
   }
+  // TODO 暂时设大一点，后面AUC效果没问题了去掉这一行
   vocab_size = max_id + 2;
 
   param_container = std::make_shared<ParamContainer>(vocab_size);
@@ -22,15 +24,21 @@ int SparseFeaConfig::initParams() {
     // assert(access(id_mapping_dict_path.c_str(), F_OK) != -1 &&
     // ("id_mapping_dict_path doesn't exist: " + id_mapping_dict_path));
     assert(access(id_mapping_dict_path.c_str(), F_OK) != -1);
-    fea_id_mapping.create(id_mapping_dict_path,
-                          train_opt.fea_id_mapping_dict_seperator);
+    if (fea_id_mapping.create(id_mapping_dict_path,
+                              train_opt.fea_id_mapping_dict_seperator)) {
+      std::cout << "load dict <" << id_mapping_dict_path << "> ok, size <"
+                << fea_id_mapping.size() << ">" << std::endl;
+    } else {
+      std::cerr << "load dict <" << id_mapping_dict_path << "> failed!!!"
+                << std::endl;
+    }
   }
 
   // initail mutexes
   mutex_nums = vocab_size;
-  if (mutex_nums > 1000) {
-    mutex_nums = std::max(1000, (int)pow((float)mutex_nums, 0.7));
-    mutex_nums = std::min(mutex_nums, 4000);
+  if (mutex_nums > 8000) {
+    mutex_nums = std::max(8000, (int)pow((float)mutex_nums, 0.7));
+    mutex_nums = std::min(mutex_nums, 80000);
   }
   mutexes.resize(mutex_nums);
 
@@ -57,13 +65,11 @@ void from_json(const json &j, SparseFeaConfig &p) {
   j.at("default_value").get_to(p.default_value);
 }
 
-SparseFeaContext::SparseFeaContext(const SparseFeaConfig &cfg) : cfg_(cfg) {
-}
+SparseFeaContext::SparseFeaContext(const SparseFeaConfig &cfg) : cfg_(cfg) {}
 
 SparseFeaContext::~SparseFeaContext() {}
 
-void SparseFeaContext::forward(vector<ParamContext> &forward_params) {
-}
+void SparseFeaContext::forward(vector<ParamContext> &forward_params) {}
 
 int SparseFeaContext::feedRawData(const char *line,
                                   vector<ParamContext> &forward_params,
@@ -76,7 +82,7 @@ int SparseFeaContext::feedRawData(const char *line,
     return -1;
   }
   FTRLParamUnit *fea_param = cfg_.param_container->get(fea_id);
-  Mutex_t * param_mutex = cfg_.GetMutexByFeaID(fea_id);
+  Mutex_t *param_mutex = cfg_.GetMutexByFeaID(fea_id);
   backward_params.push_back(ParamContext(fea_param, param_mutex));
   FTRLParamUnit *forward_param = forward_param_container->get();
   param_mutex->lock();

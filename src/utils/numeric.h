@@ -66,6 +66,46 @@ void CalcMeanAndStdev(const vector<value_type> &vec, value_type &mean,
     stdev = sqrt(accum / (vec.size() - 1));
   }
 }
+
+#if 1
+double uniform()
+{
+    return rand()/((double)RAND_MAX + 1.0);
+}
+
+
+double gaussian()
+{
+    double u,v, x, y, Q;
+    do
+    {
+        do 
+        {
+            u = uniform();
+        } while (u == 0.0); 
+
+        v = 1.7156 * (uniform() - 0.5);
+        x = u - 0.449871;
+        y = fabs(v) + 0.386595;
+        Q = x * x + y * (0.19600 * y - 0.25472 * x);
+    } while (Q >= 0.27597 && (Q > 0.27846 || v * v > -4.0 * u * u * log(u)));
+    return v / u;
+}
+
+
+double gaussian(double mean, double stdev)
+{
+    if(0.0 == stdev)
+    {
+        return mean;
+    }
+    else
+    {
+        return mean + stdev * gaussian();
+    }
+}
+
+#else
 inline real_t uniform() { return rand() / static_cast<real_t>(RAND_MAX); }
 
 inline real_t gaussian(real_t mean, real_t stdev) {
@@ -75,6 +115,8 @@ inline real_t gaussian(real_t mean, real_t stdev) {
 }
 
 inline real_t gaussian() { return gaussian(0.0, 1.0); }
+#endif
+
 
 template <typename value_type>
 void print2dArray(const vector<vector<value_type>> &arrays) {

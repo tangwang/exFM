@@ -19,7 +19,6 @@ int FeaManager::parse_fea_config(const char* config_file_name) {
                     .get<vector<SparseFeaConfig>>();
   varlen_feas = cfg_json.at(train_opt.fea_type_varlen_sparse)
                     .get<vector<VarlenSparseFeaConfig>>();
-
   fin.close();
   return 0;
 }

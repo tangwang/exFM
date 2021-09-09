@@ -106,6 +106,7 @@ class FTRLLearner {
       while (std::getline(input_stream, line_buff)) {
         feedRawData(line_buff.c_str());
         train_fm_flattern(true);
+        // train(true);
       }
       DumpEvalInfo();
       input_stream.clear();
@@ -115,6 +116,7 @@ class FTRLLearner {
     while (std::getline(input_stream, line_buff)) {
       feedRawData(line_buff.c_str());
       train_fm_flattern(true);
+        // train(true);
     }
     DumpEvalInfo();
   }

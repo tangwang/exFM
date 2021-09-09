@@ -30,7 +30,7 @@ int VarlenSparseFeaConfig::initParams() {
 }
 
 void to_json(json &j, const VarlenSparseFeaConfig &p) {
-  j = json{{"name", p.sparse_cfg.name},
+  j = json{{"name", p.name},
            {"max_id", p.sparse_cfg.max_id},
            {"vocab_size", p.sparse_cfg.vocab_size},
            {"id_mapping_dict_path", p.sparse_cfg.id_mapping_dict_path},
@@ -61,11 +61,7 @@ int VarlenSparseFeaContext::feedRawData(const char *line,
   if (orig_fea_ids.size() > cfg_.max_len) {
     orig_fea_ids.resize(cfg_.max_len);
   }
-  if (!valid()) {
-    return -1;
-  }
 
-  fea_ids.clear();
   fea_params.clear();
   if (cfg_.sparse_cfg.use_id_mapping == 0) {
     fea_ids = orig_fea_ids;
@@ -75,6 +71,9 @@ int VarlenSparseFeaContext::feedRawData(const char *line,
       feaid_t mapped_id = cfg_.sparse_cfg.fea_id_mapping.get(orig_fea_id);
       fea_ids.push_back(mapped_id);
     }
+  }
+  if (!valid()) {
+    return -1;
   }
 
   FTRLParamUnit *forward_param = forward_param_container->get();
