@@ -68,13 +68,13 @@ void CalcMeanAndStdev(const vector<value_type> &vec, value_type &mean,
 }
 
 #if 1
-double uniform()
+inline double uniform()
 {
     return rand()/((double)RAND_MAX + 1.0);
 }
 
 
-double gaussian()
+inline double gaussian()
 {
     double u,v, x, y, Q;
     do
@@ -93,7 +93,7 @@ double gaussian()
 }
 
 
-double gaussian(double mean, double stdev)
+inline double gaussian(double mean, double stdev)
 {
     if(0.0 == stdev)
     {

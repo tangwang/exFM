@@ -87,7 +87,8 @@ class FTRLLearner {
 
       for (int i = 0; i < task_queue_size; i++) {
         feedRawData(local_task_queue[i].c_str());
-        train_fm_flattern();
+        //train_fm_flattern();
+        train();
       }
 
       local_task_queue.clear();
@@ -101,12 +102,18 @@ class FTRLLearner {
 
   void validation_thread_loop(std::ifstream &input_stream) {
     string line_buff;
+    int sleep_seconds = 0;
     do {
-      sleep(train_opt.time_interval_of_validation);
+      sleep(2);
+      sleep_seconds += 2;
+      if (stop_flag) break;
+      else if (sleep_seconds < train_opt.time_interval_of_validation) continue;
+      else sleep_seconds = 0;
+
       while (std::getline(input_stream, line_buff)) {
         feedRawData(line_buff.c_str());
-        train_fm_flattern(true);
-        // train(true);
+        //train_fm_flattern(true);
+         train(true);
       }
       DumpEvalInfo();
       input_stream.clear();
@@ -115,8 +122,8 @@ class FTRLLearner {
     // 训练完成后再最后跑一遍测试集
     while (std::getline(input_stream, line_buff)) {
       feedRawData(line_buff.c_str());
-      train_fm_flattern(true);
-        // train(true);
+      //train_fm_flattern(true);
+         train(true);
     }
     DumpEvalInfo();
   }
