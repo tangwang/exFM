@@ -81,9 +81,11 @@ class FTRLLearner {
     std::vector<string> local_task_queue;
     int counter_for_evalution = 0;
     const int n_sample_per_output = train_opt.n_sample_per_output;
+    const bool verbose_debug = train_opt.verbose > 1;
     do {
       task_queue.FeachAll(local_task_queue);
       int task_queue_size = local_task_queue.size();
+      if (verbose_debug) std::cout << "task " << task_name_ << " fetched " << task_queue_size << " lines" << std::endl;
 
       for (int i = 0; i < task_queue_size; i++) {
         feedRawData(local_task_queue[i].c_str());
@@ -103,12 +105,14 @@ class FTRLLearner {
   void validation_thread_loop(std::ifstream &input_stream) {
     string line_buff;
     int sleep_seconds = 0;
+    const bool verbose_debug = train_opt.verbose > 1;
     do {
       sleep(2);
       sleep_seconds += 2;
       if (stop_flag) break;
       else if (sleep_seconds < train_opt.time_interval_of_validation) continue;
       else sleep_seconds = 0;
+      if (verbose_debug) std::cout << "validation thread begin predict... " << std::endl;
 
       while (std::getline(input_stream, line_buff)) {
         feedRawData(line_buff.c_str());

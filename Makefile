@@ -26,6 +26,7 @@ INC = -I./third_party  -I./src
 CCFLAGS = -g -std=c++11 -O3 -Wall ${INC}
 
 bin/train: ${OBJ} 
+	-mkdir -p bin
 	${CC} ${CCFLAGS}  ${LIB} ${OBJ} -o $@
 	@echo "Compile done."
 

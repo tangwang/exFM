@@ -30,7 +30,7 @@ class FeaManager {
 
  public:
   // configure file
-  int parse_fea_config(const char *config_file_name);
+  int parse_fea_config(string config_file_name);
   int parse_one_fea(const char *json_string);
 
   FeaManager();

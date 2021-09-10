@@ -10,7 +10,7 @@
 #include "utils/base.h"
 #include "utils/str_utils.h"
 #include "utils/numeric.h"
-#include "utils/color.h"
+#include "utils/console_color.h"
 
 namespace utils {
 

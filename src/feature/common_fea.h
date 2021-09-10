@@ -32,13 +32,13 @@ struct ParamContext {
 class CommonFeaConfig {
  public:
   string name;
-  string identifier;  // fea_spliter + name + kv_spliter
+  string identifier;  // fea_seperator + name + kv_seperator
   int identifier_len;
 
   virtual int initParams() = 0;
 
   void init() {
-    identifier = train_opt.fea_spliter + name + train_opt.fea_kv_spliter;
+    identifier = train_opt.fea_seperator + name + train_opt.fea_kv_seperator;
     identifier_len = identifier.length();
 
     initParams();
@@ -68,8 +68,8 @@ class CommonFeaConfig {
     if (pos != NULL) {
       pos += identifier_len;
 
-      utils::split_string(pos, train_opt.fea_multivalue_spliter,
-                          train_opt.fea_spliter, feaid_list);
+      utils::split_string(pos, train_opt.fea_multivalue_seperator,
+                          train_opt.fea_seperator, feaid_list);
     }
     return 0;
   }

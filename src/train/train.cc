@@ -57,12 +57,13 @@ int main(int argc, char *argv[]) {
   FTRLParamUnit::static_init();
 
   FeaManager fea_manager;
-  assert(access(train_opt.feature_config_path, F_OK) != -1);
+  assert(access(train_opt.feature_config_path.c_str(), F_OK) != -1);
   fea_manager.parse_fea_config(train_opt.feature_config_path);
-  fea_manager.initModelParams(true);
+  fea_manager.initModelParams(train_opt.verbose > 0);
 
   vector<FTRLLearner *> learners;
   for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
+    std::cout << "start train thread " << thread_id << "..." << endl;
     FTRLLearner *p = new FTRLLearner(fea_manager, "train", thread_id);
     p->StartTrainLoop();
     learners.push_back(p);
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]) {
 
   std::istream *input_stream = NULL;
   std::istream *input_file_stream = NULL;
-  if (train_opt.train_path && *train_opt.train_path) {
+  if (!train_opt.train_path.empty()) {
     input_file_stream = new ifstream(train_opt.train_path);
     input_stream = input_file_stream;
   } else {
@@ -80,16 +81,17 @@ int main(int argc, char *argv[]) {
     input_stream = &std::cin;
   }
 
-  std::ifstream eval_stream;
-  if (train_opt.eval_path && *train_opt.eval_path) {
-    eval_stream.open(train_opt.eval_path);
-    if (!eval_stream) {
+  std::ifstream valid_stream;
+  if (!train_opt.valid_path.empty()) {
+    valid_stream.open(train_opt.valid_path);
+    if (!valid_stream) {
       cerr << "eval file open filed " << endl;
       return -1;
     }
 
     validator = new FTRLLearner(fea_manager, "valid", 0);
-    validator->StartValidationLoop(eval_stream);
+    validator->StartValidationLoop(valid_stream);
+    std::cout << "start validation thread " << "..." << endl;
   }
 
   feed_data_to_learners(learners, input_stream);

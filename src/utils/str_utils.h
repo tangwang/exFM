@@ -102,7 +102,7 @@ inline std::string &trim(std::string &s) {
 }
 
 template <typename value_type>
-void split_string(string &line, char delimiter, vector<value_type> &r) {
+void split_string(const string &line, char delimiter, vector<value_type> &r) {
   int begin = 0;
   for (int i = 0; i < line.size(); ++i) {
     if (line[i] == delimiter) {

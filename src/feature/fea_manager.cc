@@ -7,7 +7,7 @@
 FeaManager::FeaManager() {}
 FeaManager::~FeaManager() {}
 
-int FeaManager::parse_fea_config(const char* config_file_name) {
+int FeaManager::parse_fea_config(string config_file_name) {
   std::ifstream fin(config_file_name);
 
   json cfg_json;

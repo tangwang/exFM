@@ -36,7 +36,7 @@ int FTRLLearner::feedRawData(const char *line) {
 
   do {
     ++line;
-  } while (*line != train_opt.fea_spliter);
+  } while (*line != train_opt.fea_seperator);
 
   forward_params.clear();
   backward_params.clear();

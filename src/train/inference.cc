@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
   std::istream *input_stream = NULL;
   std::istream *input_file_stream = NULL;
-  if (train_opt.train_path && *train_opt.train_path) {
+  if (!train_opt.train_path.empty()) {
     input_file_stream = new ifstream(train_opt.train_path, std::ios::in);
     input_stream = input_file_stream;
   } else {
@@ -46,10 +46,10 @@ int main(int argc, char *argv[]) {
     input_stream = &std::cin;
   }
 
-  std::ifstream eval_stream;
-  if (train_opt.eval_path && *train_opt.eval_path) {
-    eval_stream.open(train_opt.eval_path);
-    if (!eval_stream) {
+  std::ifstream valid_stream;
+  if (!train_opt.valid_path.empty()) {
+    valid_stream.open(train_opt.valid_path);
+    if (!valid_stream) {
       cerr << "eval file open filed " << endl;
       return -1;
     }
@@ -67,10 +67,10 @@ int main(int argc, char *argv[]) {
     if (train_eval.size() == n_sample_per_output) {
       train_eval.output("train");
     }
-    if (eval_stream && (processed_samples % time_interval_of_validation == 0)) {
-      eval_stream.clear();
-      eval_stream.seekg(0);
-      while (eval_stream.getline(line, sizeof(line))) {
+    if (valid_stream && (processed_samples % time_interval_of_validation == 0)) {
+      valid_stream.clear();
+      valid_stream.seekg(0);
+      while (valid_stream.getline(line, sizeof(line))) {
         trainer->feedRawData(line);
         trainer->train(true);
         evaldata_eval.add(trainer->y, trainer->logit);
@@ -82,8 +82,8 @@ int main(int argc, char *argv[]) {
   if (input_file_stream != NULL) {
     delete input_file_stream;
   }
-  if (eval_stream != NULL) {
-    delete eval_stream;
+  if (valid_stream != NULL) {
+    delete valid_stream;
   }
   FTRLLearner::Destroy(trainer);
   return 0;

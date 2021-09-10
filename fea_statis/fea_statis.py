@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
         for kv in segs:
             try:
-                k, v = kv.split(kv_spliter)
+                k, v = kv.split(kv_seperator)
                 if not v:
                     continue
 

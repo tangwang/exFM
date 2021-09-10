@@ -1,6 +1,6 @@
 
 field_split = '\t'
-kv_spliter = ':'
+kv_seperator = ':'
 value_list_split = ','
 
 dense_fea_same_wide_bucket_numbers = [10, 25]

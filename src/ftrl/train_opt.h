@@ -3,11 +3,21 @@
  */
 #pragma once
 #include <sstream>
+
 #include "utils/base.h"
 #include "utils/utils.h"
 
 class TrainOption;
 extern TrainOption train_opt;
+
+struct Arg {
+ public:
+  Arg(std::string _k, std::string _v) : k(_k), v(_v), process_stat(0) {}
+  std::string k;
+  std::string v;
+  int process_stat;  // 0 : not processed, unknown arg , 1 : processed ok, 2 :
+                     // bad values
+};
 
 class TrainOption {
  public:
@@ -16,17 +26,19 @@ class TrainOption {
 
   bool parse_args(int argc, char* argv[]);
 
- public:
-  const char* train_path;
-  const char* eval_path;
-  const char* feature_config_path;
-  const char* model_path;
-  const char* model_format;
-  const char* init_model_path;
-  const char* initial_model_format;
-  const char* model_number_type;
+  const char* config_file_path = "config/train.conf";
 
-  double init_mean;
+ public:
+  std::string train_path;
+  std::string valid_path;
+  std::string feature_config_path;
+  std::string model_path;
+  std::string model_format;
+  std::string init_model_path;
+  std::string initial_model_format;
+  std::string model_number_type;
+
+  const double init_mean = 0.0;
   double init_stdev;
 
   double w_alpha;
@@ -46,13 +58,14 @@ class TrainOption {
   const long n_sample_per_output = 500000;
   const int task_queue_size = 5000;
 
+  int verbose;
   bool print_help;
   bool disable_feaid_mapping;
 
   // train data format
-  char fea_spliter;
-  char fea_kv_spliter;
-  char fea_multivalue_spliter;
+  char fea_seperator;
+  char fea_kv_seperator;
+  char fea_multivalue_seperator;
   char fea_id_mapping_dict_seperator;
 
   // params for feature_configs
@@ -64,23 +77,30 @@ class TrainOption {
   template <typename value_type>
   bool parse_arg(const char* key, value_type& v, value_type default_value,
                  const char* helper, bool necessary = false) {
-    help_message << "arg <" << key << "> default_value <" << default_value
-                 << "> necessary <" << necessary << "> helper: " << helper
-                 << std::endl;
+    using namespace std;
+    help_message << "arg " << setiosflags(ios::left) << console_color::blue
+                 << setw(20) << key << console_color::reset << " default_value "
+                 << console_color::blue << setw(5) << default_value
+                 << console_color::reset << " necessary " << console_color::blue
+                 << setw(1) << necessary << console_color::reset
+                 << " helper: " << console_color::blue << helper
+                 << console_color::reset << endl;
     for (auto& arg : args) {
-      if (arg.first == key) {
-        v = utils::cast_type<const char*, value_type>(arg.second);
+      if (arg.k == key) {
+        v = utils::cast_type<const char*, value_type>(arg.v.c_str());
+        arg.process_stat = 1;
         return true;
       }
     }
     v = default_value;
     if (necessary) {
-      help_message << "ERROR! Missing necessary arg:  <" << key << "> " << std::endl;
+      help_message << console_color::red << "ERROR! Missing necessary arg:  <"
+                   << key << "> " << console_color::reset << endl;
     }
     return !necessary;
   }
 
-  char parse_spliter_chars(const char* param) const {
+  char parse_seperator_chars(const char* param) const {
     if (0 == strcmp(param, "blank"))
       return ' ';
     else if (0 == strcmp(param, "tab"))
@@ -92,17 +112,30 @@ class TrainOption {
   }
 
   bool parse_option(const char* key, const char* helper) {
-    help_message << "opt <" << key << "> helper: " << helper << std::endl;
-    for (auto& opt : options) {
-      if (0 == strcmp(opt, key)) {
+    using namespace std;
+    help_message << "opt " << setiosflags(ios::left) << console_color::blue
+                 << setw(20) << key << console_color::reset
+                 << " helper: " << console_color::blue << helper
+                 << console_color::reset << std::endl;
+    for (auto& arg : args) {
+      if (arg.k == key) {
+        arg.process_stat = 1;
+        if (!arg.v.empty()) {
+          help_message
+              << console_color::red << key
+              << " is an option, the value your specified cannot be recognized"
+              << console_color::reset << std::endl;
+        }
         return true;
       }
     }
     return false;
   }
 
+  vector<string> arg_lines;
+
   const char* program_name;
-  std::vector<std::pair<std::string, const char*>> args;
-  std::vector<const char*> options;
+  std::vector<Arg> args;
+  std::vector<std::string> options;
   std::stringstream help_message;
 };
