@@ -19,7 +19,7 @@ class TrainOption {
 
   const char* config_file_path = "config/train.conf";
 
-  bool parse_args(int argc, char* argv[]);
+  bool parse_cfg_and_cmdlines(int argc, char* argv[]);
 
  public:
   std::string train_path;
@@ -30,6 +30,7 @@ class TrainOption {
   std::string init_model_path;
   std::string initial_model_format;
   std::string model_number_type;
+  int epoch;
 
   const double init_mean = 0.0;
   double init_stdev;

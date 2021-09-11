@@ -49,9 +49,9 @@ void feed_data_to_learners(vector<FTRLLearner *> &learners,
 int main(int argc, char *argv[]) {
   srand(time(NULL));
 
-  if (!train_opt.parse_args(argc, argv)) {
+  if (!train_opt.parse_cfg_and_cmdlines(argc, argv)) {
     cerr << "parse args faild, exit" << endl;
-    return -1;
+    return -1; 
   }
 
   FTRLParamUnit::static_init();
@@ -77,6 +77,11 @@ int main(int argc, char *argv[]) {
   if (!train_opt.train_path.empty()) {
     input_file_stream = new ifstream(train_opt.train_path);
     input_stream = input_file_stream;
+    if (!(*input_file_stream)) {
+      cerr << "train file open filed " << endl;
+      delete input_file_stream;
+      return -1;
+    }
   } else {
     cin.sync_with_stdio(false);
     input_stream = &std::cin;
@@ -95,7 +100,16 @@ int main(int argc, char *argv[]) {
     std::cout << "start validation thread " << "..." << endl;
   }
 
-  feed_data_to_learners(learners, input_stream);
+  for (int i = 0; i < train_opt.epoch; i++) {
+    feed_data_to_learners(learners, input_stream);
+    if (input_file_stream) {
+      input_file_stream->clear();
+      input_file_stream->seekg(0);
+    } else {
+      // 从stdin读取训练数据，不支持多个epoch
+      break;
+    }
+  }
 
   // 分发完后，结束所有线程
   sleep(5);

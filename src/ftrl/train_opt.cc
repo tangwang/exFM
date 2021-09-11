@@ -5,7 +5,7 @@
 
 TrainOption train_opt;
 
-bool TrainOption::parse_args(int argc, char *argv[]) {
+bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   // load config file
 
   arg_parser.load_args(config_file_path);
@@ -20,6 +20,10 @@ bool TrainOption::parse_args(int argc, char *argv[]) {
   arg_parser.parse_arg("valid", valid_path, string(), "validation data path");
   arg_parser.parse_arg("valid_interval", time_interval_of_validation,
                    60, "how many seconds between two validition");
+                   
+  arg_parser.parse_arg("epoch", epoch, 1, "train epochs");
+
+
   arg_parser.parse_arg("dim", factor_num, 8, "feature vector dim(factor_num)");
   arg_parser.parse_arg("im", init_model_path, string(), "init model path");
   arg_parser.parse_arg("imf", initial_model_format, string("txt"),
