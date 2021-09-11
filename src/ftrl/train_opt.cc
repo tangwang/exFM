@@ -50,8 +50,7 @@ bool TrainOption::parse_args(int argc, char *argv[]) {
       "disable_feaid_mapping",
       "ignore feature ID mapping dicts, using hash or original ID.");
   arg_parser.parse_arg("id_map_dict_sep", temp_split_param, " ",
-                   "specify one character(or str \"blank\",\"tab\") for "
-                   "fea_id_mapping_dict_seperator in line of sample. ");
+                   "specify one character(or str \"blank\",\"tab\") for k_v_seperator in line of feature mapping dict");
   fea_id_mapping_dict_seperator = parse_seperator_chars(temp_split_param);
 
 
