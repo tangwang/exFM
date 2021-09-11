@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
   FTRLParamUnit::static_init();
 
   FeaManager fea_manager;
+  assert(!train_opt.feature_config_path.empty());
   assert(access(train_opt.feature_config_path.c_str(), F_OK) != -1);
   fea_manager.parse_fea_config(train_opt.feature_config_path);
   fea_manager.initModelParams(train_opt.verbose > 0);

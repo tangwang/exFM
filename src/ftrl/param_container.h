@@ -150,7 +150,7 @@ class ParamContainer {
   feaid_t getUNKnownID() const { return fea_num; }
 
   int read(feaid_t id, FTRLParamUnit *p) {
-    if (isBadID(id)) {
+    if (UNLIKELY(isBadID(id))) {
       id = getUNKnownID();
     }
     FTRLParamUnit *param_addr = get(id);
@@ -159,7 +159,7 @@ class ParamContainer {
   }
 
   int write(feaid_t id, FTRLParamUnit *p) {
-    if (isBadID(id)) {
+    if (UNLIKELY(isBadID(id))) {
       id = getUNKnownID();
     }
     FTRLParamUnit *param_addr = get(id);
@@ -172,14 +172,14 @@ class ParamContainer {
   }
 
   FTRLParamUnit *get(feaid_t id) {
-    if (isBadID(id)) {
+    if (UNLIKELY(isBadID(id))) {
       id = getUNKnownID();
     }
     return (FTRLParamUnit *)(param + FTRLParamUnit::full_size * id);
   }
 
   void set(feaid_t id, const FTRLParamUnit &v) {
-    if (isBadID(id)) {
+    if (UNLIKELY(isBadID(id))) {
       id = getUNKnownID();
     }
 
