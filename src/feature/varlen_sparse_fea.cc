@@ -54,7 +54,7 @@ void from_json(const json &j, VarlenSparseFeaConfig &p) {
   j.at("pooling_type").get_to(p.pooling_type);
 }
 
-int VarlenSparseFeaContext::feedRawData(const char *line,
+int VarlenSparseFeaContext::feedSample(const char *line,
                                         vector<ParamContext> &forward_params,
                                         vector<ParamContext> &backward_params) {
   cfg_.parseFeaIdList(line, orig_fea_ids);
@@ -76,11 +76,11 @@ int VarlenSparseFeaContext::feedRawData(const char *line,
     return -1;
   }
 
-  FTRLParamUnit *forward_param = forward_param_container->get();
-  FTRLParamUnit *locak_buff_param = local_buff_container->get();
+  FtrlParamUnit *forward_param = forward_param_container->get();
+  FtrlParamUnit *locak_buff_param = local_buff_container->get();
   forward_param->clear_weights();
   for (auto id : fea_ids) {
-    FTRLParamUnit *fea_param = cfg_.sparse_cfg.param_container->get(id);
+    FtrlParamUnit *fea_param = cfg_.sparse_cfg.ftrl_param->get(id);
     Mutex_t *param_mutex = cfg_.sparse_cfg.GetMutexByFeaID(id);
 
     param_mutex->lock();
@@ -103,9 +103,9 @@ void VarlenSparseFeaContext::forward(vector<ParamContext> &forward_params) {}
 
 void VarlenSparseFeaContext::backward() {
   // TODO这个是错误的，  废弃
-  FTRLParamUnit *p = backward_param_container->get();
+  FtrlParamUnit *p = backward_param_container->get();
 
-  for (FTRLParamUnit *fea_param : fea_params) {
+  for (FtrlParamUnit *fea_param : fea_params) {
     fea_param->plus_params(*p);
   }
 }

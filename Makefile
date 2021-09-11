@@ -8,12 +8,12 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 	  ${wildcard  src/train/*.h} \
 
 SRC = src/feature/dense_fea.cc \
-      src/ftrl/param_container.cc \
-      src/ftrl/train_opt.cc \
+      src/ftrl/ftrl_param.cc \
+      src/ftrl/ftrl_solver.cc \
       src/feature/sparse_fea.cc \
       src/feature/varlen_sparse_fea.cc \
       src/feature/fea_manager.cc \
-      src/ftrl/ftrl_learner.cc \
+      src/train/train_opt.cc \
       src/train/train.cc \
 
 OBJ = ${patsubst %.cc, %.o, ${SRC}}

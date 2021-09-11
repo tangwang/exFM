@@ -2,18 +2,18 @@
 #include "feature/fea_manager.h"
 #include "feature/sparse_fea.h"
 #include "feature/varlen_sparse_fea.h"
-#include "ftrl/ftrl_learner.h"
-#include "ftrl/param_container.h"
+#include "train/train_worker.h"
+#include "ftrl/ftrl_param.h"
 #include "utils/base.h"
 
 void test_fea_manager() {
-  FTRLParamUnit::static_init(&train_opt);
+  FtrlParamUnit::static_init(&train_opt);
 
   FeaManager fea_manager;
   fea_manager.parse_fea_config("./config/fea.config");
   fea_manager.initModelParams();
 
-  FTRLLearner trainer(fea_manager, train_opt);
+  FTRLSolver trainer(fea_manager, train_opt);
 
   const static int MAX_LINE_BUFF = 10240;
   char line[MAX_LINE_BUFF];
@@ -25,7 +25,7 @@ void test_fea_manager() {
     }
     line_num++;
 
-    trainer.feedRawData(line);
+    trainer.feedSample(line);
   }
 }
 

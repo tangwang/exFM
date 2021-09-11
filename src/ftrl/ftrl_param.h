@@ -2,11 +2,11 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "ftrl/train_opt.h"
+#include "train/train_opt.h"
 #include "utils/base.h"
 #include "utils/utils.h"
 
-class FTRLParamUnit {
+class FtrlParamUnit {
  public:
   static int offset_vn;
   static int offset_vz;
@@ -30,24 +30,24 @@ class FTRLParamUnit {
     factor_num = train_opt.factor_num;
     offset_vn = train_opt.factor_num;
     offset_vz = train_opt.factor_num + train_opt.factor_num;
-    full_size = sizeof(FTRLParamUnit) + train_opt.factor_num * 3 * sizeof(real_t);
+    full_size = sizeof(FtrlParamUnit) + train_opt.factor_num * 3 * sizeof(real_t);
   }
 
   void param_init() {
     w = wn = wz = 0.0;
 
-    for (int f = 0; f < FTRLParamUnit::factor_num; ++f) {
-      multabel_v(f) = utils::gaussian(train_opt.init_mean, train_opt.init_stdev);
+    for (int f = 0; f < FtrlParamUnit::factor_num; ++f) {
+      multabel_v(f) = utils::gaussian(train_opt.ftrl.init_mean, train_opt.ftrl.init_stdev);
       multabel_vn(f) = 0.0;
       multabel_vz(f) = 0.0;
     }
   }
 
-  void operator=(const FTRLParamUnit &rhs) {
+  void operator=(const FtrlParamUnit &rhs) {
     memcpy((void *)this, (const void *)&rhs, full_size);
   }
 
-  void operator+(const FTRLParamUnit &rhs) {
+  void operator+(const FtrlParamUnit &rhs) {
     w += rhs.w;
     wn += rhs.wn;
     wz += rhs.wz;
@@ -63,14 +63,14 @@ class FTRLParamUnit {
     }
   }
 
-  void plus_weights(const FTRLParamUnit &rhs) {
+  void plus_weights(const FtrlParamUnit &rhs) {
     w += rhs.w;
     for (int i = 0; i < factor_num; i++) {
       multabel_v(i) += rhs.v(i);
     }
   }
 
-  void plus_params(const FTRLParamUnit &rhs) {
+  void plus_params(const FtrlParamUnit &rhs) {
     wz += rhs.wz;
     wn += rhs.wn;
     for (int i = 0; i < factor_num; i++) {
@@ -80,15 +80,15 @@ class FTRLParamUnit {
   }
 
   inline void calc_w() {
-    if (fabs(wz) <= train_opt.l1_reg_w) {
+    if (fabs(wz) <= train_opt.ftrl.l1_reg_w) {
       w = 0.0;
-    } else if (wz > 0.0000000001)  // TODO 跟0有区别吗
+    } else if (wz > 1e-10)  // TODO 跟0有区别吗
     {
-      w = -(wz - train_opt.l1_reg_w) /
-          (train_opt.l2_reg_w + (train_opt.w_beta + sqrt(wn)) / train_opt.w_alpha);
+      w = -(wz - train_opt.ftrl.l1_reg_w) /
+          (train_opt.ftrl.l2_reg_w + (train_opt.ftrl.w_beta + sqrt(wn)) / train_opt.ftrl.w_alpha);
     } else {
-      w = -(wz + train_opt.l1_reg_w) /
-          (train_opt.l2_reg_w + (train_opt.w_beta + sqrt(wn)) / train_opt.w_alpha);
+      w = -(wz + train_opt.ftrl.l1_reg_w) /
+          (train_opt.ftrl.l2_reg_w + (train_opt.ftrl.w_beta + sqrt(wn)) / train_opt.ftrl.w_alpha);
     }
   }
 
@@ -98,15 +98,15 @@ class FTRLParamUnit {
       const real_t &vnf = vn(f);
       const real_t &vzf = vz(f);
       if (vnf > 0) {
-        if (fabs(vzf) <= train_opt.l1_reg_V) {
+        if (fabs(vzf) <= train_opt.ftrl.l1_reg_V) {
           vf = 0.0;
-        } else if (vzf > 0.0000000001)  // TODO 跟0有区别吗
+        } else if (vzf > 1e-10)  // TODO 跟0有区别吗
         {
-          vf = -(vzf - train_opt.l1_reg_V) /
-               (train_opt.l2_reg_V + (train_opt.v_beta + sqrt(vnf)) / train_opt.v_alpha);
+          vf = -(vzf - train_opt.ftrl.l1_reg_V) /
+               (train_opt.ftrl.l2_reg_V + (train_opt.ftrl.v_beta + sqrt(vnf)) / train_opt.ftrl.v_alpha);
         } else {
-          vf = -(vzf + train_opt.l1_reg_V) /
-               (train_opt.l2_reg_V + (train_opt.v_beta + sqrt(vnf)) / train_opt.v_alpha);
+          vf = -(vzf + train_opt.ftrl.l1_reg_V) /
+               (train_opt.ftrl.l2_reg_V + (train_opt.ftrl.v_beta + sqrt(vnf)) / train_opt.ftrl.v_alpha);
         }
       }
     }
@@ -117,17 +117,17 @@ class FTRLParamUnit {
     calc_v();
   }
 
-  FTRLParamUnit() {}
-  ~FTRLParamUnit() {}
+  FtrlParamUnit() {}
+  ~FtrlParamUnit() {}
 };
 
-class ParamContainer {
+class FtrlParamContainer {
  public:
-  ParamContainer(feaid_t total_fea_num) {
+  FtrlParamContainer(feaid_t total_fea_num) {
     fea_num = total_fea_num;
     // fid为0到vocab_size，最后一个为 UNKNOWN
-    param = (unsigned char *)malloc((fea_num + 1) * FTRLParamUnit::full_size);
-    // param = memalign(sizeof(real_t), fea_num * FTRLParamUnit::full_size);
+    param = (unsigned char *)malloc((fea_num + 1) * FtrlParamUnit::full_size);
+    // param = memalign(sizeof(real_t), fea_num * FtrlParamUnit::full_size);
 
     param_init();
   }
@@ -142,48 +142,48 @@ class ParamContainer {
     if (param) free(param);
   }
 
-  ~ParamContainer() {
+  ~FtrlParamContainer() {
     if (param) free(param);
   }
 
   bool isBadID(feaid_t id) const { return id > fea_num || id < 0; }
   feaid_t getUNKnownID() const { return fea_num; }
 
-  int read(feaid_t id, FTRLParamUnit *p) {
+  int read(feaid_t id, FtrlParamUnit *p) {
     if (UNLIKELY(isBadID(id))) {
       id = getUNKnownID();
     }
-    FTRLParamUnit *param_addr = get(id);
+    FtrlParamUnit *param_addr = get(id);
     *p = *param_addr;
     return 0;
   }
 
-  int write(feaid_t id, FTRLParamUnit *p) {
+  int write(feaid_t id, FtrlParamUnit *p) {
     if (UNLIKELY(isBadID(id))) {
       id = getUNKnownID();
     }
-    FTRLParamUnit *param_addr = get(id);
+    FtrlParamUnit *param_addr = get(id);
     *param_addr = *p;
     return 0;
   }
 
-  FTRLParamUnit *get() {
-    return (FTRLParamUnit *)param;
+  FtrlParamUnit *get() {
+    return (FtrlParamUnit *)param;
   }
 
-  FTRLParamUnit *get(feaid_t id) {
+  FtrlParamUnit *get(feaid_t id) {
     if (UNLIKELY(isBadID(id))) {
       id = getUNKnownID();
     }
-    return (FTRLParamUnit *)(param + FTRLParamUnit::full_size * id);
+    return (FtrlParamUnit *)(param + FtrlParamUnit::full_size * id);
   }
 
-  void set(feaid_t id, const FTRLParamUnit &v) {
+  void set(feaid_t id, const FtrlParamUnit &v) {
     if (UNLIKELY(isBadID(id))) {
       id = getUNKnownID();
     }
 
-    FTRLParamUnit *fea_unit = get(id);
+    FtrlParamUnit *fea_unit = get(id);
     *fea_unit = v;
   }
 
@@ -192,6 +192,6 @@ class ParamContainer {
 
  private:
   // 禁用拷贝
-  ParamContainer(const ParamContainer &ohter);
-  ParamContainer &operator=(const ParamContainer &that);
+  FtrlParamContainer(const FtrlParamContainer &ohter);
+  FtrlParamContainer &operator=(const FtrlParamContainer &that);
 };

@@ -7,14 +7,6 @@
 #include "utils/base.h"
 #include "utils/utils.h"
 
-struct Arg {
- public:
-  Arg(std::string _k, std::string _v) : k(_k), v(_v), process_stat(0) {}
-  std::string k;
-  std::string v;
-  int process_stat;  // 0 : not processed, unknown arg , 1 : processed ok, 2 :
-                     // bad values
-};
 
 class ArgsParser {
  public:
@@ -166,6 +158,15 @@ class ArgsParser {
   }
 
 private:
+  struct Arg {
+  public:
+    Arg(std::string _k, std::string _v) : k(_k), v(_v), process_stat(0) {}
+    std::string k;
+    std::string v;
+    int process_stat;  // 0 : not processed, unknown arg , 1 : processed ok, 2 :
+                      // bad values
+  };
+
   vector<string> arg_lines;
 
   const char* program_name;

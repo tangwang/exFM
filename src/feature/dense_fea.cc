@@ -12,7 +12,7 @@ int DenseFeaConfig::initParams() {
       samewide_bucket_nums.size() + bucket_splits.size();
   if (onehot_fea_dimension == 0) return 0;
 
-  param_container = std::make_shared<ParamContainer>(onehot_fea_dimension);
+  ftrl_param = std::make_shared<FtrlParamContainer>(onehot_fea_dimension);
 
   vector<pair<real_t, vector<feaid_t>>> all_split_position_and_mapping_ids;
   int onehot_dimension = 0;
@@ -74,7 +74,7 @@ int DenseFeaConfig::initParams() {
     auto &i_value = fea_ids_of_each_buckets[i];
     fea_params_of_each_buckets[i].resize(i_value.size());
     for (size_t j = 0; j < i_value.size(); j++) {
-      fea_params_of_each_buckets[i][j] = param_container->get(i_value[j]);
+      fea_params_of_each_buckets[i][j] = ftrl_param->get(i_value[j]);
     }
   }
 
@@ -106,7 +106,7 @@ DenseFeaContext::DenseFeaContext(const DenseFeaConfig &cfg) : cfg_(cfg) {}
 
 DenseFeaContext::~DenseFeaContext() {}
 
-int DenseFeaContext::feedRawData(const char *line,
+int DenseFeaContext::feedSample(const char *line,
                                  vector<ParamContext> &forward_params,
                                  vector<ParamContext> &backward_params) {
   cfg_.parseReal(line, orig_x, cfg_.default_value);
@@ -117,7 +117,7 @@ int DenseFeaContext::feedRawData(const char *line,
   int bucket_id = cfg_.get_fea_bucket_id(orig_x);
   fea_params = &cfg_.fea_params_of_each_buckets[bucket_id];
 
-  FTRLParamUnit *forward_param = forward_param_container->get();
+  FtrlParamUnit *forward_param = forward_param_container->get();
   forward_param->clear_weights();
   for (auto fea_param : *fea_params) {
     Mutex_t *param_mutex = cfg_.GetMutexByBucketID(bucket_id);
@@ -136,9 +136,9 @@ int DenseFeaContext::feedRawData(const char *line,
 void DenseFeaContext::forward(vector<ParamContext> &forward_params) {}
 
 void DenseFeaContext::backward() {
-  FTRLParamUnit *p = backward_param_container->get();
+  FtrlParamUnit *p = backward_param_container->get();
 
-  for (FTRLParamUnit *fea_param : *fea_params) {
+  for (FtrlParamUnit *fea_param : *fea_params) {
     fea_param->plus_params(*p);
   }
 }

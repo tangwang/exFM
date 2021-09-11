@@ -2,9 +2,9 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #include "feature/fea_manager.h"
-#include "ftrl/ftrl_learner.h"
-#include "ftrl/param_container.h"
-#include "ftrl/train_opt.h"
+#include "train/train_worker.h"
+#include "ftrl/ftrl_param.h"
+#include "train/train_opt.h"
 #include "train/evalution.h"
 
 
@@ -17,14 +17,14 @@ int main(int argc, char *argv[]) {
   }
 
   CommonFeaConfig::static_init(&train_opt);
-  FTRLParamUnit::static_init(&train_opt);
+  FtrlParamUnit::static_init(&train_opt);
 
   FeaManager fea_manager;
   assert(access(train_opt.feature_config_path, F_OK) != -1);
   fea_manager.parse_fea_config(train_opt.feature_config_path);
   fea_manager.initModelParams(true);
 
-  FTRLLearner * trainer = FTRLLearner::Create(fea_manager, train_opt);
+  FTRLSolver * trainer = FTRLSolver::Create(fea_manager, train_opt);
 
   const static int MAX_LINE_BUFF = 10240;
   char line[MAX_LINE_BUFF];
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
     ++processed_samples;
 
-    trainer->feedRawData(line);
+    trainer->feedSample(line);
     trainer->train(*train_context);
     train_eval.add(trainer->y, train_context->logit);
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
       valid_stream.clear();
       valid_stream.seekg(0);
       while (valid_stream.getline(line, sizeof(line))) {
-        trainer->feedRawData(line);
+        trainer->feedSample(line);
         trainer->train(true);
         evaldata_eval.add(trainer->y, trainer->logit);
       }
@@ -85,6 +85,6 @@ int main(int argc, char *argv[]) {
   if (valid_stream != NULL) {
     delete valid_stream;
   }
-  FTRLLearner::Destroy(trainer);
+  FTRLSolver::Destroy(trainer);
   return 0;
 }

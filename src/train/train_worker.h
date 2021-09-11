@@ -4,30 +4,44 @@
 #pragma once
 #include <atomic>
 #include <thread>
-
-#include "feature/fea_manager.h"
 #include "train/evalution.h"
 #include "utils/busy_consumer_queue.h"
+#include "train/solver_interface.h"
 
 using std::thread;
 using utils::BusyConsumerQueue;
 
-/**
- * 每个线程用一个自己的FTRLLearner
- */
-class FTRLLearner {
+class TrainWorker {
  public:
-  FTRLLearner(const FeaManager &fea_manager, const char *task_name,
-              int task_id);
-  ~FTRLLearner();
+  TrainWorker(const char *task_name, int task_id)
+      : stop_flag(false),
+        task_id_(task_id),
+        solver(NULL),
+        task_queue(train_opt.task_queue_size) {
+    task_name_ = string(task_name) + string("_") + std::to_string(task_id);
+  }
+  ~TrainWorker() {
+    if (solver) {
+      delete solver;
+    }
+  }
+
+  // 注册后，将负责_solver的释放
+  // 这里经过测试，使用虚函数与使用模板做编译器多态，性能没有差别。为简化代码，这里使用ISover接口，注册solver的实现
+  void RegisteSolver(ISolver * _solver) {
+    if (solver) {
+      delete solver;
+    }
+    solver = _solver;
+  }
 
   ////////////////
   // thread
   void StartTrainLoop() {
-    thread_handler = std::thread(&FTRLLearner::task_process_thread_loop, this);
+    thread_handler = std::thread(&TrainWorker::task_process_thread_loop, this);
   }
   void StartValidationLoop(std::ifstream &input_stream) {
-    thread_handler = std::thread(&FTRLLearner::validation_thread_loop, this,
+    thread_handler = std::thread(&TrainWorker::validation_thread_loop, this,
                                  std::ref(input_stream));
   }
   void Join() { thread_handler.join(); }
@@ -41,31 +55,8 @@ class FTRLLearner {
 
   std::atomic<bool> stop_flag;
   string task_name_;
-  ///////////////////
-  const bool
-      USE_BIAS;  // 用不用bias，AUC很接近，而且bias更新频繁，影响性能，默认不开启。
 
-  vector<DenseFeaContext> dense_feas;
-  vector<SparseFeaContext> sparse_feas;
-  vector<VarlenSparseFeaContext> varlen_feas;
-  ParamContainer bias_container;
-
-  // 填充样本后收集的param_list. TODO 后期要支持连续特征，包括 常量embedding特征
-  // 必须每个维度作为连续特征用进来，需要存储每个位置的x，考虑改成vector<pair<real_t,
-  // FTRLParamUnit *>>
-  vector<ParamContext> forward_params;
-  vector<ParamContext> backward_params;
-
-  const FeaManager &fea_manager_;
   Evalution eval;
-
-  int y;
-  real_t logit;
-  vector<real_t> sum;
-
-  void DumpEvalInfo() { eval.output(task_name_.c_str()); }
-
-  int feedRawData(const char *line);
 
   void train(bool only_predict = false);
   void train_fm_flattern(bool only_predict = false);
@@ -82,22 +73,28 @@ class FTRLLearner {
     int counter_for_evalution = 0;
     const int n_sample_per_output = train_opt.n_sample_per_output;
     const bool verbose_debug = train_opt.verbose > 1;
+
+    int y;
+    real_t logit;
     do {
       task_queue.FeachAll(local_task_queue);
       int task_queue_size = local_task_queue.size();
-      if (verbose_debug) std::cout << "task " << task_name_ << " fetched " << task_queue_size << " lines" << std::endl;
+      if (verbose_debug)
+        std::cout << "task " << task_name_ << " fetched " << task_queue_size
+                  << " lines" << std::endl;
 
       for (int i = 0; i < task_queue_size; i++) {
-        feedRawData(local_task_queue[i].c_str());
-        //train_fm_flattern();
-        train();
+        solver->feedSample(local_task_queue[i].c_str());
+        // train_fm_flattern(y, logit);
+        solver->train(y, logit);
+        eval.add(y, logit);
       }
 
       local_task_queue.clear();
       counter_for_evalution += task_queue_size;
       if (counter_for_evalution >= n_sample_per_output) {
         counter_for_evalution = 0;
-        DumpEvalInfo();
+        eval.output(task_name_.c_str());
       }
     } while (!stop_flag);
   }
@@ -106,29 +103,38 @@ class FTRLLearner {
     string line_buff;
     int sleep_seconds = 0;
     const bool verbose_debug = train_opt.verbose > 1;
+    int y;
+    real_t logit;
     do {
       sleep(2);
       sleep_seconds += 2;
-      if (stop_flag) break;
-      else if (sleep_seconds < train_opt.time_interval_of_validation) continue;
-      else sleep_seconds = 0;
-      if (verbose_debug) std::cout << "validation thread begin predict... " << std::endl;
+      if (stop_flag)
+        break;
+      else if (sleep_seconds < train_opt.time_interval_of_validation)
+        continue;
+      else
+        sleep_seconds = 0;
+      if (verbose_debug)
+        std::cout << "validation thread begin predict... " << std::endl;
 
       while (std::getline(input_stream, line_buff)) {
-        feedRawData(line_buff.c_str());
-        //train_fm_flattern(true);
-         train(true);
+        solver->feedSample(line_buff.c_str());
+        // solver->train_fm_flattern(y, logit, true);
+        solver->train(y, logit, true);
+        eval.add(y, logit);
       }
-      DumpEvalInfo();
+      eval.output(task_name_.c_str());
       input_stream.clear();
       input_stream.seekg(0);
     } while (!stop_flag);
     // 训练完成后再最后跑一遍测试集
     while (std::getline(input_stream, line_buff)) {
-      feedRawData(line_buff.c_str());
-      //train_fm_flattern(true);
-         train(true);
+      solver->feedSample(line_buff.c_str());
+      // solver->train_fm_flattern(true);
+      solver->train(y, logit, true);
+      eval.add(y, logit);
     }
-    DumpEvalInfo();
+    eval.output(task_name_.c_str());
   }
+  ISolver * solver;
 };

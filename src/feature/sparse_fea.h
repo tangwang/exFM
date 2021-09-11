@@ -14,7 +14,7 @@ class SparseFeaConfig : public CommonFeaConfig {
   int default_value;
   int use_id_mapping;
   bool use_hash;
-  mutable shared_ptr<ParamContainer> param_container;
+  mutable shared_ptr<FtrlParamContainer> ftrl_param;
   mutable vector<Mutex_t> mutexes;
   int mutex_nums;
   Mutex_t* GetMutexByFeaID(feaid_t id) const {
@@ -62,7 +62,7 @@ class SparseFeaContext : public CommonFeaContext {
   void forward(vector<ParamContext>& forward_params);
   void backward();
 
-  int feedRawData(const char* line, vector<ParamContext>& forward_params,
+  int feedSample(const char* line, vector<ParamContext>& forward_params,
                   vector<ParamContext>& backward_params);
 
   SparseFeaContext(const SparseFeaConfig& cfg);

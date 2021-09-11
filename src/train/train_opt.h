@@ -32,19 +32,6 @@ class TrainOption {
   std::string model_number_type;
   int epoch;
 
-  const double init_mean = 0.0;
-  double init_stdev;
-
-  double w_alpha;
-  double w_beta;
-  double l1_reg_w;
-  double l2_reg_w;
-
-  double v_alpha;
-  double v_beta;
-  double l1_reg_V;
-  double l2_reg_V;
-
   int factor_num;
 
   int threads_num;
@@ -66,6 +53,46 @@ class TrainOption {
   const string fea_type_dense = "dense_features";
   const string fea_type_sparse = "sparse_features";
   const string fea_type_varlen_sparse = "varlen_sparse_features";
+
+  ///////////////////////////////////////////////////////////
+  // FTRL solver
+  std::string solver;
+
+  ///////////////////////////////////////////////////////////
+  // FTRL params
+  struct FtrlParam {
+    const double init_mean = 0.0;
+    double init_stdev;
+    double w_alpha;
+    double w_beta;
+    double l1_reg_w;
+    double l2_reg_w;
+    double v_alpha;
+    double v_beta;
+    double l1_reg_V;
+    double l2_reg_V;
+  } ftrl;
+
+  ///////////////////////////////////////////////////////////
+  // adam params
+  struct AdamParam {
+    const double stepSize = 0.001;
+    const size_t batchSize = 32;
+    const double beta1 = 0.9;
+    const double beta2 = 0.999;
+    const double eps = 1e-8;
+    const size_t maxIterations = 100000;
+    const double tolerance = 1e-5;
+    const bool shuffle = true;
+    const bool resetPolicy = true;
+    const bool exactObjective = false;
+  } adam;
+
+  ///////////////////////////////////////////////////////////
+  // SGD params
+  struct SgdParam {
+    double step_size;
+  } sgd;
 
 private:
   char parse_seperator_chars(const char* param) const {

@@ -7,7 +7,10 @@
 
 class Evalution {
  public:
-  Evalution() { stopwatch.start(); }
+  Evalution() {
+    total_samples_processed = tn = fp = fn = tp = 0;
+    stopwatch.start();
+  }
   ~Evalution() {}
 
   size_t size() const { return label_prob_list.size(); }

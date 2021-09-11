@@ -9,7 +9,7 @@ class DenseFeaConfig : public CommonFeaConfig {
   real_t min;
   real_t max;
   real_t default_value;
-  mutable shared_ptr<ParamContainer> param_container;
+  mutable shared_ptr<FtrlParamContainer> ftrl_param;
   mutable vector<Mutex_t> mutexes;
   Mutex_t * GetMutexByBucketID(int bucket_id) const {
     return &mutexes[bucket_id];
@@ -23,7 +23,7 @@ class DenseFeaConfig : public CommonFeaConfig {
   // 以下3个vector，长度一致，按位置一一对应
   vector<real_t> all_splits;                        // 分隔值
   vector<vector<feaid_t>> fea_ids_of_each_buckets;  // 分隔值对应的onehot ID列表
-  vector<vector<FTRLParamUnit *>>
+  vector<vector<FtrlParamUnit *>>
       fea_params_of_each_buckets;  // 分隔值对应的onehot ID列表 所对应的参数位置
 
   const vector<feaid_t> &get_fea_ids(real_t x) const {
@@ -37,8 +37,8 @@ class DenseFeaConfig : public CommonFeaConfig {
     /* gdb debug
      p fea_params_of_each_buckets[bucket_id]
      拿到param地址后：
-     p (*(FTRLParamUnit *)0x6c8138)
-     p (*(FTRLParamUnit *)0x6c8138).buff@24
+     p (*(FtrlParamUnit *)0x6c8138)
+     p (*(FtrlParamUnit *)0x6c8138).buff@24
      */
     return fea_ids_of_each_buckets[bucket_id];
   }
@@ -82,11 +82,11 @@ void from_json(const json &j, DenseFeaConfig &p);
 class DenseFeaContext : public CommonFeaContext {
  public:
   real_t orig_x;
-  const vector<FTRLParamUnit *> *fea_params;
+  const vector<FtrlParamUnit *> *fea_params;
 
   const DenseFeaConfig &cfg_;
 
-  int feedRawData(const char *line, vector<ParamContext> & forward_params, vector<ParamContext> & backward_params);
+  int feedSample(const char *line, vector<ParamContext> & forward_params, vector<ParamContext> & backward_params);
 
   bool valid() const {
     // TODO 暂时只支持离散特征

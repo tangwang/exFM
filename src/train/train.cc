@@ -2,11 +2,10 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #include "feature/fea_manager.h"
-#include "ftrl/ftrl_learner.h"
-#include "ftrl/param_container.h"
-#include "ftrl/train_opt.h"
+#include "train/train_worker.h"
+#include "ftrl/ftrl_solver.h"
 
-int feed_data_to_learners(vector<FTRLLearner *> &learners,
+int train_dispatcher(vector<TrainWorker *> &sovers,
                           std::istream *input_stream, long run_sample_num) {
   string input_buff;
   long i = run_sample_num;
@@ -14,17 +13,17 @@ int feed_data_to_learners(vector<FTRLLearner *> &learners,
   for (; i != 0 && std::getline(*input_stream, input_buff); --i) {
     int max_retry_times = train_opt.threads_num;
     for (; max_retry_times != 0; --max_retry_times) {
-      if (learners[(++task_id_to_feed) % learners.size()]->TryPush(input_buff))
+      if (sovers[(++task_id_to_feed) % sovers.size()]->TryPush(input_buff))
         break;
     }
     if (max_retry_times == 0) {
-      learners[(++task_id_to_feed) % learners.size()]->WaitAndPush(input_buff);
+      sovers[(++task_id_to_feed) % sovers.size()]->WaitAndPush(input_buff);
     }
   }
   return run_sample_num - i;
 }
 
-void feed_data_to_learners(vector<FTRLLearner *> &learners,
+void train_dispatcher(vector<TrainWorker *> &sovers,
                            std::istream *input_stream) {
   string input_buff;
   int task_id_to_feed = 0;
@@ -33,16 +32,30 @@ void feed_data_to_learners(vector<FTRLLearner *> &learners,
 #if 1  // TODO check perfermance
     for (;
          max_retry_times != 0 &&
-         !learners[(++task_id_to_feed) % learners.size()]->TryPush(input_buff);
+         !sovers[(++task_id_to_feed) % sovers.size()]->TryPush(input_buff);
          --max_retry_times)
       ;
 
     if (max_retry_times == 0) {
-      learners[(++task_id_to_feed) % learners.size()]->WaitAndPush(input_buff);
+      sovers[(++task_id_to_feed) % sovers.size()]->WaitAndPush(input_buff);
     }
 #else
-    learners[(++task_id_to_feed) % learners.size()]->WaitAndPush(input_buff);
+    sovers[(++task_id_to_feed) % sovers.size()]->WaitAndPush(input_buff);
 #endif
+  }
+}
+
+ISolver * CreateSover(const FeaManager &fea_manager) {
+  if (train_opt.solver == "ftrl") {
+    return new FTRLSolver(fea_manager);
+  } else if (train_opt.solver == "sgd") {
+    // TODO
+    return NULL;
+  } else if (train_opt.solver == "adam") {
+    // TODO
+    return NULL;
+  } else {
+    return NULL;
   }
 }
 
@@ -54,7 +67,7 @@ int main(int argc, char *argv[]) {
     return -1; 
   }
 
-  FTRLParamUnit::static_init();
+  FtrlParamUnit::static_init();
 
   FeaManager fea_manager;
   assert(!train_opt.feature_config_path.empty());
@@ -62,15 +75,17 @@ int main(int argc, char *argv[]) {
   fea_manager.parse_fea_config(train_opt.feature_config_path);
   fea_manager.initModelParams(train_opt.verbose > 0);
 
-  vector<FTRLLearner *> learners;
+  vector<TrainWorker *> sovers;
+
   for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
     std::cout << "start train thread " << thread_id << "..." << endl;
-    FTRLLearner *p = new FTRLLearner(fea_manager, "train", thread_id);
+    TrainWorker *p = new TrainWorker("train", thread_id);
+    p->RegisteSolver(CreateSover(fea_manager));
     p->StartTrainLoop();
-    learners.push_back(p);
+    sovers.push_back(p);
   }
 
-  FTRLLearner *validator = NULL;
+  TrainWorker *validator = NULL;
 
   std::istream *input_stream = NULL;
   std::istream *input_file_stream = NULL;
@@ -95,13 +110,14 @@ int main(int argc, char *argv[]) {
       return -1;
     }
 
-    validator = new FTRLLearner(fea_manager, "valid", 0);
+    validator = new TrainWorker("valid", 0);
+    validator->RegisteSolver(CreateSover(fea_manager));
     validator->StartValidationLoop(valid_stream);
     std::cout << "start validation thread " << "..." << endl;
   }
 
   for (int i = 0; i < train_opt.epoch; i++) {
-    feed_data_to_learners(learners, input_stream);
+    train_dispatcher(sovers, input_stream);
     if (input_file_stream) {
       input_file_stream->clear();
       input_file_stream->seekg(0);
@@ -113,7 +129,7 @@ int main(int argc, char *argv[]) {
 
   // 分发完后，结束所有线程
   sleep(5);
-  for (auto p : learners) {
+  for (auto p : sovers) {
     p->Stop();
     p->Join();
     delete p;

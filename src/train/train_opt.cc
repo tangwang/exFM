@@ -1,7 +1,7 @@
 /**
  *  Copyright (c) 2021 by exFM Contributors
  */
-#include "ftrl/train_opt.h"
+#include "train/train_opt.h"
 
 TrainOption train_opt;
 
@@ -20,7 +20,7 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("valid", valid_path, string(), "validation data path");
   arg_parser.parse_arg("valid_interval", time_interval_of_validation,
                    60, "how many seconds between two validition");
-                   
+
   arg_parser.parse_arg("epoch", epoch, 1, "train epochs");
 
 
@@ -57,21 +57,31 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
                    "specify one character(or str \"blank\",\"tab\") for k_v_seperator in line of feature mapping dict");
   fea_id_mapping_dict_seperator = parse_seperator_chars(temp_split_param);
 
+//////////////////////
+// solver
+  arg_parser.parse_arg("solver", solver, string("ftrl"), "solver", false);
 
-  // FTRL hyper params
-  arg_parser.parse_arg("init_stdev", init_stdev, 0.1,
-                   "stdev for initialization of 2-way factors");
-  arg_parser.parse_arg("w_alpha", w_alpha, 0.05, "FTRL hyper-param");
-  arg_parser.parse_arg("w_beta", w_beta, 1.0, "FTRL hyper-param");
-  arg_parser.parse_arg("l1_reg_w", l1_reg_w, 0.1, "FTRL hyper-param");
-  arg_parser.parse_arg("l2_reg_w", l2_reg_w, 5.0, "FTRL hyper-param");
-  arg_parser.parse_arg("v_alpha", v_alpha, 0.05, "FTRL hyper-param");
-  arg_parser.parse_arg("v_beta", v_beta, 1.0, "FTRL hyper-param");
-  arg_parser.parse_arg("l1_reg_V", l1_reg_V, 0.1, "FTRL hyper-param");
-  arg_parser.parse_arg("l2_reg_V", l2_reg_V, 5.0, "FTRL hyper-param");
+  if (solver == "ftrl") {
+    // FTRL hyper params
+    arg_parser.parse_arg("init_stdev", ftrl.init_stdev, 0.1,
+                    "stdev for initialization of 2-way factors");
+    arg_parser.parse_arg("w_alpha", ftrl.w_alpha, 0.05, "FTRL hyper-param");
+    arg_parser.parse_arg("w_beta", ftrl.w_beta, 1.0, "FTRL hyper-param");
+    arg_parser.parse_arg("l1_reg_w", ftrl.l1_reg_w, 0.1, "FTRL hyper-param");
+    arg_parser.parse_arg("l2_reg_w", ftrl.l2_reg_w, 5.0, "FTRL hyper-param");
+    arg_parser.parse_arg("v_alpha", ftrl.v_alpha, 0.05, "FTRL hyper-param");
+    arg_parser.parse_arg("v_beta", ftrl.v_beta, 1.0, "FTRL hyper-param");
+    arg_parser.parse_arg("l1_reg_V", ftrl.l1_reg_V, 0.1, "FTRL hyper-param");
+    arg_parser.parse_arg("l2_reg_V", ftrl.l2_reg_V, 5.0, "FTRL hyper-param");
+  } else if (solver == "sgd") {
+
+  } else if (solver == "adam") {
+    
+  }
+
   arg_parser.parse_arg("verbose", verbose, 1,
-                   "0: only trainning logs. 1: open feature config messages, 2 "
-                   ": open debug messages");
+                  "0: only trainning logs. 1: open feature config messages, 2 "
+                  ": open debug messages");
 
   print_help = arg_parser.parse_option("h", "print help message");
 

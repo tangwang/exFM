@@ -18,7 +18,7 @@ int SparseFeaConfig::initParams() {
   // TODO 暂时设大一点，后面AUC效果没问题了去掉这一行
   vocab_size = max_id + 2;
 
-  param_container = std::make_shared<ParamContainer>(vocab_size);
+  ftrl_param = std::make_shared<FtrlParamContainer>(vocab_size);
 
   if (use_id_mapping != 0 && !id_mapping_dict_path.empty()) {
     // assert(access(id_mapping_dict_path.c_str(), F_OK) != -1 &&
@@ -71,7 +71,7 @@ SparseFeaContext::~SparseFeaContext() {}
 
 void SparseFeaContext::forward(vector<ParamContext> &forward_params) {}
 
-int SparseFeaContext::feedRawData(const char *line,
+int SparseFeaContext::feedSample(const char *line,
                                   vector<ParamContext> &forward_params,
                                   vector<ParamContext> &backward_params) {
   cfg_.parseID(line, orig_fea_id, cfg_.default_value);
@@ -81,10 +81,10 @@ int SparseFeaContext::feedRawData(const char *line,
   if (!valid()) {
     return -1;
   }
-  FTRLParamUnit *fea_param = cfg_.param_container->get(fea_id);
+  FtrlParamUnit *fea_param = cfg_.ftrl_param->get(fea_id);
   Mutex_t *param_mutex = cfg_.GetMutexByFeaID(fea_id);
   backward_params.push_back(ParamContext(fea_param, param_mutex));
-  FTRLParamUnit *forward_param = forward_param_container->get();
+  FtrlParamUnit *forward_param = forward_param_container->get();
   param_mutex->lock();
   *forward_param = *fea_param;
   param_mutex->unlock();
@@ -96,9 +96,9 @@ int SparseFeaContext::feedRawData(const char *line,
 }
 
 void SparseFeaContext::backward() {
-  FTRLParamUnit *p = backward_param_container->get();
+  FtrlParamUnit *p = backward_param_container->get();
 
-  FTRLParamUnit *fea_param = cfg_.param_container->get(fea_id);
+  FtrlParamUnit *fea_param = cfg_.ftrl_param->get(fea_id);
 
   fea_param->plus_params(*p);
 }

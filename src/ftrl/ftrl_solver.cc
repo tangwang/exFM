@@ -1,21 +1,13 @@
 /**
  *  Copyright (c) 2021 by exFM Contributors
  */
-#include "ftrl/ftrl_learner.h"
+#include "ftrl/ftrl_solver.h"
 
-#include "feature/fea_manager.h"
-
-FTRLLearner::FTRLLearner(const FeaManager &fea_manager, const char *task_name,
-                         int task_id)
-    : fea_manager_(fea_manager),
+FTRLSolver::FTRLSolver(const FeaManager &fea_manager)
+    : ISolver(fea_manager),
       sum(train_opt.factor_num),
       bias_container(1),
-      stop_flag(false),
-      task_id_(task_id),
-      task_queue(train_opt.task_queue_size),
       USE_BIAS(false) {
-  task_name_ = string(task_name) + string("_") + std::to_string(task_id);
-
   for (auto &iter : fea_manager_.dense_feas) {
     dense_feas.push_back(std::move(DenseFeaContext(iter)));
   }
@@ -27,9 +19,9 @@ FTRLLearner::FTRLLearner(const FeaManager &fea_manager, const char *task_name,
   }
 }
 
-FTRLLearner::~FTRLLearner() {}
+FTRLSolver::~FTRLSolver() {}
 
-int FTRLLearner::feedRawData(const char *line) {
+int FTRLSolver::feedSample(const char *line) {
   // label统一为1， -1的形式
   // y = atoi(line) > 0 ? 1 : -1;
   if (UNLIKELY(*line == 0)) {
@@ -44,30 +36,31 @@ int FTRLLearner::feedRawData(const char *line) {
   forward_params.clear();
   backward_params.clear();
   for (auto &iter : dense_feas) {
-    iter.feedRawData(line, forward_params, backward_params);
+    iter.feedSample(line, forward_params, backward_params);
   }
   for (auto &iter : sparse_feas) {
-    iter.feedRawData(line, forward_params, backward_params);
+    iter.feedSample(line, forward_params, backward_params);
   }
   for (auto &iter : varlen_feas) {
-    iter.feedRawData(line, forward_params, backward_params);
+    iter.feedSample(line, forward_params, backward_params);
   }
   return 0;
 }
 
-void FTRLLearner::train_fm_flattern(bool only_predict) {
+void FTRLSolver::train_fm_flattern(int &out_y, real_t &out_logit,
+                                   bool only_predict) {
   real_t logit = 0.0;
   real_t sum_sqr = 0.0;
   real_t d = 0.0;
   real_t mult = 0.0;
 
   if (USE_BIAS) {
-    FTRLParamUnit *bias = bias_container.get(0);
+    FtrlParamUnit *bias = bias_container.get(0);
     forward_params.push_back(bias);
     backward_params.push_back(bias);
   }
   for (auto param_context : backward_params) {
-    FTRLParamUnit *backward_param = param_context.param;
+    FtrlParamUnit *backward_param = param_context.param;
     param_context.mutex->lock();
     backward_param->calc_param();
     logit += backward_param->w;
@@ -77,7 +70,7 @@ void FTRLLearner::train_fm_flattern(bool only_predict) {
   for (int f = 0; f < train_opt.factor_num; ++f) {
     sum[f] = sum_sqr = 0.0;
     for (auto param_context : backward_params) {
-      FTRLParamUnit *backward_param = param_context.param;
+      FtrlParamUnit *backward_param = param_context.param;
       param_context.mutex->lock();
       d = param_context.param->v(f);
       sum[f] += d;
@@ -91,7 +84,8 @@ void FTRLLearner::train_fm_flattern(bool only_predict) {
     //     logit, d, sum[f], sum_sqr );
   }
   logit = logit;
-  eval.add(y, logit);
+  out_y = y;
+  out_logit = logit;
   if (only_predict) {
     return;
   }
@@ -103,11 +97,11 @@ void FTRLLearner::train_fm_flattern(bool only_predict) {
   //   printf(" BBBBBBBBBBBB %f  %f  %f  %f  %f  %f \n", mult, logit, sum[1],
   //          sum[2], sum[3], sum_sqr);
   for (auto param_context : backward_params) {
-    FTRLParamUnit *backward_param = param_context.param;
+    FtrlParamUnit *backward_param = param_context.param;
     param_context.mutex->lock();
     real_t xi = 1.0;
     real_t wg = mult * xi;
-    real_t ws = 1 / train_opt.w_alpha *
+    real_t ws = 1 / train_opt.ftrl.w_alpha *
                 (sqrt(backward_param->wn + wg * wg) - sqrt(backward_param->wn));
 
     backward_param->wz += wg - ws * backward_param->w;
@@ -118,7 +112,8 @@ void FTRLLearner::train_fm_flattern(bool only_predict) {
       real_t &vnf = backward_param->multabel_vn(f);
       real_t &vzf = backward_param->multabel_vz(f);
       real_t vgf = mult * (sum[f] * xi - vf * xi * xi);
-      real_t vsf = 1 / train_opt.v_alpha * (sqrt(vnf + vgf * vgf) - sqrt(vnf));
+      real_t vsf =
+          1 / train_opt.ftrl.v_alpha * (sqrt(vnf + vgf * vgf) - sqrt(vnf));
 
       vzf += vgf - vsf * vf;
       vnf += vgf * vgf;
@@ -131,14 +126,14 @@ void FTRLLearner::train_fm_flattern(bool only_predict) {
   }
 }
 
-void FTRLLearner::train(bool only_predict) {
+void FTRLSolver::train(int &out_y, real_t &out_logit, bool only_predict) {
   real_t logit = 0.0;
   real_t sum_sqr = 0.0;
   real_t d = 0.0;
   real_t mult = 0.0;
 
   if (USE_BIAS) {
-    FTRLParamUnit *bias = bias_container.get(0);
+    FtrlParamUnit *bias = bias_container.get(0);
     forward_params.push_back(bias);
     backward_params.push_back(bias);
   }
@@ -160,7 +155,8 @@ void FTRLLearner::train(bool only_predict) {
     //     logit, d, sum[f], sum_sqr );
   }
   logit = logit;
-  eval.add(y, logit);
+  out_y = y;
+  out_logit = logit;
   if (only_predict) {
     return;
   }
@@ -172,11 +168,11 @@ void FTRLLearner::train(bool only_predict) {
   //   printf(" BBBBBBBBBBBB %f  %f  %f  %f  %f  %f \n", mult, logit, sum[1],
   //          sum[2], sum[3], sum_sqr);
   for (auto param_context : backward_params) {
-    FTRLParamUnit *backward_param = param_context.param;
+    FtrlParamUnit *backward_param = param_context.param;
     param_context.mutex->lock();
     real_t xi = 1.0;
     real_t wg = mult * xi;
-    real_t ws = 1 / train_opt.w_alpha *
+    real_t ws = 1 / train_opt.ftrl.w_alpha *
                 (sqrt(backward_param->wn + wg * wg) - sqrt(backward_param->wn));
 
     backward_param->wz += wg - ws * backward_param->w;
@@ -187,7 +183,8 @@ void FTRLLearner::train(bool only_predict) {
       real_t &vnf = backward_param->multabel_vn(f);
       real_t &vzf = backward_param->multabel_vz(f);
       real_t vgf = mult * (sum[f] * xi - vf * xi * xi);
-      real_t vsf = 1 / train_opt.v_alpha * (sqrt(vnf + vgf * vgf) - sqrt(vnf));
+      real_t vsf =
+          1 / train_opt.ftrl.v_alpha * (sqrt(vnf + vgf * vgf) - sqrt(vnf));
 
       vzf += vgf - vsf * vf;
       vnf += vgf * vgf;
