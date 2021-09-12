@@ -40,7 +40,7 @@ int FTRLSolver::feedSample(const char *line) {
   }
   for (auto &iter : sparse_feas) {
     iter.feedSample(line, forward_params, backward_params);
-  }
+  }   
   for (auto &iter : varlen_feas) {
     iter.feedSample(line, forward_params, backward_params);
   }

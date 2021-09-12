@@ -74,7 +74,7 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
     arg_parser.parse_arg("l1_reg_V", ftrl.l1_reg_V, 0.1, "FTRL hyper-param");
     arg_parser.parse_arg("l2_reg_V", ftrl.l2_reg_V, 5.0, "FTRL hyper-param");
   } else if (solver == "sgd") {
-
+    arg_parser.parse_arg("step_size", sgd.step_size, 0.001, "FTRL hyper-param");
   } else if (solver == "adam") {
     
   }

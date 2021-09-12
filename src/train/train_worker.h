@@ -26,8 +26,6 @@ class TrainWorker {
     }
   }
 
-  // 注册后，将负责_solver的释放
-  // 这里经过测试，使用虚函数与使用模板做编译器多态，性能没有差别。为简化代码，这里使用ISover接口，注册solver的实现
   void RegisteSolver(ISolver * _solver) {
     if (solver) {
       delete solver;
