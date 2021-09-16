@@ -43,7 +43,7 @@ class VarlenSparseFeaContext : public CommonFeaContext {
   vector<feaid_t> orig_fea_ids;
   //以下两个vector每个元素一一对应。 TODO ， 后面可以去掉fea_ids，只保留fea_params
   vector<feaid_t> fea_ids;
-  vector<FtrlParamUnit *> fea_params;
+  vector<ParamUnitHead *> fea_params;
 
   void forward(vector<ParamContext> &forward_params);
   void backward();

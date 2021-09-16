@@ -2,6 +2,7 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #include "feature/sparse_fea.h"
+#include "solver/solver_factory.h"
 
 #include <math.h>
 
@@ -18,7 +19,7 @@ int SparseFeaConfig::initParams() {
   // TODO 暂时设大一点，后面AUC效果没问题了去掉这一行
   vocab_size = max_id + 2;
 
-  ftrl_param = std::make_shared<FtrlParamContainer>(vocab_size);
+  param_container = creat_param_container(vocab_size);
 
   if (use_id_mapping != 0 && !id_mapping_dict_path.empty()) {
     // assert(access(id_mapping_dict_path.c_str(), F_OK) != -1 &&
@@ -81,24 +82,22 @@ int SparseFeaContext::feedSample(const char *line,
   if (!valid()) {
     return -1;
   }
-  FtrlParamUnit *fea_param = cfg_.ftrl_param->get(fea_id);
+  ParamUnitHead *fea_param = cfg_.param_container->get(fea_id);
   Mutex_t *param_mutex = cfg_.GetMutexByFeaID(fea_id);
-  backward_params.push_back(ParamContext(fea_param, param_mutex));
-  FtrlParamUnit *forward_param = forward_param_container->get();
+  backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex));
+  ParamUnitHead *forward_param = forward_param_container->get();
   param_mutex->lock();
-  *forward_param = *fea_param;
+  cfg_.param_container->cp_param(forward_param, fea_param);
   param_mutex->unlock();
 
-  forward_param->calc_param();
-  forward_params.push_back(ParamContext(forward_param, NULL));
+  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL));
 
   return 0;
 }
 
 void SparseFeaContext::backward() {
-  FtrlParamUnit *p = backward_param_container->get();
+  // ParamUnitHead *p = backward_param_container->get();
 
-  FtrlParamUnit *fea_param = cfg_.ftrl_param->get(fea_id);
-
-  fea_param->plus_params(*p);
+  // ParamUnitHead *fea_param = cfg_.param_container->get(fea_id);
+  // cfg_.sparse_cfg.param_container->add_weights_to(p, fea_param);
 }

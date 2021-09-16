@@ -61,23 +61,25 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 // solver
   arg_parser.parse_arg("solver", solver, string("ftrl"), "solver", false);
 
-  if (solver == "ftrl") {
-    // FTRL hyper params
-    arg_parser.parse_arg("init_stdev", ftrl.init_stdev, 0.1,
-                    "stdev for initialization of 2-way factors");
-    arg_parser.parse_arg("w_alpha", ftrl.w_alpha, 0.05, "FTRL hyper-param");
-    arg_parser.parse_arg("w_beta", ftrl.w_beta, 1.0, "FTRL hyper-param");
-    arg_parser.parse_arg("l1_reg_w", ftrl.l1_reg_w, 0.1, "FTRL hyper-param");
-    arg_parser.parse_arg("l2_reg_w", ftrl.l2_reg_w, 5.0, "FTRL hyper-param");
-    arg_parser.parse_arg("v_alpha", ftrl.v_alpha, 0.05, "FTRL hyper-param");
-    arg_parser.parse_arg("v_beta", ftrl.v_beta, 1.0, "FTRL hyper-param");
-    arg_parser.parse_arg("l1_reg_V", ftrl.l1_reg_V, 0.1, "FTRL hyper-param");
-    arg_parser.parse_arg("l2_reg_V", ftrl.l2_reg_V, 5.0, "FTRL hyper-param");
-  } else if (solver == "sgd") {
-    arg_parser.parse_arg("step_size", sgd.step_size, 0.001, "FTRL hyper-param");
-  } else if (solver == "adam") {
-    
-  }
+  // FTRL hyper params
+  arg_parser.parse_arg("ftrl.init_stdev", ftrl.init_stdev, 0.001,
+                  "stdev for initialization of 2-way factors");
+  arg_parser.parse_arg("ftrl.w_alpha", ftrl.w_alpha, 0.01, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.w_beta", ftrl.w_beta, 1.0, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.l1_reg_w", ftrl.l1_reg_w, 0.05, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.l2_reg_w", ftrl.l2_reg_w, 5.0, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.v_alpha", ftrl.v_alpha, 0.01, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.v_beta", ftrl.v_beta, 1.0, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.l1_reg_V", ftrl.l1_reg_V, 0.05, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.l2_reg_V", ftrl.l2_reg_V, 5.0, "FTRL hyper-param");
+
+  // SGD hyper params
+  arg_parser.parse_arg("sgd.step_size", sgd.step_size, 0.001, "SGD hyper-param");
+
+  // Adam hyper params
+  arg_parser.parse_arg("adam.step_size", adam.step_size, 0.001, "Adam hyper-param");
+  arg_parser.parse_arg("adam.beta1", adam.beta1, 0.9, "Adam hyper-param");
+  arg_parser.parse_arg("adam.beta2", adam.beta2, 0.999, "Adam hyper-param");
 
   arg_parser.parse_arg("verbose", verbose, 1,
                   "0: only trainning logs. 1: open feature config messages, 2 "

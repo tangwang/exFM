@@ -6,7 +6,6 @@
 #include "feature/sparse_fea.h"
 #include "feature/varlen_sparse_fea.h"
 
-
 class FeaManager {
  public:
   vector<DenseFeaConfig> dense_feas;

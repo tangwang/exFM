@@ -2,7 +2,8 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "ftrl/ftrl_param.h"
+// #include "solver/solver_factory.h"
+#include "solver/parammeter_interface.h"
 #include "nlohmann/json.hpp"
 #include "synchronize/mutex_adapter.h"
 #include "utils/Hash.h"
@@ -18,15 +19,6 @@ enum SeqPoolType {
   SeqPoolTypeMAX = 2,
   SeqPoolTypeFlatern = 3,
   SeqPoolTypeGRU = 4,
-};
-
-struct ParamContext {
-  ParamContext(FtrlParamUnit *_param = NULL, Mutex_t *_mutex = NULL,
-               real_t _x = 0.0)
-      : param(_param), mutex(_mutex), x(_x) {}
-  FtrlParamUnit *param;
-  Mutex_t *mutex;
-  real_t x;
 };
 
 class CommonFeaConfig {
@@ -77,9 +69,9 @@ class CommonFeaConfig {
 
 class CommonFeaContext {
  public:
-  shared_ptr<FtrlParamContainer> forward_param_container;
-  shared_ptr<FtrlParamContainer> backward_param_container;
-  shared_ptr<FtrlParamContainer> local_buff_container;
+  shared_ptr<ParamContainerInterface> forward_param_container;
+  shared_ptr<ParamContainerInterface> backward_param_container;
+  shared_ptr<ParamContainerInterface> local_buff_container;
 
   virtual int feedSample(const char *line,
                           vector<ParamContext> &forward_params,
@@ -90,11 +82,7 @@ class CommonFeaContext {
   virtual void forward(vector<ParamContext> &forward_params) = 0;
   virtual void backward() = 0;
 
-  CommonFeaContext()
-      : forward_param_container(new FtrlParamContainer(1)),
-        backward_param_container(new FtrlParamContainer(1)),
-        local_buff_container(new FtrlParamContainer(1))
-  {}
+  CommonFeaContext();
 
   virtual ~CommonFeaContext() {}
 };

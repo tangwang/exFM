@@ -43,6 +43,9 @@ class TrainOption {
   bool print_help;
   bool disable_feaid_mapping;
 
+  const bool shuffle = false; // TODO  shuffle is not implement yet
+  const size_t batchSize = 32;// TODO  batchSize is not implement yet
+
   // train data format
   char fea_seperator;
   char fea_kv_seperator;
@@ -61,29 +64,26 @@ class TrainOption {
   ///////////////////////////////////////////////////////////
   // FTRL params
   struct FtrlParam {
-    const double init_mean = 0.0;
-    double init_stdev;
-    double w_alpha;
-    double w_beta;
-    double l1_reg_w;
-    double l2_reg_w;
-    double v_alpha;
-    double v_beta;
-    double l1_reg_V;
-    double l2_reg_V;
+    const real_t init_mean = 0.0;
+    real_t init_stdev;
+    real_t w_alpha;
+    real_t w_beta;
+    real_t l1_reg_w;
+    real_t l2_reg_w;
+    real_t v_alpha;
+    real_t v_beta;
+    real_t l1_reg_V;
+    real_t l2_reg_V;
   } ftrl;
 
   ///////////////////////////////////////////////////////////
   // adam params
   struct AdamParam {
-    const double stepSize = 0.001;
-    const size_t batchSize = 32;
-    const double beta1 = 0.9;
-    const double beta2 = 0.999;
-    const double eps = 1e-8;
-    const size_t maxIterations = 100000;
-    const double tolerance = 1e-5;
-    const bool shuffle = true;
+    real_t step_size;
+    real_t beta1;
+    real_t beta2;
+    const real_t eps = 1e-8;
+    const real_t tolerance = 1e-5;
     const bool resetPolicy = true;
     const bool exactObjective = false;
   } adam;
@@ -91,7 +91,7 @@ class TrainOption {
   ///////////////////////////////////////////////////////////
   // SGD params
   struct SgdParam {
-    double step_size;
+    real_t step_size;
   } sgd;
 
 private:

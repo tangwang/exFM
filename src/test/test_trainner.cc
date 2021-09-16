@@ -3,7 +3,7 @@
 #include "feature/sparse_fea.h"
 #include "feature/varlen_sparse_fea.h"
 #include "train/train_worker.h"
-#include "ftrl/ftrl_param.h"
+#include "solver/ftrl/ftrl_param.h"
 #include "utils/base.h"
 
 int main(int argc, char *argv[]) {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   fea_manager.parse_fea_config("./config/fea.config");
   fea_manager.initModelParams(true);
 
-  FTRLSolver trainer(fea_manager, train_opt);
+  Solver trainer(fea_manager, train_opt);
 
   const static int MAX_LINE_BUFF = 10240;
   char line[MAX_LINE_BUFF];

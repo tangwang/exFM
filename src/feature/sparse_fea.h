@@ -9,12 +9,12 @@ using utils::Dict;
 
 class SparseFeaConfig : public CommonFeaConfig {
  public:
-  int vocab_size;
-  int max_id;
-  int default_value;
+  feaid_t vocab_size;
+  feaid_t max_id;
+  feaid_t default_value;
   int use_id_mapping;
   bool use_hash;
-  mutable shared_ptr<FtrlParamContainer> ftrl_param;
+  mutable shared_ptr<ParamContainerInterface> param_container;
   mutable vector<Mutex_t> mutexes;
   int mutex_nums;
   Mutex_t* GetMutexByFeaID(feaid_t id) const {

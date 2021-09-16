@@ -3,7 +3,11 @@
  */
 #include "feature/fea_manager.h"
 #include "train/train_worker.h"
-#include "ftrl/ftrl_solver.h"
+#include "solver/ftrl/ftrl_solver.h"
+#include "solver/solver_factory.h"
+#include "solver/ftrl/ftrl_solver.h"
+#include "solver/adam/adam_solver.h"
+#include "solver/sgd/sgd_solver.h"
 
 int train_dispatcher(vector<TrainWorker *> &sovers,
                           std::istream *input_stream, long run_sample_num) {
@@ -45,20 +49,6 @@ void train_dispatcher(vector<TrainWorker *> &sovers,
   }
 }
 
-ISolver * CreateSover(const FeaManager &fea_manager) {
-  if (train_opt.solver == "ftrl") {
-    return new FTRLSolver(fea_manager);
-  } else if (train_opt.solver == "sgd") {
-    // TODO
-    return NULL;
-  } else if (train_opt.solver == "adam") {
-    // TODO
-    return NULL;
-  } else {
-    return NULL;
-  }
-}
-
 int main(int argc, char *argv[]) {
   srand(time(NULL));
 
@@ -68,6 +58,7 @@ int main(int argc, char *argv[]) {
   }
 
   FtrlParamUnit::static_init();
+  AdamParamUnit::static_init();
 
   FeaManager fea_manager;
   assert(!train_opt.feature_config_path.empty());

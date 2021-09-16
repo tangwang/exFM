@@ -6,7 +6,7 @@
 #include <thread>
 #include "train/evalution.h"
 #include "utils/busy_consumer_queue.h"
-#include "train/solver_interface.h"
+#include "solver/base_solver.h"
 
 using std::thread;
 using utils::BusyConsumerQueue;
@@ -26,7 +26,7 @@ class TrainWorker {
     }
   }
 
-  void RegisteSolver(ISolver * _solver) {
+  void RegisteSolver(BaseSolver * _solver) {
     if (solver) {
       delete solver;
     }
@@ -118,7 +118,8 @@ class TrainWorker {
       while (std::getline(input_stream, line_buff)) {
         solver->feedSample(line_buff.c_str());
         // solver->train_fm_flattern(y, logit, true);
-        solver->train(y, logit, true);
+        logit = solver->predict();
+        y = solver->y;
         eval.add(y, logit);
       }
       eval.output(task_name_.c_str());
@@ -129,10 +130,11 @@ class TrainWorker {
     while (std::getline(input_stream, line_buff)) {
       solver->feedSample(line_buff.c_str());
       // solver->train_fm_flattern(true);
-      solver->train(y, logit, true);
+      logit = solver->predict();
+      y = solver->y;
       eval.add(y, logit);
     }
     eval.output(task_name_.c_str());
   }
-  ISolver * solver;
+  BaseSolver * solver;
 };

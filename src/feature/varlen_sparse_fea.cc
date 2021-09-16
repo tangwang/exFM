@@ -2,6 +2,7 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #include "feature/varlen_sparse_fea.h"
+#include "solver/solver_factory.h"
 
 VarlenSparseFeaConfig::VarlenSparseFeaConfig() {}
 
@@ -76,25 +77,25 @@ int VarlenSparseFeaContext::feedSample(const char *line,
     return -1;
   }
 
-  FtrlParamUnit *forward_param = forward_param_container->get();
-  FtrlParamUnit *locak_buff_param = local_buff_container->get();
-  forward_param->clear_weights();
+  ParamUnitHead *forward_param = forward_param_container->get();
+  ParamUnitHead *locak_buff_param = local_buff_container->get();
+  cfg_.sparse_cfg.param_container->clear_weights(forward_param);
+
   for (auto id : fea_ids) {
-    FtrlParamUnit *fea_param = cfg_.sparse_cfg.ftrl_param->get(id);
+    ParamUnitHead *fea_param = cfg_.sparse_cfg.param_container->get(id);
     Mutex_t *param_mutex = cfg_.sparse_cfg.GetMutexByFeaID(id);
 
     param_mutex->lock();
-    *locak_buff_param = *fea_param;
+    cfg_.sparse_cfg.param_container->cp_param(locak_buff_param, fea_param);
     param_mutex->unlock();
 
-    locak_buff_param->calc_param();
-    forward_param->plus_weights(*locak_buff_param);
+    cfg_.sparse_cfg.param_container->add_weights_to(locak_buff_param, forward_param);
 
     fea_params.push_back(fea_param);
-    backward_params.push_back(ParamContext(fea_param, param_mutex));
+    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), fea_param, param_mutex));
   }
 
-  forward_params.push_back(ParamContext(forward_param, NULL));
+  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), forward_param, NULL));
 
   return 0;
 }
@@ -102,10 +103,4 @@ int VarlenSparseFeaContext::feedSample(const char *line,
 void VarlenSparseFeaContext::forward(vector<ParamContext> &forward_params) {}
 
 void VarlenSparseFeaContext::backward() {
-  // TODO这个是错误的，  废弃
-  FtrlParamUnit *p = backward_param_container->get();
-
-  for (FtrlParamUnit *fea_param : fea_params) {
-    fea_param->plus_params(*p);
-  }
 }

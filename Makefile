@@ -2,28 +2,36 @@
 CUR_DIR=.
 
 DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
-	  ${wildcard  src/ftrl/*.h} \
+	  ${wildcard  src/solver/*.h} \
+	  ${wildcard  src/solver/ftrl/*.h} \
+	  ${wildcard  src/solver/adam/*.h} \
+	  ${wildcard  src/solver/sgd/*.h} \
 	  ${wildcard  src/utils/*.h} \
 	  ${wildcard  third_party/*.h} \
 	  ${wildcard  src/train/*.h} \
 
 SRC = src/feature/dense_fea.cc \
-      src/ftrl/ftrl_param.cc \
-      src/ftrl/ftrl_solver.cc \
+      src/feature/common_fea.cc \
       src/feature/sparse_fea.cc \
       src/feature/varlen_sparse_fea.cc \
       src/feature/fea_manager.cc \
       src/train/train_opt.cc \
       src/train/train.cc \
+      src/solver/solver_factory.cc \
+      src/solver/ftrl/ftrl_param.cc \
+      src/solver/adam/adam_param.cc \
+      src/solver/base_solver.cc \
+
 
 OBJ = ${patsubst %.cc, %.o, ${SRC}}
 
 all : bin/train
 
-CC = g++
+CC = g++ -fmax-errors=4
 LIB= -lpthread
 INC = -I./third_party  -I./src
-CCFLAGS = -g -std=c++11 -O3 -Wall ${INC}
+CCFLAGS = -g -std=c++11   ${INC}
+# CCFLAGS = -g -std=c++11 -O3 -Wall ${INC}
 
 bin/train: ${OBJ} 
 	-mkdir -p bin

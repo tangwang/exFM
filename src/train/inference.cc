@@ -3,7 +3,7 @@
  */
 #include "feature/fea_manager.h"
 #include "train/train_worker.h"
-#include "ftrl/ftrl_param.h"
+#include "solver/ftrl/ftrl_param.h"
 #include "train/train_opt.h"
 #include "train/evalution.h"
 
@@ -24,13 +24,12 @@ int main(int argc, char *argv[]) {
   fea_manager.parse_fea_config(train_opt.feature_config_path);
   fea_manager.initModelParams(true);
 
-  FTRLSolver * trainer = FTRLSolver::Create(fea_manager, train_opt);
+  Solver * trainer = Solver::Create(fea_manager, train_opt);
 
   const static int MAX_LINE_BUFF = 10240;
   char line[MAX_LINE_BUFF];
   size_t line_num = 0;
 
-  size_t n_sample_per_output = 10000;
   size_t time_interval_of_validation = 100000;
   Evalution train_eval;
   Evalution evaldata_eval;
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
     trainer->train(*train_context);
     train_eval.add(trainer->y, train_context->logit);
 
-    if (train_eval.size() == n_sample_per_output) {
+    if (train_eval.size() == train_opt.n_sample_per_output) {
       train_eval.output("train");
     }
     if (valid_stream && (processed_samples % time_interval_of_validation == 0)) {
@@ -85,6 +84,6 @@ int main(int argc, char *argv[]) {
   if (valid_stream != NULL) {
     delete valid_stream;
   }
-  FTRLSolver::Destroy(trainer);
+  Solver::Destroy(trainer);
   return 0;
 }

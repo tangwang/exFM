@@ -6,6 +6,7 @@
 #include <random>  // for sampling from distributions
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "utils/base.h"
 #include "utils/str_utils.h"
@@ -36,14 +37,14 @@ T norm1(T const *data, int len) {
  * \brief return l2 norm of a vector
  */
 template <typename T>
-double norm2(T const *data, int len) {
-  double norm = 0;
+T norm2(T const *data, int len) {
+  T norm = 0;
   for (int i = 0; i < len; ++i) norm += data[i] * data[i];
   return norm;
 }
 
 template <typename T>
-double norm2(const T &data) {
+T norm2(const T &data) {
   return norm2(data.data(), data.size());
 }
 
@@ -65,6 +66,30 @@ void CalcMeanAndStdev(const vector<value_type> &vec, value_type &mean,
     });
     stdev = sqrt(accum / (vec.size() - 1));
   }
+}
+
+// @return : if (a > 0) return b; else return -b;
+inline double sign_a_multiply_b(double a, double b) {
+  #if 0 // TODO check性能差异
+  if (a > 0) return b; else return -b;
+  #else
+  unsigned long *p = (unsigned long *)&a;
+  unsigned long bits_of_sign_a_multiply_b =
+      (((*p) & ((unsigned long)1<<63)) ^ (*((unsigned long *)&b)));
+  return *((double *)(&bits_of_sign_a_multiply_b));
+  #endif
+}
+
+// @return : if (a > 0) return b; else return -b;
+inline float sign_a_multiply_b(float a, float b) {
+  #if 0
+  if (a > 0) return b; else return -b;
+  #else
+  unsigned int *p = (unsigned int *)&a;
+  unsigned int bits_of_sign_a_multiply_b =
+      (((*p) & ((unsigned long)1<<31)) ^ (*((unsigned int *)&b)));
+  return *((float *)(&bits_of_sign_a_multiply_b));
+  #endif
 }
 
 #if 1

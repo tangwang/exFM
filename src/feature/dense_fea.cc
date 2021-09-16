@@ -2,21 +2,22 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #include "feature/dense_fea.h"
+#include "solver/solver_factory.h"
 
 DenseFeaConfig::DenseFeaConfig() {}
 
 DenseFeaConfig::~DenseFeaConfig() {}
 
 int DenseFeaConfig::initParams() {
-  const int onehot_fea_dimension =
+  const feaid_t onehot_fea_dimension =
       samewide_bucket_nums.size() + bucket_splits.size();
   if (onehot_fea_dimension == 0) return 0;
 
-  ftrl_param = std::make_shared<FtrlParamContainer>(onehot_fea_dimension);
+  param_container = creat_param_container(onehot_fea_dimension);
 
   vector<pair<real_t, vector<feaid_t>>> all_split_position_and_mapping_ids;
-  int onehot_dimension = 0;
-  int onehot_id = 0;
+  feaid_t onehot_dimension = 0;
+  feaid_t onehot_id = 0;
   for (int bucket_num : samewide_bucket_nums) {
     vector<feaid_t> onehot_values(onehot_fea_dimension);
     real_t wide = (max - min) / bucket_num;
@@ -74,7 +75,7 @@ int DenseFeaConfig::initParams() {
     auto &i_value = fea_ids_of_each_buckets[i];
     fea_params_of_each_buckets[i].resize(i_value.size());
     for (size_t j = 0; j < i_value.size(); j++) {
-      fea_params_of_each_buckets[i][j] = ftrl_param->get(i_value[j]);
+      fea_params_of_each_buckets[i][j] = param_container->get(i_value[j]);
     }
   }
 
@@ -116,29 +117,26 @@ int DenseFeaContext::feedSample(const char *line,
   }
   int bucket_id = cfg_.get_fea_bucket_id(orig_x);
   fea_params = &cfg_.fea_params_of_each_buckets[bucket_id];
+  
 
-  FtrlParamUnit *forward_param = forward_param_container->get();
-  forward_param->clear_weights();
+  ParamUnitHead *forward_param = forward_param_container->get();
+
+  cfg_.param_container->clear_weights(forward_param);
+
   for (auto fea_param : *fea_params) {
     Mutex_t *param_mutex = cfg_.GetMutexByBucketID(bucket_id);
-    backward_params.push_back(ParamContext(fea_param, param_mutex));
+    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 0.0));
 
     param_mutex->lock();
-    fea_param->calc_param();
-    forward_param->plus_weights(*fea_param);
+    cfg_.param_container->add_weights_to(fea_param, forward_param);
     param_mutex->unlock();
   }
 
-  forward_params.push_back(ParamContext(forward_param, NULL));
+  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL));
   return 0;
 }
 
 void DenseFeaContext::forward(vector<ParamContext> &forward_params) {}
 
 void DenseFeaContext::backward() {
-  FtrlParamUnit *p = backward_param_container->get();
-
-  for (FtrlParamUnit *fea_param : *fea_params) {
-    fea_param->plus_params(*p);
-  }
 }
