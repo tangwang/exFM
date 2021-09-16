@@ -18,6 +18,7 @@ SRC = src/feature/dense_fea.cc \
       src/train/train_opt.cc \
       src/train/train.cc \
       src/solver/solver_factory.cc \
+      src/solver/sgdm/sgdm_param.cc \
       src/solver/ftrl/ftrl_param.cc \
       src/solver/adam/adam_param.cc \
       src/solver/base_solver.cc \

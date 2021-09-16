@@ -1,7 +1,6 @@
 /**
  *  Copyright (c) 2021 by exFM Contributors
  */
-#pragma once
 #include "solver/base_solver.h"
 #include "feature/fea_manager.h"
 

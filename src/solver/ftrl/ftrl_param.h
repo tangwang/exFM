@@ -50,12 +50,12 @@ class FtrlParamUnit {
   inline void calc_w() {
     real_t _wz = wz();
     real_t _wn = wn();
-    if (fabs(_wz) <= train_opt.ftrl.l1_reg_w) {
+    if (fabs(_wz) <= train_opt.l1_reg_w) {
       head.w = 0.0;
     } else // TODO check
     {
-      head.w = -(_wz - utils::sign_a_multiply_b(_wz, train_opt.ftrl.l1_reg_w)) /
-          (train_opt.ftrl.l2_reg_w + (train_opt.ftrl.w_beta + sqrt(_wn)) / train_opt.ftrl.w_alpha);
+      head.w = -(_wz - utils::sign_a_multiply_b(_wz, train_opt.l1_reg_w)) /
+          (train_opt.l2_reg_w + (train_opt.ftrl.w_beta + sqrt(_wn)) / train_opt.ftrl.w_alpha);
     }
   }
 
@@ -65,19 +65,18 @@ class FtrlParamUnit {
       const real_t &vnf = vn(f);
       const real_t &vzf = vz(f);
       if (vnf > 0) {
-        if (fabs(vzf) <= train_opt.ftrl.l1_reg_V) {
+        if (fabs(vzf) <= train_opt.l1_reg_V) {
           vf = 0.0;
         } 
         else
         {
-          vf = -(vzf - utils::sign_a_multiply_b(vzf, train_opt.ftrl.l1_reg_V)) /
-               (train_opt.ftrl.l2_reg_V + (train_opt.ftrl.v_beta + sqrt(vnf)) / train_opt.ftrl.v_alpha);
+          vf = -(vzf - utils::sign_a_multiply_b(vzf, train_opt.l1_reg_V)) /
+               (train_opt.l2_reg_V + (train_opt.ftrl.v_beta + sqrt(vnf)) / train_opt.ftrl.v_alpha);
         } 
       }
     }
   }
 
-  // TODO 对于adam不需要calc_param，到时候把调用处注释掉，看性能是否有变化
   void calc_param() {
     calc_w();
     calc_v();

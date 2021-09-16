@@ -6,8 +6,6 @@
 
 class AdamParamUnit {
  public:
-
- public:
   static int offset_vm;
   static int offset_vv;
   static int factor_num;
@@ -22,10 +20,10 @@ class AdamParamUnit {
   real_t &multabel_wm() { return head.V[factor_num]; }
   real_t &multabel_wv() { return head.V[factor_num+1]; }
   const real_t &v(int factor) const { return head.V[factor]; }
-  const real_t &vn(int factor) const { return head.V[offset_vm + factor]; }
-  const real_t &vz(int factor) const { return head.V[offset_vv + factor]; }
-  const real_t &wn() const { return head.V[factor_num]; }
-  const real_t &wz() const { return head.V[factor_num+1]; }
+  const real_t &vm(int factor) const { return head.V[offset_vm + factor]; }
+  const real_t &vv(int factor) const { return head.V[offset_vv + factor]; }
+  const real_t &wm() const { return head.V[factor_num]; }
+  const real_t &wv() const { return head.V[factor_num+1]; }
 
   static void static_init() {
     factor_num = train_opt.factor_num;

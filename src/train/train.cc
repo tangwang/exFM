@@ -7,7 +7,7 @@
 #include "solver/solver_factory.h"
 #include "solver/ftrl/ftrl_solver.h"
 #include "solver/adam/adam_solver.h"
-#include "solver/sgd/sgd_solver.h"
+#include "solver/sgdm/sgdm_solver.h"
 
 int train_dispatcher(vector<TrainWorker *> &sovers,
                           std::istream *input_stream, long run_sample_num) {
@@ -59,6 +59,7 @@ int main(int argc, char *argv[]) {
 
   FtrlParamUnit::static_init();
   AdamParamUnit::static_init();
+  SgdmParamUnit::static_init();
 
   FeaManager fea_manager;
   assert(!train_opt.feature_config_path.empty());

@@ -36,7 +36,7 @@ class TrainOption {
 
   int threads_num;
   int time_interval_of_validation;
-  const long n_sample_per_output = 500000;
+  const long n_sample_per_output = 50000;
   const int task_queue_size = 5000;
 
   int verbose;
@@ -62,26 +62,22 @@ class TrainOption {
   std::string solver;
 
   ///////////////////////////////////////////////////////////
-  // FTRL params
-  struct FtrlParam {
-    const real_t init_mean = 0.0;
-    real_t init_stdev;
-    real_t w_alpha;
-    real_t w_beta;
+  // loss
     real_t l1_reg_w;
     real_t l2_reg_w;
-    real_t v_alpha;
-    real_t v_beta;
     real_t l1_reg_V;
     real_t l2_reg_V;
-  } ftrl;
 
   ///////////////////////////////////////////////////////////
   // adam params
   struct AdamParam {
     real_t step_size;
+    int bias_correct; // 默认false
     real_t beta1;
     real_t beta2;
+    real_t weight_decay_w; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
+    real_t weight_decay_V; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
+    int amsgrad; // 取值0或1 TODO 暂时未实现
     const real_t eps = 1e-8;
     const real_t tolerance = 1e-5;
     const bool resetPolicy = true;
@@ -89,10 +85,22 @@ class TrainOption {
   } adam;
 
   ///////////////////////////////////////////////////////////
-  // SGD params
-  struct SgdParam {
+  // SGDM params (SGD with Momentum)
+  struct SgdmParam {
     real_t step_size;
-  } sgd;
+    real_t beta1;
+  } sgdm;
+
+  ///////////////////////////////////////////////////////////
+  // FTRL params
+  struct FtrlParam {
+    const real_t init_mean = 0.0;
+    real_t init_stdev;
+    real_t w_alpha;
+    real_t w_beta;
+    real_t v_alpha;
+    real_t v_beta;
+  } ftrl;
 
 private:
   char parse_seperator_chars(const char* param) const {

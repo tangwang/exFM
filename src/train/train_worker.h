@@ -72,6 +72,8 @@ class TrainWorker {
     const int n_sample_per_output = train_opt.n_sample_per_output;
     const bool verbose_debug = train_opt.verbose > 1;
 
+    sleep(2);
+    
     int y;
     real_t logit;
     do {

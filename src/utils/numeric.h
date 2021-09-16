@@ -70,7 +70,7 @@ void CalcMeanAndStdev(const vector<value_type> &vec, value_type &mean,
 
 // @return : if (a > 0) return b; else return -b;
 inline double sign_a_multiply_b(double a, double b) {
-  #if 0 // TODO check性能差异
+  #if 1 // TODO check性能差异
   if (a > 0) return b; else return -b;
   #else
   unsigned long *p = (unsigned long *)&a;
@@ -82,7 +82,7 @@ inline double sign_a_multiply_b(double a, double b) {
 
 // @return : if (a > 0) return b; else return -b;
 inline float sign_a_multiply_b(float a, float b) {
-  #if 0
+  #if 1
   if (a > 0) return b; else return -b;
   #else
   unsigned int *p = (unsigned int *)&a;
@@ -97,7 +97,6 @@ inline double uniform()
 {
     return rand()/((double)RAND_MAX + 1.0);
 }
-
 
 inline double gaussian()
 {
@@ -116,7 +115,6 @@ inline double gaussian()
     } while (Q >= 0.27597 && (Q > 0.27846 || v * v > -4.0 * u * u * log(u)));
     return v / u;
 }
-
 
 inline double gaussian(double mean, double stdev)
 {
