@@ -74,14 +74,14 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("ftrl.v_beta", ftrl.v_beta, 1.0, "FTRL hyper-param");
  
   // SGDM hyper params
-  arg_parser.parse_arg("sgdm.step_size", sgdm.step_size, 0.001, "SGDM learning rate");
+  arg_parser.parse_arg("sgdm.lr", sgdm.lr, 0.001, "SGDM learning rate");
   arg_parser.parse_arg("sgdm.beta1"   , sgdm.beta1,    0.9   , "SGD 一阶动量平滑常数");
 
   // Adam hyper params
-  arg_parser.parse_arg("adam.step_size", adam.step_size, 0.001, "Adam learning rate");
+  arg_parser.parse_arg("adam.lr", adam.lr, 0.0001, "Adam learning rate");
   arg_parser.parse_arg("adam.beta1", adam.beta1, 0.9, "adam一阶动量平滑常数");
-  arg_parser.parse_arg("adam.bias_correct", adam.bias_correct, 0, "bias_correct");
   arg_parser.parse_arg("adam.beta2", adam.beta2, 0.999, "adam二阶动量平滑常数");
+  arg_parser.parse_arg("adam.bias_correct", adam.bias_correct, 1, "bias_correct");
   arg_parser.parse_arg("adam.weight_decay_w", adam.weight_decay_w, 0.0001, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
   arg_parser.parse_arg("adam.weight_decay_V", adam.weight_decay_V, 0.0001, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
   arg_parser.parse_arg("adam.amsgrad", adam.amsgrad, 0, "保留历史最大的v_t，记为v_{max}，每次计算都是用最大的v_{max}，否则是用当前v_t");

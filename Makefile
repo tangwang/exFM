@@ -5,7 +5,7 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 	  ${wildcard  src/solver/*.h} \
 	  ${wildcard  src/solver/ftrl/*.h} \
 	  ${wildcard  src/solver/adam/*.h} \
-	  ${wildcard  src/solver/sgd/*.h} \
+	  ${wildcard  src/solver/sgdm/*.h} \
 	  ${wildcard  src/utils/*.h} \
 	  ${wildcard  third_party/*.h} \
 	  ${wildcard  src/train/*.h} \

@@ -14,15 +14,15 @@ public:
   // w, V[0~factor_num-1], wn, wz, vn[0~factor_num-1], vz[0~factor_num-1]
   ParamUnitHead head;
 
-  real_t &multabel_vm(int factor) { return head.V[offset_vm + factor]; }
   real_t &multabel_wm() { return head.V[factor_num]; }
-  const real_t &vm(int factor) { return head.V[offset_vm + factor]; }
+  real_t &multabel_vm(int factor) { return head.V[offset_vm + factor]; }
   const real_t &wm() { return head.V[factor_num]; }
+  const real_t &vm(int factor) { return head.V[offset_vm + factor]; }
 
   static void static_init() {
     factor_num = train_opt.factor_num;
     offset_vm = train_opt.factor_num + 1;
-    full_size = sizeof(SgdmParamUnit) +  (1 + train_opt.factor_num)* sizeof(real_t);
+    full_size = (2 + train_opt.factor_num * 2) * sizeof(real_t);
   }
 
   void init_params() {
@@ -33,14 +33,17 @@ public:
       multabel_vm(f) = 0.0;
     }
   }
+
+  void operator=(const SgdmParamUnit &rhs) {
+    memcpy((void *)this, (const void *)&rhs, full_size);
+  }
+
 };
 
 class SgdmParamContainer : public ParamContainerInterface {
  public:
   SgdmParamContainer(feaid_t total_fea_num)
-      : ParamContainerInterface(
-            total_fea_num,
-            sizeof(SgdmParamUnit) + (train_opt.factor_num * 2 + 1) * sizeof(real_t)) {
+      : ParamContainerInterface(total_fea_num, SgdmParamUnit::full_size) {
     init_params();
   }
 
@@ -54,7 +57,7 @@ class SgdmParamContainer : public ParamContainerInterface {
   }
 
   // virtual void update_param(ParamUnitHead *backward_param, real_t grad) {
-  //     real_t lr = train_opt.sgdm.step_size;
+  //     real_t lr = train_opt.sgdm.lr;
 
   //     real_t xi = 1.0;
   //     real_t wg = grad * xi;
@@ -66,5 +69,4 @@ class SgdmParamContainer : public ParamContainerInterface {
   //       vf -= lr * vgf;
   //     }
   // }
-
 };

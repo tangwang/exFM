@@ -29,7 +29,7 @@ class FtrlParamUnit {
     factor_num = train_opt.factor_num;
     offset_vn = train_opt.factor_num + 2;
     offset_vz = train_opt.factor_num *2 + 2;
-    full_size = sizeof(FtrlParamUnit) +  (2 + train_opt.factor_num * 3 )* sizeof(real_t);
+    full_size = (3 + train_opt.factor_num * 3 )* sizeof(real_t);
   }
 
   void init_params() {
@@ -55,7 +55,7 @@ class FtrlParamUnit {
     } else // TODO check
     {
       head.w = -(_wz - utils::sign_a_multiply_b(_wz, train_opt.l1_reg_w)) /
-          (train_opt.l2_reg_w + (train_opt.ftrl.w_beta + sqrt(_wn)) / train_opt.ftrl.w_alpha);
+          (train_opt.l2_reg_w + (train_opt.ftrl.w_beta + std::sqrt(_wn)) / train_opt.ftrl.w_alpha);
     }
   }
 
@@ -71,7 +71,7 @@ class FtrlParamUnit {
         else
         {
           vf = -(vzf - utils::sign_a_multiply_b(vzf, train_opt.l1_reg_V)) /
-               (train_opt.l2_reg_V + (train_opt.ftrl.v_beta + sqrt(vnf)) / train_opt.ftrl.v_alpha);
+               (train_opt.l2_reg_V + (train_opt.ftrl.v_beta + std::sqrt(vnf)) / train_opt.ftrl.v_alpha);
         } 
       }
     }
@@ -89,7 +89,7 @@ class FtrlParamUnit {
 class FtrlParamContainer : public ParamContainerInterface {
  public:
   FtrlParamContainer(feaid_t total_fea_num) : 
-  ParamContainerInterface(total_fea_num, sizeof(FtrlParamUnit) + (2 + train_opt.factor_num * 3) * sizeof(real_t)),
+  ParamContainerInterface(total_fea_num, FtrlParamUnit::full_size),
   factor_num(train_opt.factor_num),
   offset_vn(train_opt.factor_num + 2),
   offset_vz(train_opt.factor_num * 2 + 2)

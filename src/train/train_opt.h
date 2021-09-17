@@ -70,7 +70,7 @@ class TrainOption {
   ///////////////////////////////////////////////////////////
   // adam params
   struct AdamParam {
-    real_t step_size;
+    real_t lr;
     int bias_correct; // 默认false
     real_t beta1;
     real_t beta2;
@@ -86,7 +86,7 @@ class TrainOption {
   ///////////////////////////////////////////////////////////
   // SGDM params (SGD with Momentum)
   struct SgdmParam {
-    real_t step_size;
+    real_t lr;
     real_t beta1;
   } sgdm;
 

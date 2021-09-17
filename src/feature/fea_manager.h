@@ -61,11 +61,11 @@ class FeaManager {
         if (ret != 0) break;
         ret = fea.dump_model();
       }
-    }
-    if (ret == 0) {
-        cout << "dump model all finished" << endl;
-    } else {
-        cerr << "dump model faild" << endl;
+      if (ret == 0) {
+          cout << "dump model all finished" << endl;
+      } else {
+          cerr << "dump model faild" << endl;
+      }
     }
     return ret;
   }
