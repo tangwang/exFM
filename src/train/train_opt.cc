@@ -85,8 +85,8 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("adam.beta1", adam.beta1, 0.9, "adam一阶动量平滑常数");
   arg_parser.parse_arg("adam.beta2", adam.beta2, 0.999, "adam二阶动量平滑常数");
   arg_parser.parse_arg("adam.bias_correct", adam.bias_correct, 1, "bias_correct");
-  arg_parser.parse_arg("adam.weight_decay_w", adam.weight_decay_w, 1.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
-  arg_parser.parse_arg("adam.weight_decay_V", adam.weight_decay_V, 1.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
+  arg_parser.parse_arg("adam.weight_decay_w", adam.weight_decay_w, 2.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
+  arg_parser.parse_arg("adam.weight_decay_V", adam.weight_decay_V, 2.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
   arg_parser.parse_arg("adam.amsgrad", adam.amsgrad, 0, "保留历史最大的v_t，记为v_{max}，每次计算都是用最大的v_{max}，否则是用当前v_t");
 
 
