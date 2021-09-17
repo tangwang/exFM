@@ -61,13 +61,6 @@ class TrainOption {
   std::string solver;
 
   ///////////////////////////////////////////////////////////
-  // loss
-    real_t l1_reg_w;
-    real_t l2_reg_w;
-    real_t l1_reg_V;
-    real_t l2_reg_V;
-
-  ///////////////////////////////////////////////////////////
   // adam params
   struct AdamParam {
     real_t lr;
@@ -88,6 +81,10 @@ class TrainOption {
   struct SgdmParam {
     real_t lr;
     real_t beta1;
+    real_t l1_reg_w;
+    real_t l2_reg_w;
+    real_t l1_reg_V;
+    real_t l2_reg_V;
   } sgdm;
 
   ///////////////////////////////////////////////////////////
@@ -99,6 +96,10 @@ class TrainOption {
     real_t w_beta;
     real_t v_alpha;
     real_t v_beta;
+    real_t l1_reg_w;
+    real_t l2_reg_w;
+    real_t l1_reg_V;
+    real_t l2_reg_V;
   } ftrl;
 
 private:

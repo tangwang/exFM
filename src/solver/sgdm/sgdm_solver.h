@@ -13,10 +13,10 @@ class SgdmSolver : public BaseSolver {
   BaseSolver(fea_manager), 
   lr(train_opt.sgdm.lr),
   beta1(train_opt.sgdm.beta1),
-  l2_reg_w(train_opt.l2_reg_w),
-  l2_reg_V(train_opt.l2_reg_V),
-  l1_reg_w(train_opt.l1_reg_w),
-  l1_reg_V(train_opt.l1_reg_V)
+  l2_reg_w(train_opt.sgdm.l2_reg_w),
+  l2_reg_V(train_opt.sgdm.l2_reg_V),
+  l1_reg_w(train_opt.sgdm.l1_reg_w),
+  l1_reg_V(train_opt.sgdm.l1_reg_V)
   {}
   virtual ~SgdmSolver() {}
 
