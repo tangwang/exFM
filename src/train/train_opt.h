@@ -28,7 +28,6 @@ class TrainOption {
   std::string model_path;
   std::string model_format;
   std::string init_model_path;
-  std::string initial_model_format;
   std::string model_number_type;
   int epoch;
 

@@ -26,10 +26,8 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 
   arg_parser.parse_arg("dim", factor_num, 8, "feature vector dim(factor_num)");
   arg_parser.parse_arg("im", init_model_path, string(), "init model path");
-  arg_parser.parse_arg("imf", initial_model_format, string("txt"),
-                   "input model format");
   arg_parser.parse_arg("om", model_path, string(), "output model path");
-  arg_parser.parse_arg("omf", model_format, string("txt"), "output model format");
+  arg_parser.parse_arg("mf", model_format, string("txt"), "bin/txt . output model format");
   arg_parser.parse_arg("threads", threads_num, 11, "trainning threads_num");
 
   const char *temp_split_param = NULL;

@@ -27,6 +27,36 @@ class CommonFeaConfig {
   string identifier;  // fea_seperator + name + kv_seperator
   int identifier_len;
 
+  mutable shared_ptr<ParamContainerInterface> param_container;
+
+  int warm_start() {
+    int ret = 0;
+    if (!train_opt.init_model_path.empty()) {
+      ret = param_container->load(train_opt.init_model_path + "/" + name,
+                                  train_opt.model_format);
+    }
+    return ret;
+  }
+
+  int dump_model() {
+    int ret = 0;
+    if (!train_opt.model_path.empty()) {
+      cout << "dump model for " << name << " ... ";
+      if (param_container) {
+        ret = param_container->dump(train_opt.model_path + "/" + name,
+                                    train_opt.model_format);
+        if (ret == 0) {
+          cout << " ok " << endl;
+        } else {
+          cout << " faild " << endl;
+        }
+      } else {
+        cout << " param_container is empty! " << endl;
+      }
+    }
+    return ret;
+  }
+
   virtual int initParams() = 0;
 
   void init() {

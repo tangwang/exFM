@@ -26,6 +26,8 @@ int VarlenSparseFeaConfig::initParams() {
   }
 
   sparse_cfg.initParams();
+  // 保存model会用到。直接引用内部sparse_cfg的param_container
+  param_container = sparse_cfg.param_container;
 
   return 0;
 }

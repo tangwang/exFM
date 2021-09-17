@@ -41,10 +41,10 @@ class AdamSolver : public BaseSolver {
       wm = beta1 * wm + (1-beta1)*wg;
       wv = beta2 * wv + (1-beta2)*wg*wg;
 
-      real_t corrected_wm = bias_correct ? wm : wm / (1-beta1_pow);
-      real_t corrected_wv = bias_correct ? wv : wv / (1-beta2_pow);
+      real_t corrected_wm = bias_correct ? wm : (wm / (1-beta1_pow));
+      real_t corrected_wv = bias_correct ? wv : (wv / (1-beta2_pow));
       
-      w -= (step_size * corrected_wm/ (std::pow(corrected_wv, 0.5) + eps) + weight_decay_w * w);
+      w -= (step_size * corrected_wm/ (std::sqrt(corrected_wv) + eps) + weight_decay_w * w);
 
       for (int f = 0; f < train_opt.factor_num; ++f) {
 
@@ -54,14 +54,14 @@ class AdamSolver : public BaseSolver {
 
         real_t vgf = wg * (sum[f]  - vf * xi );
 
-        vmf = beta1 * vmf + (1 - beta1) * vgf;
-        vvf = beta2 * vvf + (1 - beta2) * vgf * vgf;
+        vmf = bias_correct ? vmf : (beta1 * vmf + (1 - beta1) * vgf);
+        vvf = bias_correct ? vvf : (beta2 * vvf + (1 - beta2) * vgf * vgf);
 
         real_t corrected_vmf = vmf / (1 - beta1_pow);
         real_t corrected_vvf = vvf / (1 - beta2_pow);
 
         vf -= (step_size * corrected_vmf /
-               (std::pow(corrected_vvf, 0.5) + eps)  + weight_decay_V * vf);
+               (std::sqrt(corrected_vvf) + eps)  + weight_decay_V * vf);
       }
 
       param_context.mutex->unlock();

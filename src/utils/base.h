@@ -31,6 +31,8 @@ using std::ifstream;
 using std::ofstream;
 using std::fstream;
 
+#define WINDOWS_VER_ 0 // 暂时未测试
+
 #define _DEBUG_VER_
 
 #ifdef _DEBUG_VER_

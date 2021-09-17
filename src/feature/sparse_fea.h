@@ -14,7 +14,6 @@ class SparseFeaConfig : public CommonFeaConfig {
   feaid_t default_value;
   int use_id_mapping;
   bool use_hash;
-  mutable shared_ptr<ParamContainerInterface> param_container;
   mutable vector<Mutex_t> mutexes;
   int mutex_nums;
   Mutex_t* GetMutexByFeaID(feaid_t id) const {

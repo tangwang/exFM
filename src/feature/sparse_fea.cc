@@ -4,8 +4,6 @@
 #include "feature/sparse_fea.h"
 #include "solver/solver_factory.h"
 
-#include <math.h>
-
 SparseFeaConfig::SparseFeaConfig() {}
 
 SparseFeaConfig::~SparseFeaConfig() {}
@@ -20,6 +18,7 @@ int SparseFeaConfig::initParams() {
   vocab_size = max_id + 2;
 
   param_container = creat_param_container(vocab_size);
+  warm_start();
 
   if (use_id_mapping != 0 && !id_mapping_dict_path.empty()) {
     // assert(access(id_mapping_dict_path.c_str(), F_OK) != -1 &&
@@ -38,7 +37,7 @@ int SparseFeaConfig::initParams() {
   // initail mutexes
   mutex_nums = vocab_size;
   if (mutex_nums > 8000) {
-    mutex_nums = std::max(8000, (int)pow((float)mutex_nums, 0.7));
+    mutex_nums = std::max(8000, (int)std::pow((float)mutex_nums, 0.7));
     mutex_nums = std::min(mutex_nums, 80000);
   }
   mutexes.resize(mutex_nums);

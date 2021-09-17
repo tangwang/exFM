@@ -96,6 +96,88 @@ class ParamContainerInterface {
     }
   }
 
+  int load(string path, string model_fmt) {
+    feaid_t total_fea_num = fea_num + 1;
+
+    if (model_fmt == "bin") {
+      ifstream ifs;
+      ifs.open(path, std::ifstream::binary);
+      int weight_size = (1 + train_opt.factor_num) * sizeof(real_t);
+      feaid_t i = 0;
+      for (; i < total_fea_num; i++) {
+        ParamUnitHead *p = get(i);
+        ifs.read((char *)p, weight_size);
+        if (!ifs) {
+          std::cerr << "load model faild, size not match: " << path << " fea_id: " << i <<  std::endl;
+          return -1;
+        }
+      }
+      if (i != total_fea_num) {
+          std::cerr << "load model faild, size not match: " << path << " fea_id: " << i <<  std::endl;
+          return -2;
+      }
+    } else {
+      ifstream ifs;
+      ifs.open(path);
+      string line;
+      const int weight_size = (1 + train_opt.factor_num) * sizeof(real_t);
+      int read_size = 0;
+      feaid_t i = 0;
+      for (; i < total_fea_num; i++) {
+        ParamUnitHead *p = get(i);
+        if (!std::getline(ifs, line)) {
+          std::cerr << "load model faild, size not match: " << path << " fea_id: " << i <<  std::endl;
+          return -1;
+        }
+        real_t * read_end = utils::split_string(line, ' ', (real_t *)p);
+        if (read_end - (real_t *)p != 1 + train_opt.factor_num) {
+          std::cerr << "load model faild, param size not match in line: " << i << " path: " << path << std::endl;
+          return -2;
+        }
+      }
+      if (i != total_fea_num) {
+          std::cerr << "load model faild, size not match: " << path << " fea_id: " << i <<  std::endl;
+          return -2;
+      }
+    }
+    std::cout << "load model ok: " << path <<  " total_fea_num: " << total_fea_num <<  std::endl;
+    return 0;
+  }
+
+  int dump(string path, string model_fmt) {
+    int ret = 0;
+    feaid_t total_fea_num = fea_num + 1;
+
+    if (model_fmt == "bin") {
+      ofstream ofs(path, std::ios::out | std::ios::binary);
+      if (!ofs) {
+        return -1;
+      }
+      const int weight_size = (1 + train_opt.factor_num) * sizeof(real_t);
+      for (feaid_t i = 0; i < total_fea_num; i++) {
+        const ParamUnitHead *p = get(i);
+        ofs.write((const char *)&p, weight_size);
+      }
+      ofs.close();
+    } else {
+      ofstream ofs(path);
+      if (!ofs) {
+        return -1;
+      }
+      const int weight_size = (1 + train_opt.factor_num) * sizeof(real_t);
+      for (feaid_t i = 0; i < total_fea_num; i++) {
+        const ParamUnitHead *p = get(i);
+        ofs << p->w;
+        for (int i = 0; i < train_opt.factor_num; i++) {
+          ofs << " " << p->V[i];
+        }
+        ofs << std::endl;
+      }
+      ofs.close();
+    }
+    return 0;
+  }
+
   // // backward  现在update是靠solver中的虚函数实现的，没有用这里的update。
   // // 如果放在这里，则不需要solver的多态，update的多态在这里实现，只需要一个solver的实现就行。但是不方便保存update的一些中间变量。需要一个context。
   // void update_param(feaid_t fid, real_t grad) {

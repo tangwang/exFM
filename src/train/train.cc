@@ -136,5 +136,6 @@ int main(int argc, char *argv[]) {
     delete input_file_stream;
   }
 
+  fea_manager.dump_model();
   return 0;
 }

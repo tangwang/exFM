@@ -1,16 +1,10 @@
 #pragma once
-#include <iostream>
-#include <vector>
-#include <string>
+#include "utils/base.h"
 
-
-#define WINDOWS_SYSTEM (0)
-#define LINUX_STSTEM (1)
-#define SYSTEM_TYPE (1)
 
 namespace console_color {
 
-#if SYSTEM_TYPE == WINDOWS_SYSTEM
+#if WINDOWS_VER_
 #include <iostream>
 #include <windows.h>
 

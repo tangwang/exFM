@@ -14,7 +14,8 @@ int DenseFeaConfig::initParams() {
   if (onehot_fea_dimension == 0) return 0;
 
   param_container = creat_param_container(onehot_fea_dimension);
-
+  warm_start();
+  
   vector<pair<real_t, vector<feaid_t>>> all_split_position_and_mapping_ids;
   feaid_t onehot_dimension = 0;
   feaid_t onehot_id = 0;

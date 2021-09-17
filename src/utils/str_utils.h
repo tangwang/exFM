@@ -106,14 +106,31 @@ void split_string(const string &line, char delimiter, vector<value_type> &r) {
   int begin = 0;
   for (int i = 0; i < line.size(); ++i) {
     if (line[i] == delimiter) {
-      r.push_back(cast_type<string, value_type>(line.substr(begin, i - begin)));
+      r.push_back(cast_ref_type<string, value_type>(line.substr(begin, i - begin)));
       begin = i + 1;
     }
   }
   if (begin < line.size()) {
     r.push_back(
-        cast_type<string, value_type>(line.substr(begin, line.size() - begin)));
+        cast_ref_type<string, value_type>(line.substr(begin, line.size() - begin)));
   }
+}
+
+template <typename value_type>
+value_type * split_string(const string &line, char delimiter, value_type * r) {
+  int begin = 0;
+  for (int i = 0; i < line.size(); ++i) {
+    if (line[i] == delimiter) {
+      *r = cast_ref_type<string, value_type>(line.substr(begin, i - begin));
+      r++;
+      begin = i + 1;
+    }
+  }
+  if (begin < line.size()) {
+    *r = cast_ref_type<string, value_type>(line.substr(begin, line.size() - begin));
+    r++;
+  }
+  return r;
 }
 
 template <class Iter>
