@@ -47,7 +47,8 @@ class FtrlParamUnit {
     memcpy((void *)this, (const void *)&rhs, full_size);
   }
 
-  inline void calc_w() {
+  void calc_param() {
+    // calc_w
     real_t _wz = wz();
     real_t _wn = wn();
     if (fabs(_wz) <= train_opt.ftrl.l1_reg_w) {
@@ -57,9 +58,7 @@ class FtrlParamUnit {
       head.w = -(_wz - utils::sign_a_multiply_b(_wz, train_opt.ftrl.l1_reg_w)) /
           (train_opt.ftrl.l2_reg_w + (train_opt.ftrl.w_beta + std::sqrt(_wn)) / train_opt.ftrl.w_alpha);
     }
-  }
-
-  void calc_v() {
+    // calc V
     for (int f = 0; f < factor_num; ++f) {
       real_t &vf = head.V[f];
       const real_t &vnf = vn(f);
@@ -75,11 +74,6 @@ class FtrlParamUnit {
         } 
       }
     }
-  }
-
-  void calc_param() {
-    calc_w();
-    calc_v();
   }
 
   FtrlParamUnit() {}

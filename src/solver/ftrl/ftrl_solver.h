@@ -21,24 +21,23 @@ class FtrlSolver : public BaseSolver {
       real_t & wz = backward_param->multabel_wz();
       real_t & wn = backward_param->multabel_wn();
 
-      real_t xi = 1.0;
-      real_t wg = grad * xi;
-      real_t ws =
+      // grad *= xi; //暂时都是离散特征，不支持连续值特征，所以此处关闭
+      real_t w_sigama =
           1 / train_opt.ftrl.w_alpha *
-          (sqrt(wn + wg * wg) - sqrt(wn));
+          (sqrt(wn + grad * grad) - sqrt(wn));
 
-      wz += wg - ws * backward_param->head.w;
-      wn += wg * wg;
+      wz += grad - w_sigama * backward_param->head.w;
+      wn += grad * grad;
 
       for (int f = 0; f < train_opt.factor_num; ++f) {
         const real_t &vf = backward_param->head.V[f];
         real_t &vnf = backward_param->multabel_vn(f);
         real_t &vzf = backward_param->multabel_vz(f);
-        real_t vgf = wg * (sum[f]  - vf * xi );
-        real_t vsf =
+        real_t vgf = grad * (sum[f]  - vf * xi );
+        real_t v_sigma_f =
             1 / train_opt.ftrl.v_alpha * (sqrt(vnf + vgf * vgf) - sqrt(vnf));
 
-        vzf += vgf - vsf * vf;
+        vzf += vgf - v_sigma_f * vf;
         vnf += vgf * vgf;
       }
 

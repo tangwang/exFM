@@ -27,19 +27,19 @@ class SgdmSolver : public BaseSolver {
       SgdmParamUnit *backward_param = (SgdmParamUnit *)param_context.param;
       param_context.mutex->lock();
       real_t xi = 1.0;
-      real_t wg = grad * xi;
+      // grad *= xi; //暂时都是离散特征，不支持连续值特征，所以此处关闭
 
       real_t & w = backward_param->head.w;
       real_t & wm = backward_param->multabel_wm();
 
-      wm = beta1 * wm + (1-beta1) * wg;
+      wm = beta1 * wm + (1-beta1) * grad;
       w -= lr * (wm  + w * l2_reg_w);
 
       for (int f = 0; f < train_opt.factor_num; ++f) {
         real_t &vf = backward_param->head.V[f];
         real_t & vmf = backward_param->multabel_vm(f);
 
-        real_t vgf = wg * (sum[f]  - vf * xi );
+        real_t vgf = grad * (sum[f]  - vf * xi );
 
         vmf = beta1 * vmf + (1-beta1) * vgf;
 
