@@ -31,9 +31,53 @@ class AdamSolver : public BaseSolver {
     for (auto param_context : backward_params) {
       AdamParamUnit *backward_param = (AdamParamUnit *)param_context.param;
       param_context.mutex->lock();
+      // calc fixed_lr
+      backward_param->beta1power_t *= beta1;
+      backward_param->beta2power_t *= beta2;
+      real_t bias_correction1 = (1 - backward_param->beta1power_t);
+      real_t bias_correction2 = (1 - backward_param->beta2power_t);
+      real_t fixed_lr = lr * std::sqrt(bias_correction2) / bias_correction1;
+
+      // update w
       real_t xi = param_context.x;
       grad *= xi;
-      real_t & w = backward_param->fm_wei.w;
+      real_t & w = backward_param->fm_param.w;
+      real_t & wm = backward_param->momentum.w;
+      real_t & wv = backward_param->variance_m.w;
+
+      wm = beta1 * wm + (1-beta1)*grad;
+      wv = beta2 * wv + (1-beta2)*grad*grad;
+
+      w -= fixed_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w);
+
+      // update V
+      for (int f = 0; f < DIM; ++f) {
+
+        real_t &vf = backward_param->fm_param.V[f];
+        real_t &vmf = backward_param->momentum.V[f];
+        real_t &vvf = backward_param->variance_m.V[f];
+
+        real_t vgf = grad * (sum[f]  - vf * xi );
+
+        vmf = beta1 * vmf + (1 - beta1) * vgf;
+        vvf = beta2 * vvf + (1 - beta2) * vgf * vgf;
+        vf -= fixed_lr * (vmf / (std::sqrt(vvf) + eps) + weight_decay_V * vf);
+      }
+      param_context.mutex->unlock();
+    }
+  }
+
+  void update__raw(real_t grad) {
+    if (y == 1) grad *= 7.2816; // TODO 正负样本loss均衡。暂时写死
+
+    // TODO 这里的pow(beta1_pow, t), t是取总步数，该是取该参数更新的次数？
+
+    for (auto param_context : backward_params) {
+      AdamParamUnit *backward_param = (AdamParamUnit *)param_context.param;
+      param_context.mutex->lock();
+      real_t xi = param_context.x;
+      grad *= xi;
+      real_t & w = backward_param->fm_param.w;
       real_t & wm = backward_param->momentum.w;
       real_t & wv = backward_param->variance_m.w;
 
@@ -49,11 +93,11 @@ class AdamSolver : public BaseSolver {
         wv /= (1-backward_param->beta2power_t);
       }
       
-      w -= lr * (corrected_wm/ (std::sqrt(corrected_wv) + eps) + weight_decay_w * w);
+      w -= lr * (corrected_wm / (std::sqrt(corrected_wv) + eps) + weight_decay_w * w);
 
       for (int f = 0; f < DIM; ++f) {
 
-        real_t &vf = backward_param->fm_wei.V[f];
+        real_t &vf = backward_param->fm_param.V[f];
         real_t &vmf = backward_param->momentum.V[f];
         real_t &vvf = backward_param->variance_m.V[f];
 

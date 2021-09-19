@@ -33,8 +33,8 @@ class BaseSolver {
   vector<ParamContext> forward_params;
   vector<ParamContext> backward_params;
 
-  vector<real_t> sum;
   real_t logit;
+  real_t sum[DIM];
   int y;
 
  protected:

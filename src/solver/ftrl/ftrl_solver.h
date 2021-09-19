@@ -23,15 +23,15 @@ class FtrlSolver : public BaseSolver {
           1 / train_opt.ftrl.w_alpha *
           (std::sqrt(backward_param->n.w + grad * grad) - std::sqrt(backward_param->n.w));
 
-      backward_param->z.w += grad - w_sigama * backward_param->fm_wei.w;
+      backward_param->z.w += grad - w_sigama * backward_param->fm_param.w;
       backward_param->n.w += grad * grad;
 
       for (int f = 0; f < DIM; ++f) {
-        real_t vgf = grad * (sum[f]  - backward_param->fm_wei.V[f] * xi);
+        real_t vgf = grad * (sum[f]  - backward_param->fm_param.V[f] * xi);
         real_t v_sigma_f =
             1 / train_opt.ftrl.v_alpha * (std::sqrt(backward_param->n.V[f] + vgf * vgf) - std::sqrt(backward_param->n.V[f]));
 
-        backward_param->z.V[f] += vgf - v_sigma_f * backward_param->fm_wei.V[f];
+        backward_param->z.V[f] += vgf - v_sigma_f * backward_param->fm_param.V[f];
         backward_param->n.V[f] += vgf * vgf;
       }
 

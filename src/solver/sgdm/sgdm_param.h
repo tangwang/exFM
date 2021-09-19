@@ -6,14 +6,14 @@
 
 class SgdmParamUnit {
 public:
-  FMParamUnit fm_wei;
+  FMParamUnit fm_param;
   FMParamUnit momentum;
 
   SgdmParamUnit() {
-    fm_wei.w = 0.0;
+    fm_param.w = 0.0;
     momentum.w = 0.0;
     for (int f = 0; f < DIM; ++f) {
-      fm_wei.V[f] = utils::gaussian(train_opt.ftrl.init_mean, train_opt.ftrl.init_stdev);
+      fm_param.V[f] = utils::gaussian(train_opt.ftrl.init_mean, train_opt.ftrl.init_stdev);
       momentum.V[f] = 0.0;
     }
   }

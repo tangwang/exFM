@@ -94,7 +94,7 @@ inline float sign_a_multiply_b(float a, float b) {
   #endif
 }
 
-#if 1
+#if 0
 inline double uniform()
 {
     return rand()/((double)RAND_MAX + 1.0);
@@ -134,8 +134,8 @@ inline double gaussian(double mean, double stdev)
 inline real_t uniform() { return rand() / static_cast<real_t>(RAND_MAX); }
 
 inline real_t gaussian(real_t mean, real_t stdev) {
-  std::default_random_engine generator;
-  std::normal_distribution<real_t> distribution(mean, stdev);
+  static std::default_random_engine generator;
+  static std::normal_distribution<real_t> distribution(mean, stdev);
   return distribution(generator);
 }
 
