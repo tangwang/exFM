@@ -5,8 +5,7 @@
 #include "feature/fea_manager.h"
 
 BaseSolver::BaseSolver(const FeaManager &fea_manager)
-    : fea_manager_(fea_manager),
-      sum(DIM) {
+    : fea_manager_(fea_manager) {
   for (auto &iter : fea_manager_.dense_feas) {
     dense_feas.push_back(std::move(DenseFeaContext(iter)));
   }
