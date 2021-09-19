@@ -8,8 +8,7 @@
 class Evalution {
  public:
   Evalution() {
-    total_samples_processed = tn = fp = fn = tp = 0;
-    stopwatch.start();
+    reset();
   }
   ~Evalution() {}
 
@@ -81,6 +80,11 @@ class Evalution {
     label_prob_list.insert(label_prob_list.begin(), rhs.label_prob_list.begin(),
                            rhs.label_prob_list.end());
     return *this;
+  }
+
+  void reset() {
+    total_samples_processed = tn = fp = fn = tp = 0;
+    stopwatch.start();
   }
 
  private:

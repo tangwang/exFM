@@ -57,10 +57,6 @@ int main(int argc, char *argv[]) {
     return -1; 
   }
 
-  FtrlParamUnit::static_init();
-  AdamParamUnit::static_init();
-  SgdmParamUnit::static_init();
-
   FeaManager fea_manager;
   assert(!train_opt.feature_config_path.empty());
   assert(access(train_opt.feature_config_path.c_str(), F_OK) != -1);
@@ -72,7 +68,7 @@ int main(int argc, char *argv[]) {
   for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
     std::cout << "start train thread " << thread_id << "..." << endl;
     TrainWorker *p = new TrainWorker("train", thread_id);
-    p->RegisteSolver(CreateSover(fea_manager));
+    p->RegisteSolver(creatParamContainer(fea_manager));
     p->StartTrainLoop();
     sovers.push_back(p);
   }
@@ -103,7 +99,7 @@ int main(int argc, char *argv[]) {
     }
 
     validator = new TrainWorker("valid", 0);
-    validator->RegisteSolver(CreateSover(fea_manager));
+    validator->RegisteSolver(creatParamContainer(fea_manager));
     validator->StartValidationLoop(valid_stream);
     std::cout << "start validation thread " << "..." << endl;
   }
@@ -136,6 +132,6 @@ int main(int argc, char *argv[]) {
     delete input_file_stream;
   }
 
-  fea_manager.dump_model();
+  fea_manager.dumpModel();
   return 0;
 }

@@ -79,25 +79,22 @@ int VarlenSparseFeaContext::feedSample(const char *line,
     return -1;
   }
 
-  ParamUnitHead *forward_param = forward_param_container->get();
-  ParamUnitHead *locak_buff_param = local_buff_container->get();
-  cfg_.sparse_cfg.param_container->clear_weights(forward_param);
+  FMParamUnit *forward_param = forward_param_container->get();
+  forward_param->clear();
 
   for (auto id : fea_ids) {
-    ParamUnitHead *fea_param = cfg_.sparse_cfg.param_container->get(id);
+    FMParamUnit *fea_param = cfg_.sparse_cfg.param_container->get(id);
     Mutex_t *param_mutex = cfg_.sparse_cfg.GetMutexByFeaID(id);
 
     param_mutex->lock();
-    cfg_.sparse_cfg.param_container->cp_param(locak_buff_param, fea_param);
+    *forward_param += *fea_param;
     param_mutex->unlock();
-
-    cfg_.sparse_cfg.param_container->add_weights_to(locak_buff_param, forward_param);
-
+    
     fea_params.push_back(fea_param);
-    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), fea_param, param_mutex));
+    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), fea_param, param_mutex, 1.0));
   }
 
-  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), forward_param, NULL));
+  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), forward_param, NULL, 1.0));
 
   return 0;
 }

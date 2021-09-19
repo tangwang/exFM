@@ -338,7 +338,7 @@ std::string LocalCache::debug(const char * msg, bool show_detail) {
     ret.reserve(10240);
     if (shm.base_addr == NULL) {
         ret = msg;
-        ret += " : shm.base_addr NULL\n";
+        ret += " : shm.base_addr NULL" << endl;
         return ret;
     }
     char buff[1024];
@@ -356,7 +356,7 @@ std::string LocalCache::debug(const char * msg, bool show_detail) {
     }
 
     if (!trylock()) {
-        ret += " lock failed!!!\n";
+        ret += " lock failed!!!" << endl;
         return ret;
     }
 
@@ -365,7 +365,7 @@ std::string LocalCache::debug(const char * msg, bool show_detail) {
     char v[50] = {0};
 
     // 最近20条
-    ret += "latest 20 entries:\n";
+    ret += "latest 20 entries:" << endl;
     int max_count = 20;
     list_for_each_entry_safe(node, tempNode, &shm.shmem_head->visit_list.bucketHead, visitList)
     {

@@ -18,9 +18,6 @@ SRC = src/feature/dense_fea.cc \
       src/train/train_opt.cc \
       src/train/train.cc \
       src/solver/solver_factory.cc \
-      src/solver/sgdm/sgdm_param.cc \
-      src/solver/ftrl/ftrl_param.cc \
-      src/solver/adam/adam_param.cc \
       src/solver/base_solver.cc \
 
 
@@ -28,10 +25,11 @@ OBJ = ${patsubst %.cc, %.o, ${SRC}}
 
 all : bin/train
 
-CC = g++ -fmax-errors=4
+
+CC = g++ -fmax-errors=4 -DDIM=8
 LIB= -lpthread
 INC = -I./third_party  -I./src
-CCFLAGS = -g -std=c++11   ${INC}
+CCFLAGS = -g -std=c++11 -Wall -Wno-sign-compare -Wno-reorder ${INC} 
 # CCFLAGS = -g -std=c++11 -O3 -Wall ${INC}
 
 bin/train: ${OBJ} 

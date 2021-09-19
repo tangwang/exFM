@@ -17,7 +17,7 @@ int SparseFeaConfig::initParams() {
   // TODO 暂时设大一点，后面AUC效果没问题了去掉这一行
   vocab_size = max_id + 2;
 
-  param_container = creat_param_container(vocab_size);
+  param_container = creatParamContainer(vocab_size);
   warm_start();
 
   if (use_id_mapping != 0 && !id_mapping_dict_path.empty()) {
@@ -81,22 +81,22 @@ int SparseFeaContext::feedSample(const char *line,
   if (!valid()) {
     return -1;
   }
-  ParamUnitHead *fea_param = cfg_.param_container->get(fea_id);
+  FMParamUnit *fea_param = cfg_.param_container->get(fea_id);
   Mutex_t *param_mutex = cfg_.GetMutexByFeaID(fea_id);
-  backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex));
-  ParamUnitHead *forward_param = forward_param_container->get();
+  backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0));
+  FMParamUnit *forward_param = forward_param_container->get();
   param_mutex->lock();
-  cfg_.param_container->cp_param(forward_param, fea_param);
+  cfg_.param_container->cpParam(forward_param, fea_param);
   param_mutex->unlock();
 
-  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL));
+  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL, 1.0));
 
   return 0;
 }
 
 void SparseFeaContext::backward() {
-  // ParamUnitHead *p = backward_param_container->get();
+  // FMParamUnit *p = backward_param_container->get();
 
-  // ParamUnitHead *fea_param = cfg_.param_container->get(fea_id);
-  // cfg_.sparse_cfg.param_container->add_weights_to(p, fea_param);
+  // FMParamUnit *fea_param = cfg_.param_container->get(fea_id);
+  // cfg_.sparse_cfg.param_container->addWeightsTo(p, fea_param);
 }

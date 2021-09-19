@@ -31,8 +31,6 @@ class TrainOption {
   std::string model_number_type;
   int epoch;
 
-  int factor_num;
-
   int threads_num;
   int time_interval_of_validation;
   const long n_sample_per_output = 50000;

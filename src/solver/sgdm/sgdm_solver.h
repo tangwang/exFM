@@ -9,15 +9,15 @@
 
 class SgdmSolver : public BaseSolver {
  public:
-  SgdmSolver(const FeaManager &fea_manager) : 
-  BaseSolver(fea_manager), 
-  lr(train_opt.sgdm.lr),
-  beta1(train_opt.sgdm.beta1),
-  l2_reg_w(train_opt.sgdm.l2_reg_w),
-  l2_reg_V(train_opt.sgdm.l2_reg_V),
-  l1_reg_w(train_opt.sgdm.l1_reg_w),
-  l1_reg_V(train_opt.sgdm.l1_reg_V)
-  {}
+  SgdmSolver(const FeaManager &fea_manager)
+      : BaseSolver(fea_manager),
+        lr(train_opt.sgdm.lr),
+        beta1(train_opt.sgdm.beta1),
+        l2_reg_w(train_opt.sgdm.l2_reg_w),
+        l2_reg_V(train_opt.sgdm.l2_reg_V),
+        l1_reg_w(train_opt.sgdm.l1_reg_w),
+        l1_reg_V(train_opt.sgdm.l1_reg_V) 
+        {}
   virtual ~SgdmSolver() {}
 
   virtual void update(real_t grad) {
@@ -26,18 +26,18 @@ class SgdmSolver : public BaseSolver {
     for (auto param_context : backward_params) {
       SgdmParamUnit *backward_param = (SgdmParamUnit *)param_context.param;
       param_context.mutex->lock();
-      real_t xi = 1.0;
-      // grad *= xi; //暂时都是离散特征，不支持连续值特征，所以此处关闭
+      real_t xi = param_context.x;
+      grad *= xi; //暂时都是离散特征，不支持连续值特征，所以此处关闭
 
-      real_t & w = backward_param->head.w;
-      real_t & wm = backward_param->multabel_wm();
+      real_t & w = backward_param->fm_wei.w;
+      real_t & wm = backward_param->momentum.w;
 
       wm = beta1 * wm + (1-beta1) * grad;
       w -= lr * (wm  + w * l2_reg_w);
 
-      for (int f = 0; f < train_opt.factor_num; ++f) {
-        real_t &vf = backward_param->head.V[f];
-        real_t & vmf = backward_param->multabel_vm(f);
+      for (int f = 0; f < DIM; ++f) {
+        real_t &vf = backward_param->fm_wei.V[f];
+        real_t & vmf = backward_param->momentum.V[f];
 
         real_t vgf = grad * (sum[f]  - vf * xi );
 

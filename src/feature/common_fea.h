@@ -3,7 +3,7 @@
  */
 #pragma once
 // #include "solver/solver_factory.h"
-#include "solver/parammeter_interface.h"
+#include "solver/parammeter_container.h"
 #include "nlohmann/json.hpp"
 #include "synchronize/mutex_adapter.h"
 #include "utils/Hash.h"
@@ -38,7 +38,7 @@ class CommonFeaConfig {
     return ret;
   }
 
-  int dump_model() {
+  int dumpModel() {
     int ret = 0;
     if (!train_opt.model_path.empty()) {
       cout << "dump model for " << name << " ... ";
@@ -101,8 +101,8 @@ class CommonFeaContext {
  public:
   shared_ptr<ParamContainerInterface> forward_param_container;
   shared_ptr<ParamContainerInterface> backward_param_container;
-  shared_ptr<ParamContainerInterface> local_buff_container;
 
+  // forward_params中的参数指针只用于前向传递值，计算loss，所以为性能考虑，都从参数容器中取出来后放入线程本地内存（FeaContext中的本地参数容器），计算loss时不会对forward_params中的元素加锁
   virtual int feedSample(const char *line,
                           vector<ParamContext> &forward_params,
                           vector<ParamContext> &backward_params) = 0;

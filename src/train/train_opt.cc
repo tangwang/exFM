@@ -23,8 +23,6 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 
   arg_parser.parse_arg("epoch", epoch, 1, "train epochs");
 
-
-  arg_parser.parse_arg("dim", factor_num, 8, "feature vector dim(factor_num)");
   arg_parser.parse_arg("im", init_model_path, string(), "init model path");
   arg_parser.parse_arg("om", model_path, string(), "output model path");
   arg_parser.parse_arg("mf", model_format, string("txt"), "bin/txt . output model format");

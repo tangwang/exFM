@@ -17,31 +17,25 @@ class FtrlSolver : public BaseSolver {
     for (auto param_context : backward_params) {
       FtrlParamUnit *backward_param = (FtrlParamUnit *)param_context.param;
       param_context.mutex->lock();
-
-      real_t & wz = backward_param->multabel_wz();
-      real_t & wn = backward_param->multabel_wn();
-
-      // grad *= xi; //暂时都是离散特征，不支持连续值特征，所以此处关闭
+      real_t xi = param_context.x;
+      grad *= xi;
       real_t w_sigama =
           1 / train_opt.ftrl.w_alpha *
-          (sqrt(wn + grad * grad) - sqrt(wn));
+          (std::sqrt(backward_param->n.w + grad * grad) - std::sqrt(backward_param->n.w));
 
-      wz += grad - w_sigama * backward_param->head.w;
-      wn += grad * grad;
+      backward_param->z.w += grad - w_sigama * backward_param->fm_wei.w;
+      backward_param->n.w += grad * grad;
 
-      for (int f = 0; f < train_opt.factor_num; ++f) {
-        const real_t &vf = backward_param->head.V[f];
-        real_t &vnf = backward_param->multabel_vn(f);
-        real_t &vzf = backward_param->multabel_vz(f);
-        real_t vgf = grad * (sum[f]  - vf * xi );
+      for (int f = 0; f < DIM; ++f) {
+        real_t vgf = grad * (sum[f]  - backward_param->fm_wei.V[f] * xi);
         real_t v_sigma_f =
-            1 / train_opt.ftrl.v_alpha * (sqrt(vnf + vgf * vgf) - sqrt(vnf));
+            1 / train_opt.ftrl.v_alpha * (std::sqrt(backward_param->n.V[f] + vgf * vgf) - std::sqrt(backward_param->n.V[f]));
 
-        vzf += vgf - v_sigma_f * vf;
-        vnf += vgf * vgf;
+        backward_param->z.V[f] += vgf - v_sigma_f * backward_param->fm_wei.V[f];
+        backward_param->n.V[f] += vgf * vgf;
       }
 
-      backward_param->calc_param();
+      backward_param->calcFmWeights();
 
       param_context.mutex->unlock();
     }

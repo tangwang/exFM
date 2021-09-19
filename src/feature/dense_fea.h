@@ -22,7 +22,7 @@ class DenseFeaConfig : public CommonFeaConfig {
   // 以下3个vector，长度一致，按位置一一对应
   vector<real_t> all_splits;                        // 分隔值
   vector<vector<feaid_t>> fea_ids_of_each_buckets;  // 分隔值对应的onehot ID列表
-  vector<vector<ParamUnitHead *>>
+  vector<vector<FMParamUnit *>>
       fea_params_of_each_buckets;  // 分隔值对应的onehot ID列表 所对应的参数位置
 
   const vector<feaid_t> &get_fea_ids(real_t x) const {
@@ -36,13 +36,13 @@ class DenseFeaConfig : public CommonFeaConfig {
     /* gdb debug
      p fea_params_of_each_buckets[bucket_id]
      拿到param地址后：
-     p (*(ParamUnitHead *)0x6c8138)
-     p (*(ParamUnitHead *)0x6c8138).buff@24
+     p (*(FMParamUnit *)0x6c8138)
+     p (*(FMParamUnit *)0x6c8138).buff@24
      */
     return fea_ids_of_each_buckets[bucket_id];
   }
 
-  int get_fea_bucket_id(real_t x) const {
+  int getFeaBucketId(real_t x) const {
     assert(x != default_value);
     int bucket_id = lower_bound(all_splits.begin(), all_splits.end(), x) -
                     all_splits.begin();
@@ -55,20 +55,21 @@ class DenseFeaConfig : public CommonFeaConfig {
 
   int initParams();
 
-  void dump() const {
-    cout << "------------------------------------- \n";
-    cout << " DenseFeaConfig name <" << name << ">\n";
-    cout << " bucket_splits <\n";
-    utils::print2dArray(bucket_splits);
-    cout << ">\n samewide_bucket_nums <\n";
-    utils::printArray(samewide_bucket_nums);
-    cout << ">\n all_splits <\n ";
-    utils::printArray(all_splits);
-    cout << ">\n fea_ids_of_each_buckets <\n ";
-    utils::print2dArray(fea_ids_of_each_buckets);
+  friend ostream & operator << (ostream &out, const DenseFeaConfig & cfg) {
+    out << "------------------------------------- " << endl;
+    out << " DenseFeaConfig name <" << cfg.name << ">" << endl;
 
-    cout << ">\n min <" << min << "> max <" << max << ">\n";
-    cout << " default_value <" << default_value << ">\n";
+    out << " bucket_splits: " << endl << cfg.bucket_splits << endl;
+
+    out << " samewide_bucket_nums: " << endl << cfg.samewide_bucket_nums << endl;
+
+    out << " all_splits: " << endl << cfg.all_splits << endl;
+
+    out << " fea_ids_of_each_buckets: " << endl << cfg.fea_ids_of_each_buckets << endl;
+
+    out << ">\n min <" << cfg.min << "> max <" << cfg.max << ">" << endl;
+    out << " default_value <" << cfg.default_value << ">" << endl;
+    return out;
   }
 
   DenseFeaConfig();
@@ -81,7 +82,7 @@ void from_json(const json &j, DenseFeaConfig &p);
 class DenseFeaContext : public CommonFeaContext {
  public:
   real_t orig_x;
-  const vector<ParamUnitHead *> *fea_params;
+  const vector<FMParamUnit *> *fea_params;
 
   const DenseFeaConfig &cfg_;
 

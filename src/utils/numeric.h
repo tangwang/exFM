@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <ostream>
+#include <iterator>
 
 #include "utils/base.h"
 #include "utils/str_utils.h"
@@ -140,25 +142,51 @@ inline real_t gaussian(real_t mean, real_t stdev) {
 inline real_t gaussian() { return gaussian(0.0, 1.0); }
 #endif
 
+// template <typename value_type>
+// void print2dArray(const vector<vector<value_type>> &arrays) {
+//   int row = 0;
+//   for (auto &array : arrays) {
+//     std::cout << "row_" << row++ << " ";
+//     for (auto &v : array) {
+//       std::cout << v << " ";
+//     }
+//     std::cout << endl;
+//   }
+// }
 
-template <typename value_type>
-void print2dArray(const vector<vector<value_type>> &arrays) {
-  int row = 0;
-  for (auto &array : arrays) {
-    std::cout << "row_" << row++ << " ";
-    for (auto &v : array) {
-      std::cout << v << " ";
-    }
-    std::cout << "\n";
-  }
-}
-
-template <typename value_type>
-void printArray(const vector<value_type> &array) {
-  for (auto &v : array) {
-    std::cout << v << " ";
-  }
-  std::cout << "\n";
-}
+// template <typename value_type>
+// void printArray(const vector<value_type> &array) {
+//   for (auto &v : array) {
+//     std::cout << v << " ";
+//   }
+//   std::cout << endl;
+// }
 
 }  // namespace utils
+
+
+namespace std {
+
+template <typename value_type>
+ostream &operator<<(ostream &os, const vector<value_type> &array) {
+  os << "[";
+  std::copy(array.begin(), array.end(), ostream_iterator<value_type>(os, ", "));
+  os << "]";
+  return os;
+}
+
+template <typename value_type>
+ostream &operator<<(ostream &os, const vector<vector<value_type>> &arrays) {
+  os << "[";
+  if (!arrays.empty()) {
+    size_t len = arrays.size();
+    os << arrays[0] << endl;
+    for (size_t i = 1; i < len; i++) {
+      os << ", " << endl << arrays[i];
+    }
+  }
+  os << "]";
+  return os;
+}
+
+}

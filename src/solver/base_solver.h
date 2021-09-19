@@ -3,9 +3,8 @@
  */
 #pragma once
 #include "utils/base.h"
-#include "solver/parammeter_interface.h"
+#include "solver/parammeter_container.h"
 #include "feature/fea_manager.h"
-
 
 class BaseSolver {
  public:

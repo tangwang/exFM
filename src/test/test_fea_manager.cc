@@ -7,7 +7,6 @@
 #include "utils/base.h"
 
 void test_fea_manager() {
-  FtrlParamUnit::static_init(&train_opt);
 
   FeaManager fea_manager;
   fea_manager.parse_fea_config("./config/fea.config");

@@ -58,14 +58,14 @@ class ArgsParser {
 
       utils::trim(arg_key);
       utils::trim(arg_value);
-      bool exist = false;
+      bool existed = false;
       for (auto& arg : args) {
         if (arg.k == arg_key) {
           arg.v = arg_value;
-          exist = true;
+          existed = true;
         }
       }
-      if (!exist) args.push_back(Arg(arg_key, arg_value));
+      if (!existed) args.push_back(Arg(arg_key, arg_value));
     }
     return true;
   }
@@ -138,7 +138,6 @@ class ArgsParser {
 
   // 处理被加载、但是未被解析的参数，如果有，会答应相应的错误信息，并且将parse_status将被设置为false
   void process_other_args() {
-    bool ret = true;
     for (const auto& arg : args) {
       if (arg.process_stat == 0) {
         std::cerr << console_color::red << "unknown args " << arg.k
@@ -153,7 +152,7 @@ class ArgsParser {
         << "\n\nexFM -- Flexible(support various feature forms) and "
            "high-performance(training and online serving) FM implementation. \n"
            "usage : "
-        << program_name << " arg1=value1 arg2=value2 ...  opt1 opt2 ... \n";
+        << program_name << " arg1=value1 arg2=value2 ...  opt1 opt2 ... " << endl;
     std::cerr << help_message.str() << endl;
   }
 

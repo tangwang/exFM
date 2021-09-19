@@ -15,18 +15,19 @@ class VarlenSparseFeaConfig : public CommonFeaConfig {
 
   int initParams();
 
-  void dump() const {
-    cout << "------------------------------------- \n";
-    cout << " VarlenSparseFeaConfig name <" << name << ">\n";
-    cout << " max_len <" << max_len << ">\n";
-    cout << " pooling_type <" << pooling_type << ">\n";
-    cout << " max_id <" << sparse_cfg.max_id << ">\n";
-    cout << " use_id_mapping <" << sparse_cfg.use_id_mapping << ">\n";
-    cout << " use_hash <" << sparse_cfg.use_hash << ">\n";
-    cout << " default_value <" << sparse_cfg.default_value << ">\n";
-    cout << " id_mapping_dict_path <" << sparse_cfg.id_mapping_dict_path << ">\n";
-    cout << " fea_id_mapping size <" << sparse_cfg.fea_id_mapping.size() << ">\n";
-    cout << " vocab_size <" << sparse_cfg.vocab_size << ">\n";
+  friend ostream & operator << (ostream &out, const VarlenSparseFeaConfig & cfg) {
+    out << "------------------------------------- " << endl;
+    out << " VarlenSparseFeaConfig name <" << cfg.name << ">" << endl;
+    out << " max_len <" << cfg.max_len << ">" << endl;
+    out << " pooling_type <" << cfg.pooling_type << ">" << endl;
+    out << " max_id <" << cfg.sparse_cfg.max_id << ">" << endl;
+    out << " use_id_mapping <" << cfg.sparse_cfg.use_id_mapping << ">" << endl;
+    out << " use_hash <" << cfg.sparse_cfg.use_hash << ">" << endl;
+    out << " default_value <" << cfg.sparse_cfg.default_value << ">" << endl;
+    out << " id_mapping_dict_path <" << cfg.sparse_cfg.id_mapping_dict_path << ">" << endl;
+    out << " fea_id_mapping size <" << cfg.sparse_cfg.fea_id_mapping.size() << ">" << endl;
+    out << " vocab_size <" << cfg.sparse_cfg.vocab_size << ">" << endl;
+    return out;
   }
 
   VarlenSparseFeaConfig();
@@ -43,7 +44,7 @@ class VarlenSparseFeaContext : public CommonFeaContext {
   vector<feaid_t> orig_fea_ids;
   //以下两个vector每个元素一一对应。 TODO ， 后面可以去掉fea_ids，只保留fea_params
   vector<feaid_t> fea_ids;
-  vector<ParamUnitHead *> fea_params;
+  vector<FMParamUnit *> fea_params;
 
   void forward(vector<ParamContext> &forward_params);
   void backward();

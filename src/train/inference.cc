@@ -17,7 +17,6 @@ int main(int argc, char *argv[]) {
   }
 
   CommonFeaConfig::static_init(&train_opt);
-  FtrlParamUnit::static_init(&train_opt);
 
   FeaManager fea_manager;
   assert(access(train_opt.feature_config_path, F_OK) != -1);

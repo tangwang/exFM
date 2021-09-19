@@ -6,7 +6,7 @@
 
 BaseSolver::BaseSolver(const FeaManager &fea_manager)
     : fea_manager_(fea_manager),
-      sum(train_opt.factor_num) {
+      sum(DIM) {
   for (auto &iter : fea_manager_.dense_feas) {
     dense_feas.push_back(std::move(DenseFeaContext(iter)));
   }
@@ -55,9 +55,8 @@ void BaseSolver::train(int &out_y, real_t &out_logit) {
 real_t BaseSolver::predict() {
   real_t sum_sqr = 0.0;
   real_t d = 0.0;
-  real_t mult = 0.0;
-
-  for (int f = 0; f < train_opt.factor_num; ++f) {
+  logit = 0.0;
+  for (int f = 0; f < DIM; ++f) {
     sum[f] = sum_sqr = 0.0;
     for (auto param_context : forward_params) {
       d = param_context.param->V[f];

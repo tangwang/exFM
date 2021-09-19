@@ -29,6 +29,8 @@ using std::shared_ptr;
 
 using std::ifstream;
 using std::ofstream;
+using std::ostream;
+using std::istream;
 using std::fstream;
 
 #define WINDOWS_VER_ 0 // 暂时未测试

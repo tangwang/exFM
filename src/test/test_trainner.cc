@@ -21,7 +21,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  FtrlParamUnit::static_init(train_opt);
 
   FeaManager fea_manager;
   fea_manager.parse_fea_config("./config/fea.config");

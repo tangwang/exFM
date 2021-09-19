@@ -22,19 +22,19 @@ class FeaManager {
   void initModelParams(bool show_cfg = false) {
     for (auto &fea : dense_feas) {
       fea.init();
-      if (show_cfg) fea.dump();
+      if (show_cfg) cout << fea << endl;;
     }
     for (auto &fea : sparse_feas) {
       fea.init();
-      if (show_cfg) fea.dump();
+      if (show_cfg) cout << fea << endl;;
     }
     for (auto &fea : varlen_feas) {
       fea.init();
-      if (show_cfg) fea.dump();
+      if (show_cfg) cout << fea << endl;;
     }
   }
 
-  int dump_model(bool show_cfg = false) {
+  int dumpModel(bool show_cfg = false) {
     // TODO 参数可能要加锁，保证内存序，以保证读取的参数是最新的
     // 调用dump_model时，所有的worker进程以及结束，只留下一个进程所以不存在内存序的问题导致读取的内存错误，但是
     // 能否确认缓存都已更新到内存？如果不能确认，这里需要全部加一次锁，或者考虑full
@@ -51,15 +51,15 @@ class FeaManager {
       cout << "begin to dump model: " << endl;
       for (auto &fea : dense_feas) {
         if (ret != 0) break;
-        ret = fea.dump_model();
+        ret = fea.dumpModel();
       }
       for (auto &fea : sparse_feas) {
         if (ret != 0) break;
-        ret = fea.dump_model();
+        ret = fea.dumpModel();
       }
       for (auto &fea : varlen_feas) {
         if (ret != 0) break;
-        ret = fea.dump_model();
+        ret = fea.dumpModel();
       }
       if (ret == 0) {
           cout << "dump model all finished" << endl;

@@ -103,8 +103,6 @@ class TrainWorker {
     string line_buff;
     int sleep_seconds = 0;
     const bool verbose_debug = train_opt.verbose > 1;
-    int y;
-    real_t logit;
     do {
       sleep(2);
       sleep_seconds += 2;
@@ -120,11 +118,12 @@ class TrainWorker {
       while (std::getline(input_stream, line_buff)) {
         solver->feedSample(line_buff.c_str());
         // solver->train_fm_flattern(y, logit, true);
-        logit = solver->predict();
-        y = solver->y;
+        real_t logit = solver->predict();
+        int y = solver->y;
         eval.add(y, logit);
       }
       eval.output(task_name_.c_str());
+      eval.reset();
       input_stream.clear();
       input_stream.seekg(0);
     } while (!stop_flag);
@@ -132,8 +131,8 @@ class TrainWorker {
     while (std::getline(input_stream, line_buff)) {
       solver->feedSample(line_buff.c_str());
       // solver->train_fm_flattern(true);
-      logit = solver->predict();
-      y = solver->y;
+      real_t logit = solver->predict();
+      int y = solver->y;
       eval.add(y, logit);
     }
     eval.output(task_name_.c_str());

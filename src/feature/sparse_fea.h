@@ -28,18 +28,19 @@ class SparseFeaConfig : public CommonFeaConfig {
 
   int initParams();
 
-  void dump() const {
-    cout << "------------------------------------- \n";
-    cout << " SparseFeaConfig name " << name << ">\n";
-    cout << " use_hash <" << use_hash << ">\n";
-    cout << " max_id <" << max_id << ">\n";
-    cout << " use_id_mapping <" << use_id_mapping << ">\n";
-    cout << " default_value <" << default_value << ">\n";
-    cout << " id_mapping_dict_path <" << id_mapping_dict_path << ">\n";
-    cout << " fea_id_mapping size <" << fea_id_mapping.size() << ">\n";
-    cout << " vocab_size <" << vocab_size << ">\n";
-    cout << " use_hash <" << use_hash << ">\n";
-    cout << " default_value <" << default_value << ">\n";
+  friend ostream & operator << (ostream &out, const SparseFeaConfig & cfg) {
+    out << "------------------------------------- " << endl;
+    out << " SparseFeaConfig name " << cfg.name << ">" << endl;
+    out << " use_hash <" << cfg.use_hash << ">" << endl;
+    out << " max_id <" << cfg.max_id << ">" << endl;
+    out << " use_id_mapping <" << cfg.use_id_mapping << ">" << endl;
+    out << " default_value <" << cfg.default_value << ">" << endl;
+    out << " id_mapping_dict_path <" << cfg.id_mapping_dict_path << ">" << endl;
+    out << " fea_id_mapping size <" << cfg.fea_id_mapping.size() << ">" << endl;
+    out << " vocab_size <" << cfg.vocab_size << ">" << endl;
+    out << " use_hash <" << cfg.use_hash << ">" << endl;
+    out << " default_value <" << cfg.default_value << ">" << endl;
+    return out;
   }
 
   SparseFeaConfig();

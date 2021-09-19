@@ -31,30 +31,31 @@ class AdamSolver : public BaseSolver {
     for (auto param_context : backward_params) {
       AdamParamUnit *backward_param = (AdamParamUnit *)param_context.param;
       param_context.mutex->lock();
-      real_t xi = 1.0;
-      // grad *= xi; //暂时都是离散特征，不支持连续值特征，所以此处关闭
-      real_t & w = backward_param->head.w;
-      real_t & wm = backward_param->multabel_wm();
-      real_t & wv = backward_param->multabel_wv();
-
-      real_t & _beta1power_t = backward_param->multabel_beta1power_t();
-      real_t & _beta2power_t = backward_param->multabel_beta2power_t();
-      _beta1power_t *= beta1;
-      _beta2power_t *= beta2;
+      real_t xi = param_context.x;
+      grad *= xi;
+      real_t & w = backward_param->fm_wei.w;
+      real_t & wm = backward_param->momentum.w;
+      real_t & wv = backward_param->variance_m.w;
 
       wm = beta1 * wm + (1-beta1)*grad;
       wv = beta2 * wv + (1-beta2)*grad*grad;
 
-      real_t corrected_wm = bias_correct ? wm : (wm / (1-_beta1power_t));
-      real_t corrected_wv = bias_correct ? wv : (wv / (1-_beta2power_t));
+      real_t corrected_wm = wm;
+      real_t corrected_wv = wv;
+      if (bias_correct) {
+        backward_param->beta1power_t *= beta1;
+        backward_param->beta2power_t *= beta2;
+        wm /= (1-backward_param->beta1power_t);
+        wv /= (1-backward_param->beta2power_t);
+      }
       
       w -= lr * (corrected_wm/ (std::sqrt(corrected_wv) + eps) + weight_decay_w * w);
 
-      for (int f = 0; f < train_opt.factor_num; ++f) {
+      for (int f = 0; f < DIM; ++f) {
 
-        real_t &vf = backward_param->head.V[f];
-        real_t &vmf = backward_param->multabel_vm(f);
-        real_t &vvf = backward_param->multabel_vv(f);
+        real_t &vf = backward_param->fm_wei.V[f];
+        real_t &vmf = backward_param->momentum.V[f];
+        real_t &vvf = backward_param->variance_m.V[f];
 
         real_t vgf = grad * (sum[f]  - vf * xi );
 

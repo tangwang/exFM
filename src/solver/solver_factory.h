@@ -2,11 +2,10 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "solver/parammeter_interface.h"
+#include "solver/parammeter_container.h"
 #include "solver/base_solver.h"
 
 
+shared_ptr<ParamContainerInterface> creatParamContainer(int fea_num);
 
-shared_ptr<ParamContainerInterface> creat_param_container(int fea_num);
-
-BaseSolver * CreateSover(const FeaManager &fea_manager);
+BaseSolver * creatParamContainer(const FeaManager &fea_manager);
