@@ -60,16 +60,18 @@ class Evalution {
                         pos_num * (pos_num + 1)) /
                  (2 * pos_num * neg_num);
     double cost_time = stopwatch.get_elapsed_by_seconds();
-    printf(
-        "%s total_processed %ld (%ld per seconds), AUC %.4f, "
-        "confusion_matrix(total|tn,fp,fn,tp): %ld | %ld %ld %ld %ld, acc %.4f, "
-        "recall %.4f, "
-        "precision %.4f\n",
-        name, total_samples_processed,
-        (size_t)(total_samples_processed / cost_time), auc, tn + fp + fn + tp,
-        tn, fp, fn, tp, acc, recall, precision);
 
-    clear();
+    cout << std::fixed << std::setprecision(4) << name << " total_processed "
+         << total_samples_processed << " ("
+         << (size_t)(total_samples_processed / cost_time)
+         << " per seconds), AUC " << auc << ", confusion_matrix(total|tn,fp,fn,tp): "
+         << tn + fp + fn + tp << " | "
+         << tn << " " << fp << " " << fn << " " << tp
+         << ", acc " << acc
+         << " recall " << recall
+         << " precision " << precision << endl;
+
+        clear();
   }
 
   const Evalution& operator+=(const Evalution& rhs) {

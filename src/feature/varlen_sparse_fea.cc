@@ -21,7 +21,7 @@ int VarlenSparseFeaConfig::initParams() {
   } else if (pooling_type == "avg") {
     pooling_type_id = SeqPoolTypeAVG;
   } else {
-    fprintf(stderr, "Not supported.  use sum pooling.");
+    std::cerr << "Not supported.  use sum pooling." << endl;
     pooling_type_id = SeqPoolTypeSUM;
   }
 
@@ -78,6 +78,8 @@ int VarlenSparseFeaContext::feedSample(const char *line,
   if (!valid()) {
     return -1;
   }
+
+  DEBUG_OUT << "feedSample " << cfg_.name << " orig_fea_ids " << orig_fea_ids << " fea_ids " << fea_ids << endl;
 
   FMParamUnit *forward_param = forward_param_container->get();
   forward_param->clear();

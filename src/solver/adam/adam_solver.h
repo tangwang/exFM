@@ -48,6 +48,17 @@ class AdamSolver : public BaseSolver {
       wm = beta1 * wm + (1-beta1)*grad;
       wv = beta2 * wv + (1-beta2)*grad*grad;
 
+      DEBUG_OUT << "adam_solver: grad:" << grad << " w:" << w << " fixed_lr: " << fixed_lr
+                << " wm:" << wm << " wv:" << wv << " update:"
+                << fixed_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w) << endl
+                << "fm_param: " << backward_param->fm_param.w << "," << backward_param->fm_param.V[0] << "," << backward_param->fm_param.V[1] << endl
+                << "momentum: " << backward_param->momentum.w << "," << backward_param->momentum.V[0] << "," << backward_param->momentum.V[1] << endl
+                << "variance_m: " << backward_param->variance_m.w << "," << backward_param->variance_m.V[0] << "," << backward_param->variance_m.V[1] << endl
+                << "sum_0_1 " << sum[0] <<"," << sum[1] << endl
+                << "fm_param.V_0_1 " << backward_param->fm_param.V[0] <<"," << backward_param->fm_param.V[1] << endl
+                << "vgf_0 " << grad * (sum[0]  - backward_param->fm_param.V[0] * xi ) << endl
+                << "vgf_1 " << grad * (sum[1]  - backward_param->fm_param.V[1] * xi ) << endl;
+
       w -= fixed_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w);
 
       // update V

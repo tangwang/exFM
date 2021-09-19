@@ -81,6 +81,9 @@ int SparseFeaContext::feedSample(const char *line,
   if (!valid()) {
     return -1;
   }
+
+  DEBUG_OUT << "feedSample " << cfg_.name << " orig_fea_id " << orig_fea_id << " fea_id " << fea_id << endl;
+
   FMParamUnit *fea_param = cfg_.param_container->get(fea_id);
   Mutex_t *param_mutex = cfg_.GetMutexByFeaID(fea_id);
   backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0));

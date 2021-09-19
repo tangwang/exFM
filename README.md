@@ -1,5 +1,8 @@
+
 # exFM
 nexFM -- Flexible(support various feature forms) and high-performance(training and online serving) FM implementation. 
+
+默认15维，如果指定其他维度，用make DIM=xxx进行编译。
 
 1. make DIM=31
 FM 隐向量V的dim，可以用变长数组实现：

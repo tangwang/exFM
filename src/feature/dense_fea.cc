@@ -119,6 +119,8 @@ int DenseFeaContext::feedSample(const char *line,
   int bucket_id = cfg_.getFeaBucketId(orig_x);
   fea_params = &cfg_.fea_params_of_each_buckets[bucket_id];
 
+  DEBUG_OUT << "feedSample " << cfg_.name << " orig_x " << orig_x << " bucket_id " << bucket_id << endl;
+
   FMParamUnit *forward_param = forward_param_container->get();
   forward_param->clear();
 

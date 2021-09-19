@@ -33,13 +33,22 @@ using std::ostream;
 using std::istream;
 using std::fstream;
 
-#define WINDOWS_VER_ 0 // 暂时未测试
 
-#define _DEBUG_VER_
+#if !DIM
+#define DIM 15
+#endif
+
+#define WINDOWS_VER_ 0 // 暂时未测试
 
 #ifdef _DEBUG_VER_
 #include <cassert>
+
+#define DEBUG_OUT std::cout
+
 #else
+
+#define DEBUG_OUT NULL && std::cout
+
 #ifdef assert
 #undef assert
 #endif

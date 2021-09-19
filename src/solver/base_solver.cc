@@ -48,17 +48,17 @@ void BaseSolver::train(int &out_y, real_t &out_logit) {
   out_logit = predict();
   out_y = y;
   real_t grad = y * (1 / (1 + exp(-logit * y)) - 1);
+  DEBUG_OUT << "BaseSolver::train " << " y " << y << " logit " << logit  << " grad " << grad << endl;
   update(grad);
 }
 
 real_t BaseSolver::predict() {
   real_t sum_sqr = 0.0;
-  real_t d = 0.0;
   logit = 0.0;
   for (int f = 0; f < DIM; ++f) {
     sum[f] = sum_sqr = 0.0;
-    for (auto param_context : forward_params) {
-      d = param_context.param->V[f];
+    for (size_t i = 0; i < forward_params.size(); i++) {
+      real_t d = forward_params[i].param->V[f];
       sum[f] += d;
       sum_sqr += d * d;
     }
@@ -66,8 +66,8 @@ real_t BaseSolver::predict() {
   }
   logit *= 0.5;
 
-  for (auto param_context : forward_params) {
-    logit += param_context.param->w;
+  for (size_t i = 0; i < forward_params.size(); i++) {
+    logit += forward_params[i].param->w;
   }
   return logit;
 }
