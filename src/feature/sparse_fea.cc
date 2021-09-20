@@ -17,7 +17,14 @@ int SparseFeaConfig::initParams() {
   // TODO 暂时设大一点，后面AUC效果没问题了去掉这一行
   vocab_size = max_id + 2;
 
-  param_container = creatParamContainer(vocab_size);
+  // initail mutexes
+  feaid_t mutex_nums = vocab_size;
+  if (mutex_nums > 10000) {
+    mutex_nums = std::max(10000, (int)std::pow((float)mutex_nums, 0.8));
+    mutex_nums = std::min(mutex_nums, 1000000);
+  }
+
+  param_container = creatParamContainer(vocab_size, mutex_nums);
   warm_start();
 
   if (use_id_mapping != 0 && !id_mapping_dict_path.empty()) {
@@ -33,14 +40,6 @@ int SparseFeaConfig::initParams() {
                 << std::endl;
     }
   }
-
-  // initail mutexes
-  mutex_nums = vocab_size;
-  if (mutex_nums > 8000) {
-    mutex_nums = std::max(8000, (int)std::pow((float)mutex_nums, 0.7));
-    mutex_nums = std::min(mutex_nums, 80000);
-  }
-  mutexes.resize(mutex_nums);
 
   return 0;
 }
@@ -85,7 +84,7 @@ int SparseFeaContext::feedSample(const char *line,
   DEBUG_OUT << "feedSample " << cfg_.name << " orig_fea_id " << orig_fea_id << " fea_id " << fea_id << endl;
 
   FMParamUnit *fea_param = cfg_.param_container->get(fea_id);
-  Mutex_t *param_mutex = cfg_.GetMutexByFeaID(fea_id);
+  Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(fea_id);
   backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0));
   FMParamUnit *forward_param = forward_param_container->get();
   param_mutex->lock();

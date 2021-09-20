@@ -22,15 +22,15 @@ class FeaManager {
   void initModelParams(bool show_cfg = false) {
     for (auto &fea : dense_feas) {
       fea.init();
-      if (show_cfg) cout << fea << endl;;
+      if (show_cfg) cout << fea << endl;
     }
     for (auto &fea : sparse_feas) {
       fea.init();
-      if (show_cfg) cout << fea << endl;;
+      if (show_cfg) cout << fea << endl;
     }
     for (auto &fea : varlen_feas) {
       fea.init();
-      if (show_cfg) cout << fea << endl;;
+      if (show_cfg) cout << fea << endl;
     }
   }
 

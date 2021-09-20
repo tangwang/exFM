@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
     std::cout << "start train thread " << thread_id << "..." << endl;
     TrainWorker *p = new TrainWorker("train", thread_id);
-    p->RegisteSolver(creatParamContainer(fea_manager));
+    p->RegisteSolver(creatSolver(fea_manager));
     p->StartTrainLoop();
     sovers.push_back(p);
   }
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
     }
 
     validator = new TrainWorker("valid", 0);
-    validator->RegisteSolver(creatParamContainer(fea_manager));
+    validator->RegisteSolver(creatSolver(fea_manager));
     validator->StartValidationLoop(valid_stream);
     std::cout << "start validation thread " << "..." << endl;
   }

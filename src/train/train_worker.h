@@ -56,13 +56,6 @@ class TrainWorker {
 
   Evalution eval;
 
-  void train(bool only_predict = false);
-  void train_fm_flattern(bool only_predict = false);
-
-  void predict();
-
-  void backward();
-
   void CollectEvalInfo(Evalution &collect_to) { collect_to += eval; }
 
  private:
@@ -113,13 +106,14 @@ class TrainWorker {
       else
         sleep_seconds = 0;
       if (verbose_debug)
-        std::cout << "validation thread begin predict... " << std::endl;
+        std::cout << "validation thread begin forward... " << std::endl;
 
       while (std::getline(input_stream, line_buff)) {
         solver->feedSample(line_buff.c_str());
         // solver->train_fm_flattern(y, logit, true);
-        real_t logit = solver->predict();
-        int y = solver->y;
+        real_t logit;
+        int y;
+        solver->forward(y, logit);
         eval.add(y, logit);
       }
       eval.output(task_name_.c_str());
@@ -131,8 +125,9 @@ class TrainWorker {
     while (std::getline(input_stream, line_buff)) {
       solver->feedSample(line_buff.c_str());
       // solver->train_fm_flattern(true);
-      real_t logit = solver->predict();
-      int y = solver->y;
+      real_t logit;
+      int y;
+      solver->forward(y, logit);
       eval.add(y, logit);
     }
     eval.output(task_name_.c_str());

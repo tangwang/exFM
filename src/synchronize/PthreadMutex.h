@@ -22,6 +22,11 @@ class PthreadMutex {
   inline void wait() {}
 
   inline void notify() {}
+
+  // 禁用拷贝
+  private:
+  PthreadMutex(const PthreadMutex &ohter);
+  PthreadMutex &operator=(const PthreadMutex &that);
 };
 
 #endif /* PTHREADMUTEX_H_ */

@@ -86,7 +86,7 @@ int VarlenSparseFeaContext::feedSample(const char *line,
 
   for (auto id : fea_ids) {
     FMParamUnit *fea_param = cfg_.sparse_cfg.param_container->get(id);
-    Mutex_t *param_mutex = cfg_.sparse_cfg.GetMutexByFeaID(id);
+    Mutex_t *param_mutex = cfg_.sparse_cfg.param_container->GetMutexByFeaID(id);
 
     param_mutex->lock();
     *forward_param += *fea_param;

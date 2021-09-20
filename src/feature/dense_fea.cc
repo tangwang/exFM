@@ -12,9 +12,6 @@ int DenseFeaConfig::initParams() {
   const feaid_t onehot_fea_dimension =
       samewide_bucket_nums.size() + bucket_splits.size();
   if (onehot_fea_dimension == 0) return 0;
-
-  param_container = creatParamContainer(onehot_fea_dimension);
-  warm_start();
   
   vector<pair<real_t, vector<feaid_t>>> all_split_position_and_mapping_ids;
   feaid_t onehot_dimension = 0;
@@ -70,6 +67,10 @@ int DenseFeaConfig::initParams() {
         all_split_position_and_mapping_ids[split_idx].second);
   }
 
+
+  param_container = creatParamContainer(onehot_fea_dimension, (feaid_t)fea_ids_of_each_buckets.size());
+  warm_start();
+
   // 提前取出参数位置
   fea_params_of_each_buckets.resize(fea_ids_of_each_buckets.size());
   for (size_t i = 0; i < fea_ids_of_each_buckets.size(); i++) {
@@ -79,9 +80,6 @@ int DenseFeaConfig::initParams() {
       fea_params_of_each_buckets[i][j] = param_container->get(i_value[j]);
     }
   }
-
-  // initail mutexes
-  mutexes.resize(fea_params_of_each_buckets.size());
 
   return 0;
 }
@@ -124,10 +122,8 @@ int DenseFeaContext::feedSample(const char *line,
   FMParamUnit *forward_param = forward_param_container->get();
   forward_param->clear();
 
-  cfg_.param_container->clear_weights(forward_param);
-
   for (auto fea_param : *fea_params) {
-    Mutex_t *param_mutex = cfg_.GetMutexByBucketID(bucket_id);
+    Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(bucket_id);
     backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0));
 
     param_mutex->lock();

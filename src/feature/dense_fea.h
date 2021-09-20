@@ -9,10 +9,6 @@ class DenseFeaConfig : public CommonFeaConfig {
   real_t min;
   real_t max;
   real_t default_value;
-  mutable vector<Mutex_t> mutexes;
-  Mutex_t * GetMutexByBucketID(int bucket_id) const {
-    return &mutexes[bucket_id];
-  }
 
   // 配置的等频分桶桶宽
   vector<int> samewide_bucket_nums;

@@ -41,7 +41,7 @@ class TrainOption {
   bool disable_feaid_mapping;
 
   const bool shuffle = false; // TODO  shuffle is not implement yet
-  const size_t batchSize = 32;// TODO  batchSize is not implement yet
+  int batch_size;
 
   // train data format
   char fea_seperator;

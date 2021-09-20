@@ -20,35 +20,34 @@ class SgdmSolver : public BaseSolver {
         {}
   virtual ~SgdmSolver() {}
 
-  virtual void update(real_t grad) {
-    if (y == 1) grad *= 7.2816; // TODO 正负样本loss均衡。暂时写死
+  virtual void update() {
 
-    for (auto param_context : backward_params) {
+    for (auto & kv : batch_params) {
+      ParamContext & param_context = kv.second;
+      FMParamUnit & grad = param_context.fm_grad;
+      grad /= train_opt.batch_size;
+
       SgdmParamUnit *backward_param = (SgdmParamUnit *)param_context.param;
       param_context.mutex->lock();
-      real_t xi = param_context.x;
-      grad *= xi; //暂时都是离散特征，不支持连续值特征，所以此处关闭
 
       real_t & w = backward_param->fm_param.w;
       real_t & wm = backward_param->momentum.w;
 
-      wm = beta1 * wm + (1-beta1) * grad;
+      wm = beta1 * wm + (1-beta1) * grad.w;
       w -= lr * (wm  + w * l2_reg_w);
 
       for (int f = 0; f < DIM; ++f) {
         real_t &vf = backward_param->fm_param.V[f];
         real_t & vmf = backward_param->momentum.V[f];
-
-        real_t vgf = grad * (sum[f]  - vf * xi );
+        real_t vgf = grad.V[f];
 
         vmf = beta1 * vmf + (1-beta1) * vgf;
-
         vf -= lr * (vmf + vf * l2_reg_V);
       }
-
       param_context.mutex->unlock();
     }
   }
+
 
   const real_t l1_reg_w;
   const real_t l1_reg_V;

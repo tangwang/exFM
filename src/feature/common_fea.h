@@ -10,6 +10,7 @@
 #include "utils/List.h"
 #include "utils/base.h"
 #include "utils/utils.h"
+#include <array>
 
 using json = nlohmann::json;
 

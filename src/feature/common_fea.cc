@@ -3,6 +3,6 @@
 
 CommonFeaContext::CommonFeaContext()
 {
-    forward_param_container = creatParamContainer(1);
-    backward_param_container = creatParamContainer(1);
+    forward_param_container = creatParamContainer(1, 1);
+    backward_param_container = creatParamContainer(1, 1);
 }

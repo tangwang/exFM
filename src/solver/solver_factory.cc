@@ -7,20 +7,20 @@
 #include "solver/adam/adam_solver.h"
 #include "solver/sgdm/sgdm_solver.h"
 
-shared_ptr<ParamContainerInterface> creatParamContainer(feaid_t fea_num) {
+shared_ptr<ParamContainerInterface> creatParamContainer(feaid_t fea_num, feaid_t mutex_nums) {
   if (train_opt.solver == "ftrl") {
-    return std::make_shared<ParamContainer<FtrlParamUnit>>(fea_num);
+    return std::make_shared<ParamContainer<FtrlParamUnit>>(fea_num, mutex_nums);
   } else if (train_opt.solver == "sgd") {
-    return std::make_shared<ParamContainer<SgdmParamUnit>>(fea_num);
+    return std::make_shared<ParamContainer<SgdmParamUnit>>(fea_num, mutex_nums);
   } else if (train_opt.solver == "adam") {
-    return std::make_shared<ParamContainer<AdamParamUnit>>(fea_num);
+    return std::make_shared<ParamContainer<AdamParamUnit>>(fea_num, mutex_nums);
   } else {
     // 默认采用adam
-    return std::make_shared<ParamContainer<AdamParamUnit>>(fea_num);
+    return std::make_shared<ParamContainer<AdamParamUnit>>(fea_num, mutex_nums);
   }
 }
 
-BaseSolver * creatParamContainer(const FeaManager &fea_manager) {
+BaseSolver * creatSolver(const FeaManager &fea_manager) {
   if (train_opt.solver == "ftrl") {
     return new FtrlSolver(fea_manager);
   } else if (train_opt.solver == "sgd" || train_opt.solver == "sgdm") {

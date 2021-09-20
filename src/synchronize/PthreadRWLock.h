@@ -38,6 +38,10 @@ public:
 	inline void unlock(){
 		pthread_rwlock_unlock(&lock_);
 	}
+  // 禁用拷贝
+  private:
+  PthreadRWLock(const PthreadRWLock &ohter);
+  PthreadRWLock &operator=(const PthreadRWLock &that);
 
 };
 

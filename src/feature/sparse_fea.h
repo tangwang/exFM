@@ -14,11 +14,6 @@ class SparseFeaConfig : public CommonFeaConfig {
   feaid_t default_value;
   int use_id_mapping;
   bool use_hash;
-  mutable vector<Mutex_t> mutexes;
-  int mutex_nums;
-  Mutex_t* GetMutexByFeaID(feaid_t id) const {
-    return &mutexes[id % mutex_nums];
-  }
 
   string id_mapping_dict_path;
 

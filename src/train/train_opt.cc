@@ -56,7 +56,7 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 //////////////////////
 // solver
   arg_parser.parse_arg("solver", solver, string("ftrl"), "solver", false);
-
+  arg_parser.parse_arg("batch_size", batch_size, 1024, "solver", false);
 
   // FTRL hyper params
   arg_parser.parse_arg("ftrl.init_stdev", ftrl.init_stdev, 0.001,
@@ -71,7 +71,7 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("ftrl.l2v", ftrl.l2_reg_V, 5.0,  "l2 regularization of V");
 
   // SGDM hyper params
-  arg_parser.parse_arg("sgdm.lr", sgdm.lr, 0.0001, "SGDM learning rate");
+  arg_parser.parse_arg("sgdm.lr", sgdm.lr, 0.001, "SGDM learning rate");
   arg_parser.parse_arg("sgdm.beta1"   , sgdm.beta1,    0.9   , "SGD 一阶动量平滑常数");
   arg_parser.parse_arg("sgdm.l1w", sgdm.l1_reg_w, 0.05, "l1 regularization of w");
   arg_parser.parse_arg("sgdm.l2w", sgdm.l2_reg_w, 5.0,  "l2 regularization of w");
@@ -79,7 +79,7 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("sgdm.l2v", sgdm.l2_reg_V, 5.0,  "l2 regularization of V");
 
   // Adam hyper params
-  arg_parser.parse_arg("adam.lr", adam.lr, 0.0001, "Adam learning rate");
+  arg_parser.parse_arg("adam.lr", adam.lr, 0.001, "Adam learning rate");
   arg_parser.parse_arg("adam.beta1", adam.beta1, 0.9, "adam一阶动量平滑常数");
   arg_parser.parse_arg("adam.beta2", adam.beta2, 0.999, "adam二阶动量平滑常数");
   arg_parser.parse_arg("adam.bias_correct", adam.bias_correct, 1, "bias_correct");

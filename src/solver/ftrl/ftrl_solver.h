@@ -12,22 +12,25 @@ class FtrlSolver : public BaseSolver {
   FtrlSolver(const FeaManager &fea_manager) : BaseSolver(fea_manager) {}
   virtual ~FtrlSolver() {}
 
-  virtual void update(real_t grad) {
+  virtual void update() {
 
-    for (auto param_context : backward_params) {
+    // TODO FTRL并不需要batchsize，这种通用的处理方法带来很多额外的性能开销。 测试一下，batch_size是否对FTRL的精度有效，没什么作用的话为FTRL专门设计一下Solver
+    for (auto & kv : batch_params) {
+      ParamContext & param_context = kv.second;
+      FMParamUnit & grad = param_context.fm_grad;
+      grad /= train_opt.batch_size;
+
       FtrlParamUnit *backward_param = (FtrlParamUnit *)param_context.param;
       param_context.mutex->lock();
-      real_t xi = param_context.x;
-      grad *= xi;
       real_t w_sigama =
           1 / train_opt.ftrl.w_alpha *
-          (std::sqrt(backward_param->n.w + grad * grad) - std::sqrt(backward_param->n.w));
+          (std::sqrt(backward_param->n.w + grad.w * grad.w) - std::sqrt(backward_param->n.w));
 
-      backward_param->z.w += grad - w_sigama * backward_param->fm_param.w;
-      backward_param->n.w += grad * grad;
+      backward_param->z.w += grad.w - w_sigama * backward_param->fm_param.w;
+      backward_param->n.w += grad.w * grad.w;
 
       for (int f = 0; f < DIM; ++f) {
-        real_t vgf = grad * (sum[f]  - backward_param->fm_param.V[f] * xi);
+        real_t vgf = grad.V[f];
         real_t v_sigma_f =
             1 / train_opt.ftrl.v_alpha * (std::sqrt(backward_param->n.V[f] + vgf * vgf) - std::sqrt(backward_param->n.V[f]));
 
@@ -40,4 +43,6 @@ class FtrlSolver : public BaseSolver {
       param_context.mutex->unlock();
     }
   }
+
+
 };

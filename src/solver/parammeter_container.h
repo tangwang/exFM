@@ -10,12 +10,21 @@
 
 // 通用参数的头部结构
 struct FMParamUnit {
+  FMParamUnit() {
+    clear();
+  }
   real_t w;
   real_t V[DIM];
-  void operator+=(struct FMParamUnit &other) {
+  void operator+=(const struct FMParamUnit &other) {
     w += other.w;
     for (int i = 0; i < DIM; i++) {
       V[i] += other.V[i];
+    }
+  }
+  void operator/=(real_t div) {
+    w /= div;
+    for (int i = 0; i < DIM; i++) {
+      V[i] /= div;
     }
   }
   void clear() {
@@ -24,6 +33,10 @@ struct FMParamUnit {
       V[i] = 0.0;
     }
   }
+
+  friend std::ostream &operator<<(std::ostream &os, const FMParamUnit &p) {
+    return os << "(w: " << p.w << " V[0]: " << p.V[0] << ")";
+  }
 };
 
 class ParamContainerInterface;
@@ -31,32 +44,29 @@ class ParamContainerInterface;
 struct ParamContext {
   ParamContext(ParamContainerInterface *_container = NULL, FMParamUnit *_param = NULL, Mutex_t *_mutex = NULL,
                real_t _x = 1.0)
-      : container(_container), param(_param), mutex(_mutex), x(_x) {}
+      : container(_container), param(_param), mutex(_mutex), x(_x), count(1) {}
 
-  ParamContainerInterface *container;
   FMParamUnit *param;
+  ParamContainerInterface *container;
   Mutex_t *mutex;
   real_t x;
+  FMParamUnit fm_grad;
+  int count;
 };
 
 class ParamContainerInterface {
  public:
-  ParamContainerInterface(feaid_t total_fea_num, int _param_size_of_one_fea)
+  ParamContainerInterface(feaid_t total_fea_num, feaid_t _mutex_nums, size_t _param_size_of_one_fea)
       : param_size_of_one_fea(_param_size_of_one_fea),
         fea_num(total_fea_num),
-        param_base_addr((unsigned char *)malloc((fea_num + 1) * param_size_of_one_fea))
+        mutex_nums(_mutex_nums),
+        mutexes(_mutex_nums)
   {
+        param_base_addr = (unsigned char *)malloc((fea_num + 1) * param_size_of_one_fea);
   }
 
   virtual ~ParamContainerInterface() {
     free(param_base_addr);
-  }
-
-  void clear_weights(FMParamUnit * param_addr) {
-    param_addr->w = 0.0;
-    for (int i=0; i < DIM; i++) {
-      param_addr->V[i] = 0.0;
-    }
   }
 
   bool isBadID(feaid_t id) const { return id > fea_num || id < 0; }
@@ -73,7 +83,7 @@ class ParamContainerInterface {
     return (FMParamUnit *)(param_base_addr + param_size_of_one_fea * id);
   }
 
-  int getParamUnitSize() const {
+  size_t getParamUnitSize() const {
     return param_size_of_one_fea;
   }
 
@@ -175,9 +185,16 @@ class ParamContainerInterface {
 
   const feaid_t fea_num;
 
-  const int param_size_of_one_fea;
+  const size_t param_size_of_one_fea;
 
-  unsigned char * const param_base_addr;
+  unsigned char * param_base_addr;
+
+  // mutexes
+  vector<Mutex_t> mutexes;
+  const int mutex_nums;
+  Mutex_t* GetMutexByFeaID(feaid_t id) {
+    return &mutexes[id % mutex_nums];
+  }
 
  private:
   // 禁用拷贝
@@ -188,8 +205,8 @@ class ParamContainerInterface {
 template <class ParamUnit>
 class ParamContainer : public ParamContainerInterface {
  public:
-  ParamContainer(feaid_t total_fea_num)
-      : ParamContainerInterface(total_fea_num, sizeof(ParamUnit)) {
+  ParamContainer(feaid_t total_fea_num, feaid_t mutex_nums)
+      : ParamContainerInterface(total_fea_num, mutex_nums, sizeof(ParamUnit)) {
     for (feaid_t i = 0; i < fea_num + 1; i++) {
       ParamUnit *p = (ParamUnit *)get(i);
       new (p) ParamUnit();

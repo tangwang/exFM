@@ -39,3 +39,36 @@ FTRL里面的n z是什么意思，在论文里是什么单词，怎么描述的�
 多目标（工业级很实用，是一个有吸引力的点。另一个吸引的点是容易适配特征，不用做什么特征工程  label1, label2,  x1:v1,   x2:v21|v22|v23|v24,   x3:v3 ， 这种就行）
 
 
+
+
+
+batch_size：
+现我们在每一次epoch迭代的时候，都会打乱数据，随机分割数据集。
+这是因为神经网络参数多，学习能力强，如果不乱序的话，同一个组合的batch反复出现，模型有可能会“记住”这些样本的次序，从而影响泛化能力。
+要做shuf和batch
+
+
+cpu向量指令 性能优化
+
+adam需要batchsize，其次是sgdm，FTRL不需要：
+
+
+Batch Size=1，梯度变来变去，非常不准确，网络很难收敛，需要较小的学习率以保持稳定性。batch_size为1时，adam学习率0.001很难学好，这是为什么学习率要低两个数量级的原因。(官方推荐lr=0.001，但是不支持batch_size的时候，lr要调到1e-5以下)
+
+3、Batch Size增大，梯度变准确，
+4、Batch Size增大，梯度已经非常准确，再增加Batch Size也没有用
+注意：Batch Size增大了，要到达相同的准确度，必须要增大epoch。
+https://blog.csdn.net/qq_34886403/article/details/82558399
+
+
+
+
+
+parameter synchronize：
+Mutex_t通过宏定义控制：
+    #ifdef _PREDICT_VER_
+    typedef NullMutex Mutex_t;
+    #else
+    typedef PthreadMutex Mutex_t;
+    #endif
+
