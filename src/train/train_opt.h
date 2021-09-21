@@ -35,6 +35,7 @@ class TrainOption {
   int time_interval_of_validation;
   const long n_sample_per_output = 50000;
   const int task_queue_size = 5000;
+  const int shulf_window_size = 10007;
 
   int verbose;
   bool print_help;

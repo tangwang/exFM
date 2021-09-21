@@ -61,6 +61,10 @@ Batch Size=1，梯度变来变去，非常不准确，网络很难收敛，需�
 https://blog.csdn.net/qq_34886403/article/details/82558399
 
 
+支持batch_size之后，lr太大还是学不好：
+# sgdm lr=0.01就完全学不动，即使是batch_size=1024，如果lr=0.1，auc一直0.5。 
+# adam 也是 lr=0.0001比较好，0.01和0.001学不出来
+
 
 
 

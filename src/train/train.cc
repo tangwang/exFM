@@ -3,25 +3,27 @@
  */
 #include "feature/fea_manager.h"
 #include "train/train_worker.h"
+#include "train/shulffer.h"
 #include "solver/ftrl/ftrl_solver.h"
 #include "solver/solver_factory.h"
 #include "solver/ftrl/ftrl_solver.h"
 #include "solver/adam/adam_solver.h"
 #include "solver/sgdm/sgdm_solver.h"
 
-int train_dispatcher(vector<TrainWorker *> &sovers,
-                          std::istream *input_stream, long run_sample_num) {
+size_t train_dispatcher(vector<TrainWorker *> &sovers,
+                          std::istream *input_stream, size_t run_sample_num) {
   string input_buff;
-  long i = run_sample_num;
-  int task_id_to_feed = 0;
+  size_t i = run_sample_num;
+  UshortShulffer shulffer;
+  shulffer.reset();
   for (; i != 0 && std::getline(*input_stream, input_buff); --i) {
     int max_retry_times = train_opt.threads_num;
     for (; max_retry_times != 0; --max_retry_times) {
-      if (sovers[(++task_id_to_feed) % sovers.size()]->TryPush(input_buff))
+      if (sovers[shulffer.next() % sovers.size()]->TryPush(input_buff))
         break;
     }
     if (max_retry_times == 0) {
-      sovers[(++task_id_to_feed) % sovers.size()]->WaitAndPush(input_buff);
+      sovers[shulffer.next() % sovers.size()]->WaitAndPush(input_buff);
     }
   }
   return run_sample_num - i;
@@ -29,22 +31,25 @@ int train_dispatcher(vector<TrainWorker *> &sovers,
 
 void train_dispatcher(vector<TrainWorker *> &sovers,
                            std::istream *input_stream) {
+
+  UshortShulffer shulffer;
+  shulffer.reset();
+
   string input_buff;
-  int task_id_to_feed = 0;
   while (std::getline(*input_stream, input_buff)) {
     int max_retry_times = train_opt.threads_num;
 #if 1  // TODO check perfermance
     for (;
          max_retry_times != 0 &&
-         !sovers[(++task_id_to_feed) % sovers.size()]->TryPush(input_buff);
+         !sovers[shulffer.next() % sovers.size()]->TryPush(input_buff);
          --max_retry_times)
       ;
 
     if (max_retry_times == 0) {
-      sovers[(++task_id_to_feed) % sovers.size()]->WaitAndPush(input_buff);
+      sovers[shulffer.next() % sovers.size()]->WaitAndPush(input_buff);
     }
 #else
-    sovers[(++task_id_to_feed) % sovers.size()]->WaitAndPush(input_buff);
+    sovers[shulffer.next() % sovers.size()]->WaitAndPush(input_buff);
 #endif
   }
 }
