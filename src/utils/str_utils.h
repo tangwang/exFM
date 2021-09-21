@@ -103,8 +103,8 @@ inline std::string &trim(std::string &s) {
 
 template <typename value_type>
 void split_string(const string &line, char delimiter, vector<value_type> &r) {
-  int begin = 0;
-  for (int i = 0; i < line.size(); ++i) {
+  size_t begin = 0;
+  for (size_t i = 0; i < line.size(); ++i) {
     if (line[i] == delimiter) {
       r.push_back(cast_ref_type<string, value_type>(line.substr(begin, i - begin)));
       begin = i + 1;
@@ -118,8 +118,8 @@ void split_string(const string &line, char delimiter, vector<value_type> &r) {
 
 template <typename value_type>
 value_type * split_string(const string &line, char delimiter, value_type * r) {
-  int begin = 0;
-  for (int i = 0; i < line.size(); ++i) {
+  size_t begin = 0;
+  for (size_t i = 0; i < line.size(); ++i) {
     if (line[i] == delimiter) {
       *r = cast_ref_type<string, value_type>(line.substr(begin, i - begin));
       r++;

@@ -54,7 +54,7 @@ int main() {
   for (int i = 0; i < 10; ++i) threads[i] = std::thread(print_id, i);
 
   std::cout << "10 threads ready to race..." << endl;
-  go();  // go!
+  go();
 
   for (auto& th : threads) th.join();
 

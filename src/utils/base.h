@@ -70,5 +70,5 @@ typedef unsigned short uint16;
 // typedef float real_t;
 typedef double real_t;
 
-// typedef long feaid_t;
-typedef int feaid_t;
+// typedef unsigned long feaid_t;
+typedef unsigned int feaid_t;

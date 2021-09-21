@@ -47,4 +47,4 @@ class BusyConsumerQueue {
   std::condition_variable cond_;
 };
 
-}  // namespace utils
+}

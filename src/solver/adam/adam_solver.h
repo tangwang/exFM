@@ -11,22 +11,23 @@ class AdamSolver : public BaseSolver {
  public:
   AdamSolver(const FeaManager &fea_manager)
       : BaseSolver(fea_manager),
-        beta1_pow(1.0),
-        beta2_pow(1.0),
         lr(train_opt.adam.lr),
-        bias_correct(train_opt.adam.bias_correct != 0),
-        eps(train_opt.adam.eps),
         beta1(train_opt.adam.beta1),
         beta2(train_opt.adam.beta2),
+        beta1_pow(1.0),
+        beta2_pow(1.0),
         weight_decay_w(train_opt.adam.weight_decay_w),
-        weight_decay_V(train_opt.adam.weight_decay_V) {}
+        weight_decay_V(train_opt.adam.weight_decay_V),
+        eps(train_opt.adam.eps),
+        bias_correct(train_opt.adam.bias_correct != 0) {}
+
   virtual ~AdamSolver() {}
 
   virtual void update() {
     // TODO 这里的pow(beta1_pow, t), t是取总步数，该是取该参数更新的次数？
-  
-    for (auto & kv : batch_params) {
-      ParamContext & param_context = kv.second;
+
+    for (auto &kv : batch_params) {
+      ParamContext &param_context = kv.second;
       FMParamUnit grad = param_context.fm_grad;
       grad /= train_opt.batch_size;
 
@@ -40,9 +41,9 @@ class AdamSolver : public BaseSolver {
       real_t fixed_lr = lr * std::sqrt(bias_correction2) / bias_correction1;
 
       // update w
-      real_t & w = backward_param->fm_param.w;
-      real_t & wm = backward_param->momentum.w;
-      real_t & wv = backward_param->variance_m.w;
+      real_t &w = backward_param->fm_param.w;
+      real_t &wm = backward_param->momentum.w;
+      real_t &wv = backward_param->variance_m.w;
 
       wm = beta1 * wm + (1 - beta1) * grad.w;
       wv = beta2 * wv + (1 - beta2) * grad.w * grad.w;
@@ -68,7 +69,6 @@ class AdamSolver : public BaseSolver {
 
       // update V
       for (int f = 0; f < DIM; ++f) {
-
         real_t &vf = backward_param->fm_param.V[f];
         real_t &vmf = backward_param->momentum.V[f];
         real_t &vvf = backward_param->variance_m.V[f];
@@ -83,14 +83,13 @@ class AdamSolver : public BaseSolver {
     }
   }
 
-
-  const bool bias_correct;
-  const real_t eps;
   const real_t lr;
   const real_t beta1;
   const real_t beta2;
-  const real_t weight_decay_w;
-  const real_t weight_decay_V;
   real_t beta1_pow;
   real_t beta2_pow;
+  const real_t weight_decay_w;
+  const real_t weight_decay_V;
+  const real_t eps;
+  const bool bias_correct;
 };

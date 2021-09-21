@@ -11,7 +11,7 @@ class VarlenSparseFeaConfig : public CommonFeaConfig {
   SparseFeaConfig sparse_cfg;
   string pooling_type;
   SeqPoolType pooling_type_id;
-  int max_len;
+  size_t max_len;
 
   int initParams();
 

@@ -4,9 +4,10 @@
 #pragma once
 #include <atomic>
 #include <thread>
+
+#include "solver/base_solver.h"
 #include "train/evalution.h"
 #include "utils/busy_consumer_queue.h"
-#include "solver/base_solver.h"
 
 using std::thread;
 using utils::BusyConsumerQueue;
@@ -14,10 +15,10 @@ using utils::BusyConsumerQueue;
 class TrainWorker {
  public:
   TrainWorker(const char *task_name, int task_id)
-      : stop_flag(false),
-        task_id_(task_id),
+      : task_id_(task_id),
         solver(NULL),
-        task_queue(train_opt.task_queue_size) {
+        task_queue(train_opt.task_queue_size),
+        stop_flag(false) {
     task_name_ = string(task_name) + string("_") + std::to_string(task_id);
   }
   ~TrainWorker() {
@@ -26,7 +27,7 @@ class TrainWorker {
     }
   }
 
-  void RegisteSolver(BaseSolver * _solver) {
+  void RegisteSolver(BaseSolver *_solver) {
     if (solver) {
       delete solver;
     }
@@ -47,15 +48,6 @@ class TrainWorker {
   bool TryPush(const string &v) { return task_queue.TryPush(v); }
   void WaitAndPush(const string &v) { task_queue.WaitAndPush(v); }
 
-  BusyConsumerQueue<string> task_queue;
-  int task_id_;
-  std::thread thread_handler;
-
-  std::atomic<bool> stop_flag;
-  string task_name_;
-
-  Evalution eval;
-
   void CollectEvalInfo(Evalution &collect_to) { collect_to += eval; }
 
  private:
@@ -66,7 +58,7 @@ class TrainWorker {
     const bool verbose_debug = train_opt.verbose > 1;
 
     sleep(2);
-    
+
     int y;
     real_t logit;
     do {
@@ -132,5 +124,13 @@ class TrainWorker {
     }
     eval.output(task_name_.c_str());
   }
-  BaseSolver * solver;
+
+ private:
+  string task_name_;
+  int task_id_;
+  BaseSolver *solver;
+  Evalution eval;
+  BusyConsumerQueue<string> task_queue;
+  std::thread thread_handler;
+  std::atomic<bool> stop_flag;
 };

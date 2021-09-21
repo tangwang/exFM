@@ -21,7 +21,7 @@ int SparseFeaConfig::initParams() {
   feaid_t mutex_nums = vocab_size;
   if (mutex_nums > 10000) {
     mutex_nums = std::max(10000, (int)std::pow((float)mutex_nums, 0.8));
-    mutex_nums = std::min(mutex_nums, 1000000);
+    mutex_nums = std::min(mutex_nums, (feaid_t)1000000);
   }
 
   param_container = creatParamContainer(vocab_size, mutex_nums);

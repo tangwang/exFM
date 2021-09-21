@@ -22,36 +22,35 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 	  ${wildcard  src/train/*.h} \
 
 
-OBJ = ${patsubst %.cc, %.o, ${SRC}}
-OBJ_DEBUG = ${patsubst %.cc, %.o_DEBUG, ${SRC}}
+OBJS = ${patsubst %.cc, %.o, ${SRC}}
+DEBUG_OBJS = ${patsubst %.cc, %.o_DEBUG, ${SRC}}
 
 all : bin/train bin/train_debug
 
-CC = g++ -fmax-errors=4 -DDIM=${dim}
+CC = g++
 LIB= -lpthread
 INC = -I./third_party  -I./src
-DEBUG_CCFLAGS = -g -std=c++11 -Wall -Wno-sign-compare -Wno-reorder 
-CCFLAGS = -g  -std=c++11 -Wall -Wno-sign-compare -Wno-reorder 
-#CCFLAGS = -g -O3 -std=c++11 -Wall -Wno-sign-compare -Wno-reorder 
+DEBUG_CCFLAGS = -g -std=c++11 -Wall -Wno-reorder -fmax-errors=4 -DDIM=${dim}
+CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim}
 
-bin/train: ${OBJ} 
+bin/train: ${OBJS} 
 	-mkdir -p bin
-	${CC} ${CCFLAGS}  ${LIB} ${OBJ} -o $@
+	${CC} ${LIB} ${OBJS} -o $@
 	@echo "Compile done."
 
-bin/train_debug: ${OBJ_DEBUG} 
+bin/train_debug: ${DEBUG_OBJS} 
 	-mkdir -p bin
-	${CC} ${DEBUG_CCFLAGS} ${LIB} ${OBJ_DEBUG} -o $@
+	${CC} ${LIB} ${DEBUG_OBJS} -o $@
 	@echo "Compile DEBUG version done."
 
-$(OBJ):%.o:%.cc ${DEPEND_INCLUDES}
+$(OBJS):%.o:%.cc ${DEPEND_INCLUDES}
 	@echo "Compiling $< ==> $@"
 	${CC} ${CCFLAGS} ${INC} -c $< -o $@
 	${CC} ${DEBUG_CCFLAGS} -D_DEBUG_VER_ ${INC} -c $< -o $@_DEBUG
 
 clean:
-	@rm -f ${OBJ}
-	@rm -f ${OBJ_DEBUG}
+	@rm -f ${OBJS}
+	@rm -f ${DEBUG_OBJS}
 	@echo "Clean object files done."
 
 	@rm -f *~

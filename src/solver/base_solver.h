@@ -78,15 +78,15 @@ protected:
   virtual void update() = 0;
 
 protected:
+  const FeaManager &fea_manager_;
   vector<DenseFeaContext> dense_feas;
   vector<SparseFeaContext> sparse_feas;
   vector<VarlenSparseFeaContext> varlen_feas;
 
+  const size_t batch_size;
   size_t sample_idx;
   vector<Sample> batch_samples;
 
   std::map<FMParamUnit *, ParamContext> batch_params;
 
-  const int batch_size;
-  const FeaManager &fea_manager_;
 };

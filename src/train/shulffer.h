@@ -15,7 +15,7 @@
 class Shulffer {
  public:
   Shulffer(int shulf_size)
-      : shulf_window(shulf_size), shulf_window_size(shulf_size) {
+      : shulf_window_size(shulf_size), shulf_window(shulf_size) {
     for (int i = 0; i < shulf_size; i++) {
       shulf_window[i] = i;
     }
@@ -44,7 +44,7 @@ class Shulffer {
 class UshortShulffer {
  public:
   UshortShulffer() {
-    cussor = 0;
+    cussor = max_int16_id;
     for (uint16 i = 0; i != max_int16_id; i++) {
       shulf_window[i] = i;
     }

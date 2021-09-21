@@ -51,7 +51,7 @@ void Sample::backward() {
 }
 
 BaseSolver::BaseSolver(const FeaManager &fea_manager)
-    : fea_manager_(fea_manager), batch_size(train_opt.batch_size), batch_samples(train_opt.batch_size), sample_idx(0) {
+    : fea_manager_(fea_manager), batch_size(train_opt.batch_size), sample_idx(0), batch_samples(train_opt.batch_size) {
   for (auto &iter : fea_manager_.dense_feas) {
     dense_feas.push_back(std::move(DenseFeaContext(iter)));
   }

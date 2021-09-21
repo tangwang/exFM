@@ -194,8 +194,8 @@ private:
 
     static void split_string(string& line, char delimiter, vector<string> & r)
     {
-        int begin = 0;
-        for(int i = 0; i < line.size(); ++i)
+        size_t begin = 0;
+        for(size_t i = 0; i < line.size(); ++i)
         {
             if(line[i] == delimiter)
             {

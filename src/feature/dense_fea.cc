@@ -47,10 +47,10 @@ int DenseFeaConfig::initParams() {
        all_split_position_and_mapping_ids.end(),
        utils::judgeByPairFirst<real_t, vector<feaid_t>>);
 
-  for (int split_idx = 1; split_idx < all_split_position_and_mapping_ids.size();
+  for (size_t split_idx = 1; split_idx < all_split_position_and_mapping_ids.size();
        split_idx++) {
     // 补全各个维度的fea_id
-    for (int dimension = 0; dimension < onehot_fea_dimension; dimension++) {
+    for (size_t dimension = 0; dimension < onehot_fea_dimension; dimension++) {
       feaid_t &this_id =
           all_split_position_and_mapping_ids[split_idx].second[dimension];
       feaid_t last_id =

@@ -44,7 +44,7 @@ class ParamContainerInterface;
 struct ParamContext {
   ParamContext(ParamContainerInterface *_container = NULL, FMParamUnit *_param = NULL, Mutex_t *_mutex = NULL,
                real_t _x = 1.0)
-      : container(_container), param(_param), mutex(_mutex), x(_x), count(1) {}
+      : param(_param), container(_container), mutex(_mutex), x(_x), count(1) {}
 
   FMParamUnit *param;
   ParamContainerInterface *container;
@@ -57,10 +57,10 @@ struct ParamContext {
 class ParamContainerInterface {
  public:
   ParamContainerInterface(feaid_t total_fea_num, feaid_t _mutex_nums, size_t _param_size_of_one_fea)
-      : param_size_of_one_fea(_param_size_of_one_fea),
+      : mutexes(_mutex_nums),
+        param_size_of_one_fea(_param_size_of_one_fea),
         fea_num(total_fea_num),
-        mutex_nums(_mutex_nums),
-        mutexes(_mutex_nums)
+        mutex_nums(_mutex_nums)
   {
         param_base_addr = (unsigned char *)malloc((fea_num + 1) * param_size_of_one_fea);
   }
@@ -183,15 +183,13 @@ class ParamContainerInterface {
   // }
   // virtual void update_param(FMParamUnit *backward_param, real_t grad) = 0;
 
-  const feaid_t fea_num;
-
-  const size_t param_size_of_one_fea;
-
   unsigned char * param_base_addr;
+  vector<Mutex_t> mutexes;
+  const size_t param_size_of_one_fea;
+  const feaid_t fea_num;
+  const int mutex_nums;
 
   // mutexes
-  vector<Mutex_t> mutexes;
-  const int mutex_nums;
   Mutex_t* GetMutexByFeaID(feaid_t id) {
     return &mutexes[id % mutex_nums];
   }
