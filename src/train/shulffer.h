@@ -25,7 +25,7 @@ class Shulffer {
   void reset() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 
-    shuffle(shulf_window.begin(), shulf_window.end(),
+    std::shuffle(shulf_window.begin(), shulf_window.end(),
             std::default_random_engine(seed));
   }
 
@@ -54,7 +54,7 @@ class UshortShulffer {
   void reset() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 
-    shuffle(shulf_window, shulf_window + max_int16_id,
+    std::shuffle(shulf_window, shulf_window + max_int16_id,
             std::default_random_engine(seed));
   }
 
