@@ -57,6 +57,11 @@ typedef unsigned int uint;
 #endif
 typedef unsigned short uint16;
 
+#ifdef uint8
+#undef uint8
+#endif
+typedef unsigned char uint8;
+
 #ifndef likely
 #define likely(x) __builtin_expect(!!(x), 1)
 #endif

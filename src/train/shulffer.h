@@ -9,7 +9,7 @@
 #include <random>  // std::default_random_engine
 #include <vector>
 
-#include "utils/base.h"
+#include "utils/base.h" // for unit8, uint16
 
 //  0~shulf_size之间打乱顺序
 class Shulffer {
@@ -40,13 +40,13 @@ class Shulffer {
   std::vector<int> shulf_window;
 };
 
-// shulf_size固定为65535， 0 ~ 65535之间打乱顺序
+// shulf_window_size固定为65535，next()返回0~max_id之间的任意数，max_id最多支持65535
 class UshortShulffer {
  public:
-  UshortShulffer() {
+  UshortShulffer(uint16 max_id) {
     cussor = max_int16_id;
     for (uint16 i = 0; i != max_int16_id; i++) {
-      shulf_window[i] = i;
+      shulf_window[i] = i % max_id;
     }
   }
   ~UshortShulffer() {}
@@ -64,4 +64,31 @@ class UshortShulffer {
   uint16 cussor;
   const static uint16 max_int16_id = 0xffff;
   uint16 shulf_window[max_int16_id];
+};
+
+
+// shulf_window_size固定为65535，next()返回0~max_id之间的任意数，max_id最多支持255
+class MiniShuffer {
+ public:
+  MiniShuffer(uint8 max_id) {
+    cussor = max_int16_id;
+    for (uint16 i = 0; i != max_int16_id; i++) {
+      shulf_window[i] = i % max_id;
+    }
+  }
+  ~MiniShuffer() {}
+
+  void reset() {
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+    std::shuffle(shulf_window, shulf_window + max_int16_id,
+            std::default_random_engine(seed));
+  }
+
+  uint16 next() { return shulf_window[cussor++]; }
+
+ private:
+  uint16 cussor;
+  const static uint16 max_int16_id = 0xffff;
+  uint8 shulf_window[max_int16_id];
 };

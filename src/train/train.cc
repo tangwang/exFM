@@ -14,16 +14,16 @@ size_t train_dispatcher(vector<TrainWorker *> &sovers,
                           std::istream *input_stream, size_t run_sample_num) {
   string input_buff;
   size_t i = run_sample_num;
-  UshortShulffer shulffer;
+  MiniShuffer shulffer((uint8)sovers.size());
   shulffer.reset();
   for (; i != 0 && std::getline(*input_stream, input_buff); --i) {
     int max_retry_times = train_opt.threads_num;
     for (; max_retry_times != 0; --max_retry_times) {
-      if (sovers[shulffer.next() % sovers.size()]->TryPush(input_buff))
+      if (sovers[shulffer.next()]->TryPush(input_buff))
         break;
     }
     if (max_retry_times == 0) {
-      sovers[shulffer.next() % sovers.size()]->WaitAndPush(input_buff);
+      sovers[shulffer.next()]->WaitAndPush(input_buff);
     }
   }
   return run_sample_num - i;
@@ -32,7 +32,7 @@ size_t train_dispatcher(vector<TrainWorker *> &sovers,
 void train_dispatcher(vector<TrainWorker *> &sovers,
                            std::istream *input_stream) {
 
-  UshortShulffer shulffer;
+  MiniShuffer shulffer((uint8)sovers.size());
   shulffer.reset();
 
   string input_buff;
@@ -41,15 +41,15 @@ void train_dispatcher(vector<TrainWorker *> &sovers,
 #if 1  // TODO check perfermance
     for (;
          max_retry_times != 0 &&
-         !sovers[shulffer.next() % sovers.size()]->TryPush(input_buff);
+         !sovers[shulffer.next()]->TryPush(input_buff);
          --max_retry_times)
       ;
 
     if (max_retry_times == 0) {
-      sovers[shulffer.next() % sovers.size()]->WaitAndPush(input_buff);
+      sovers[shulffer.next()]->WaitAndPush(input_buff);
     }
 #else
-    sovers[shulffer.next() % sovers.size()]->WaitAndPush(input_buff);
+    sovers[shulffer.next()]->WaitAndPush(input_buff);
 #endif
   }
 }
