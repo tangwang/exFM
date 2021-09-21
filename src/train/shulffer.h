@@ -44,8 +44,8 @@ class Shulffer {
 class UshortShulffer {
  public:
   UshortShulffer(uint16 max_id) {
-    cussor = max_int16_id;
-    for (uint16 i = 0; i != max_int16_id; i++) {
+    cussor = 0;
+    for (int i = 0; i != max_int16_id; i++) {
       shulf_window[i] = i % max_id;
     }
   }
@@ -62,7 +62,7 @@ class UshortShulffer {
 
  private:
   uint16 cussor;
-  const static uint16 max_int16_id = 0xffff;
+  static const int max_int16_id = 0x10000;
   uint16 shulf_window[max_int16_id];
 };
 
@@ -71,8 +71,8 @@ class UshortShulffer {
 class MiniShuffer {
  public:
   MiniShuffer(uint8 max_id) {
-    cussor = max_int16_id;
-    for (uint16 i = 0; i != max_int16_id; i++) {
+    cussor = 0;
+    for (int i = 0; i != max_int16_id; i++) {
       shulf_window[i] = i % max_id;
     }
   }
@@ -89,6 +89,6 @@ class MiniShuffer {
 
  private:
   uint16 cussor;
-  const static uint16 max_int16_id = 0xffff;
+  static const int max_int16_id = 0x10000;
   uint8 shulf_window[max_int16_id];
 };

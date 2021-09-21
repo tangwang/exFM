@@ -14,14 +14,6 @@
 
 using json = nlohmann::json;
 
-enum SeqPoolType {
-  SeqPoolTypeSUM = 0,
-  SeqPoolTypeAVG = 1,
-  SeqPoolTypeMAX = 2,
-  SeqPoolTypeFlatern = 3,
-  SeqPoolTypeGRU = 4,
-};
-
 class CommonFeaConfig {
  public:
   string name;

@@ -19,7 +19,7 @@ class AdamParamUnit {
     beta1power_t = 1.0;
     beta2power_t = 1.0;
     for (int f = 0; f < DIM; ++f) {
-      fm_param.V[f] = utils::gaussian(train_opt.ftrl.init_mean, train_opt.ftrl.init_stdev);
+      fm_param.V[f] = utils::gaussian(0.0, train_opt.ftrl.init_stdev);
       momentum.V[f] = 0.0;
       variance_m.V[f] = 0.0;
     }

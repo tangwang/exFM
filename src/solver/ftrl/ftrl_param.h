@@ -15,7 +15,7 @@ class FtrlParamUnit {
     n.w = 0.0;
     z.w = 0.0;
     for (int f = 0; f < DIM; ++f) {
-      fm_param.V[f] = utils::gaussian(train_opt.ftrl.init_mean, train_opt.ftrl.init_stdev);
+      fm_param.V[f] = utils::gaussian(0.0, train_opt.ftrl.init_stdev);
       n.V[f] = 0.0;
       z.V[f] = 0.0;
     }

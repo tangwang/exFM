@@ -1,8 +1,7 @@
 /**
  *  Copyright (c) 2021 by exFM Contributors
  */
-#ifndef SRC_UTIL_DICT_HPP_
-#define SRC_UTIL_DICT_HPP_
+#pragma once
 
 #define SUPPORT_BOOST 0
 
@@ -387,5 +386,3 @@ private:
 
 } /* namespace utils */
 
-
-#endif /* SRC_UTIL_DICT_HPP_ */

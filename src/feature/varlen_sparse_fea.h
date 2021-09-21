@@ -10,6 +10,15 @@ class VarlenSparseFeaConfig : public CommonFeaConfig {
  public:
   SparseFeaConfig sparse_cfg;
   string pooling_type;
+
+  enum SeqPoolType {
+    SeqPoolTypeSUM = 0,
+    SeqPoolTypeAVG = 1,
+    SeqPoolTypeMAX = 2,
+    SeqPoolTypeFlatern = 3,
+    SeqPoolTypeGRU = 4,
+  };
+
   SeqPoolType pooling_type_id;
   size_t max_len;
 

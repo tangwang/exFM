@@ -31,17 +31,26 @@ class TrainOption {
   std::string model_number_type;
   int epoch;
 
+  enum BatchGradReduceType {
+    BatchGradReduceType_Sum,
+    BatchGradReduceType_AvgByBatchSize,
+    BatchGradReduceType_AvgByOccurrences,
+    BatchGradReduceType_AvgByOccurrencesSqrt    
+  };
+
+  static const BatchGradReduceType batch_grad_reduce_type = BatchGradReduceType_AvgByOccurrencesSqrt;
+
   int threads_num;
   int time_interval_of_validation;
-  const long n_sample_per_output = 50000;
-  const int task_queue_size = 5000;
-  const int shulf_window_size = 10007;
+  static const long n_sample_per_output = 50000;
+  static const int task_queue_size = 5000;
+  // const int shulf_window_size = 10007;
+  // const bool shuffle = false;
 
   int verbose;
   bool print_help;
   bool disable_feaid_mapping;
 
-  const bool shuffle = false; // TODO  shuffle is not implement yet
   int batch_size;
 
   // train data format
@@ -69,10 +78,10 @@ class TrainOption {
     real_t weight_decay_w; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
     real_t weight_decay_V; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
     int amsgrad; // 取值0或1 TODO 暂时未实现
-    const real_t eps = 1e-8;
-    const real_t tolerance = 1e-5;
-    const bool resetPolicy = true;
-    const bool exactObjective = false;
+    static constexpr real_t eps = 1e-8;
+    static constexpr real_t tolerance = 1e-5;
+    static constexpr bool resetPolicy = true;
+    static constexpr bool exactObjective = false;
   } adam;
 
   ///////////////////////////////////////////////////////////
@@ -89,7 +98,6 @@ class TrainOption {
   ///////////////////////////////////////////////////////////
   // FTRL params
   struct FtrlParam {
-    const real_t init_mean = 0.0;
     real_t init_stdev;
     real_t w_alpha;
     real_t w_beta;

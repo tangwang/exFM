@@ -29,7 +29,20 @@ class AdamSolver : public BaseSolver {
     for (auto &kv : batch_params) {
       ParamContext &param_context = kv.second;
       FMParamUnit grad = param_context.fm_grad;
-      grad /= train_opt.batch_size;
+
+      switch (train_opt.batch_grad_reduce_type) {
+        case TrainOption::BatchGradReduceType_AvgByBatchSize:
+          grad /= train_opt.batch_size;
+          break;
+        case TrainOption::BatchGradReduceType_AvgByOccurrences:
+          grad /= param_context.count;
+          break;
+        case TrainOption::BatchGradReduceType_AvgByOccurrencesSqrt:
+          grad /= std::sqrt(param_context.count);
+          break;
+        default:
+          break;
+      }
 
       AdamParamUnit *backward_param = (AdamParamUnit *)param_context.param;
       param_context.mutex->lock();
