@@ -20,8 +20,7 @@ int main(int argc, char *argv[]) {
 
   FeaManager fea_manager;
   assert(access(train_opt.feature_config_path, F_OK) != -1);
-  fea_manager.parse_fea_config(train_opt.feature_config_path);
-  fea_manager.initModelParams(true);
+  fea_manager.loadByFeatureConfig(train_opt.feature_config_path);
 
   Solver * trainer = Solver::Create(fea_manager, train_opt);
 

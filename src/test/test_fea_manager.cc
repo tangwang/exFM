@@ -9,8 +9,7 @@
 void test_fea_manager() {
 
   FeaManager fea_manager;
-  fea_manager.parse_fea_config("./config/fea.config");
-  fea_manager.initModelParams();
+  fea_manager.loadByFeatureConfig("./config/fea.config");
 
   Solver trainer(fea_manager, train_opt);
 

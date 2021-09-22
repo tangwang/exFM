@@ -10,71 +10,23 @@
 #define mkdir(dir, mode) mkdir(dir)
 #else
 #include <sys/stat.h> // mkdir for linux
-#include <sys/types.h> // mkdir for linux
 #endif
 
 class FeaManager {
- public:
+  public:
+  FeaManager() {}
+  ~FeaManager() {}
+
+   int loadByFeatureConfig(string config_file_name);
+
+  int dumpModel(bool show_cfg = false);
+  
+  // TODO 改变feedSample的方式，最好x按列解析好，直接跟featCfgs对应起来，而不是把整行数据直接丢给各个feaCfg。 以下几个feas直接暴露给外部不太好。
   vector<DenseFeaConfig> dense_feas;
   vector<SparseFeaConfig> sparse_feas;
   vector<VarlenSparseFeaConfig> varlen_feas;
 
-  void initModelParams(bool show_cfg = false) {
-    for (auto &fea : dense_feas) {
-      fea.init();
-      if (show_cfg) cout << fea << endl;
-    }
-    for (auto &fea : sparse_feas) {
-      fea.init();
-      if (show_cfg) cout << fea << endl;
-    }
-    for (auto &fea : varlen_feas) {
-      fea.init();
-      if (show_cfg) cout << fea << endl;
-    }
-  }
+private:
+  void initModelParams(bool show_cfg = false);
 
-  int dumpModel(bool show_cfg = false) {
-    // TODO 参数可能要加锁，保证内存序，以保证读取的参数是最新的
-    // 调用dump_model时，所有的worker进程以及结束，只留下一个进程所以不存在内存序的问题导致读取的内存错误，但是
-    // 能否确认缓存都已更新到内存？如果不能确认，这里需要全部加一次锁，或者考虑full
-    // barrier
-    int ret = 0;
-    if (!train_opt.model_path.empty()) {
-      if (0 != access(train_opt.model_path.c_str(), 0)) {
-        int mkdir_ok = mkdir(train_opt.model_path.c_str(), 0755);
-        if (mkdir_ok != 0) {
-          std::cerr << "mkdir for save model faild !! << " << train_opt.model_path << std::endl;
-          return -1;
-        }
-      }
-      cout << "begin to dump model: " << endl;
-      for (auto &fea : dense_feas) {
-        if (ret != 0) break;
-        ret = fea.dumpModel();
-      }
-      for (auto &fea : sparse_feas) {
-        if (ret != 0) break;
-        ret = fea.dumpModel();
-      }
-      for (auto &fea : varlen_feas) {
-        if (ret != 0) break;
-        ret = fea.dumpModel();
-      }
-      if (ret == 0) {
-          cout << "dump model all finished" << endl;
-      } else {
-          cerr << "dump model faild" << endl;
-      }
-    }
-    return ret;
-  }
-
- public:
-  // configure file
-  int parse_fea_config(string config_file_name);
-  int parse_one_fea(const char *json_string);
-
-  FeaManager();
-  ~FeaManager();
 };

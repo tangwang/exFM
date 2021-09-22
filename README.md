@@ -23,8 +23,11 @@ paramContainer<ParamUnitType> : public paramContainerInterface
 
 sgdm
 
+adagrad：
 
-adam
+adam：
+adamw
+
 
 
 ftrl
@@ -75,4 +78,10 @@ Mutex_t通过宏定义控制：
     #else
     typedef PthreadMutex Mutex_t;
     #endif
+
+
+
+shuffle:
+exFM的shuffle只是小范围shufle，具体的讲是给多个worker线程分发的时候不是采用轮训分发而是随机分发，只能避免多个epoch内每个batch组合不变的情况。
+在使用自适应学习率算法(adagrad, adam)的时候，可以考虑对训练集进行整体的打散，可以避免某些特征集中出现，而导致的有时学习过度、有时学习不足，使得下降方向出现偏差的问题
 

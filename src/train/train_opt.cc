@@ -75,15 +75,14 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("adagrad.lr", adagrad.lr, 0.001, "Adam learning rate");
   arg_parser.parse_arg("adagrad.l2_norm_w", adagrad.l2_norm_w, 1e-5, "l2 norm for w");
   arg_parser.parse_arg("adagrad.l2_norm_V", adagrad.l2_norm_V, 1e-5, "l2 norm for embeddings");
+  arg_parser.parse_arg("adagrad.beta2", adagrad.beta2, 0.9, "二阶动量滑动平均。取值0~1，如果>0即为adadelta/RMSProp");
 
   // Adam hyper params
   arg_parser.parse_arg("adam.lr", adam.lr, 0.001, "Adam learning rate");
   arg_parser.parse_arg("adam.beta1", adam.beta1, 0.9, "adam一阶动量平滑常数");
   arg_parser.parse_arg("adam.beta2", adam.beta2, 0.999, "adam二阶动量平滑常数");
-  arg_parser.parse_arg("adam.bias_correct", adam.bias_correct, 1, "bias_correct");
   arg_parser.parse_arg("adam.weight_decay_w", adam.weight_decay_w, 2.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
   arg_parser.parse_arg("adam.weight_decay_V", adam.weight_decay_V, 2.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
-  arg_parser.parse_arg("adam.amsgrad", adam.amsgrad, 0, "保留历史最大的v_t，记为v_{max}，每次计算都是用最大的v_{max}，否则是用当前v_t");
 
   // FTRL hyper params
   arg_parser.parse_arg("ftrl.w_alpha", ftrl.w_alpha, 0.01, "FTRL hyper-param");

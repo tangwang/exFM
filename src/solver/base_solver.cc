@@ -142,7 +142,7 @@ int BaseSolver::feedSample(const char *line) {
       // update w
       real_t & w = backward_param->fm_param.w;
       real_t & wm = backward_param->momentum.w;
-      real_t & wv = backward_param->variance_m.w;
+      real_t & wv = backward_param->avg_squared.w;
 
       wm = beta1 * wm + (1-beta1)*grad;
       wv = beta2 * wv + (1-beta2)*grad*grad;
@@ -152,7 +152,7 @@ int BaseSolver::feedSample(const char *line) {
                 << fixed_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w) << endl
                 << "fm_param: " << backward_param->fm_param.w << "," << backward_param->fm_param.V[0] << "," << backward_param->fm_param.V[1] << endl
                 << "momentum: " << backward_param->momentum.w << "," << backward_param->momentum.V[0] << "," << backward_param->momentum.V[1] << endl
-                << "variance_m: " << backward_param->variance_m.w << "," << backward_param->variance_m.V[0] << "," << backward_param->variance_m.V[1] << endl
+                << "avg_squared: " << backward_param->avg_squared.w << "," << backward_param->avg_squared.V[0] << "," << backward_param->avg_squared.V[1] << endl
                 << "sum_0_1 " << sum[0] <<"," << sum[1] << endl
                 << "fm_param.V_0_1 " << backward_param->fm_param.V[0] <<"," << backward_param->fm_param.V[1] << endl
                 << "vgf_0 " << grad * (sum[0]  - backward_param->fm_param.V[0] * xi ) << endl
@@ -165,7 +165,7 @@ int BaseSolver::feedSample(const char *line) {
 
         real_t &vf = backward_param->fm_param.V[f];
         real_t &vmf = backward_param->momentum.V[f];
-        real_t &vvf = backward_param->variance_m.V[f];
+        real_t &vvf = backward_param->avg_squared.V[f];
 
         real_t vgf = grad * (sum[f]  - vf * xi );
 
@@ -189,7 +189,7 @@ int BaseSolver::feedSample(const char *line) {
 
       real_t & w = backward_param->fm_param.w;
       real_t & wm = backward_param->momentum.w;
-      real_t & wv = backward_param->variance_m.w;
+      real_t & wv = backward_param->avg_squared.w;
 
       wm = beta1 * wm + (1-beta1)*grad;
       wv = beta2 * wv + (1-beta2)*grad*grad;
@@ -209,7 +209,7 @@ int BaseSolver::feedSample(const char *line) {
 
         real_t &vf = backward_param->fm_param.V[f];
         real_t &vmf = backward_param->momentum.V[f];
-        real_t &vvf = backward_param->variance_m.V[f];
+        real_t &vvf = backward_param->avg_squared.V[f];
 
         real_t vgf = grad * (sum[f]  - vf * xi );
 

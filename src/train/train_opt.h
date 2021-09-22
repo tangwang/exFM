@@ -80,8 +80,6 @@ class TrainOption {
     real_t beta2;
     real_t weight_decay_w; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
     real_t weight_decay_V; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
-    int amsgrad; // 取值0或1 TODO 暂时未实现
-    int bias_correct; // 默认false
   } adam;
 
   ///////////////////////////////////////////////////////////
@@ -90,6 +88,7 @@ class TrainOption {
     real_t lr;
     real_t l2_norm_w;
     real_t l2_norm_V;
+    real_t beta2; //  二阶动量滑动平均。取值0~1，如果>0即为adadelta/RMSProp
   } adagrad;
 
   ///////////////////////////////////////////////////////////

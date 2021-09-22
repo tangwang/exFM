@@ -106,5 +106,4 @@ protected:
   vector<Sample> batch_samples;
 
   std::map<FMParamUnit *, ParamContext> batch_params;
-
 };
