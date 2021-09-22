@@ -53,22 +53,15 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
                    "specify one character(or str \"blank\",\"tab\") for k_v_seperator in line of feature mapping dict");
   fea_id_mapping_dict_seperator = parse_seperator_chars(temp_split_param);
 
+
+  // params initallization
+  arg_parser.parse_arg("init_stdev", init_stdev, 0.001,
+                  "stdev for initialization of 2-way factors");
+
 //////////////////////
 // solver
   arg_parser.parse_arg("solver", solver, string("ftrl"), "solver", false);
   arg_parser.parse_arg("batch_size", batch_size, 1024, "solver", false);
-
-  // FTRL hyper params
-  arg_parser.parse_arg("ftrl.init_stdev", ftrl.init_stdev, 0.001,
-                  "stdev for initialization of 2-way factors");
-  arg_parser.parse_arg("ftrl.w_alpha", ftrl.w_alpha, 0.01, "FTRL hyper-param");
-  arg_parser.parse_arg("ftrl.w_beta", ftrl.w_beta, 1.0, "FTRL hyper-param");
-  arg_parser.parse_arg("ftrl.v_alpha", ftrl.v_alpha, 0.01, "FTRL hyper-param");
-  arg_parser.parse_arg("ftrl.v_beta", ftrl.v_beta, 1.0, "FTRL hyper-param");
-  arg_parser.parse_arg("ftrl.l1w", ftrl.l1_reg_w, 0.05, "l1 regularization of w");
-  arg_parser.parse_arg("ftrl.l2w", ftrl.l2_reg_w, 5.0,  "l2 regularization of w");
-  arg_parser.parse_arg("ftrl.l1v", ftrl.l1_reg_V, 0.05, "l1 regularization of V");
-  arg_parser.parse_arg("ftrl.l2v", ftrl.l2_reg_V, 5.0,  "l2 regularization of V");
 
   // SGDM hyper params
   arg_parser.parse_arg("sgdm.lr", sgdm.lr, 0.001, "SGDM learning rate");
@@ -77,6 +70,11 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("sgdm.l2w", sgdm.l2_reg_w, 5.0,  "l2 regularization of w");
   arg_parser.parse_arg("sgdm.l1v", sgdm.l1_reg_V, 0.05, "l1 regularization of V");
   arg_parser.parse_arg("sgdm.l2v", sgdm.l2_reg_V, 5.0,  "l2 regularization of V");
+
+  // adagrad hyper params
+  arg_parser.parse_arg("adagrad.lr", adagrad.lr, 0.001, "Adam learning rate");
+  arg_parser.parse_arg("adagrad.l2_norm_w", adagrad.l2_norm_w, 1e-5, "l2 norm for w");
+  arg_parser.parse_arg("adagrad.l2_norm_V", adagrad.l2_norm_V, 1e-5, "l2 norm for embeddings");
 
   // Adam hyper params
   arg_parser.parse_arg("adam.lr", adam.lr, 0.001, "Adam learning rate");
@@ -87,6 +85,15 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("adam.weight_decay_V", adam.weight_decay_V, 2.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
   arg_parser.parse_arg("adam.amsgrad", adam.amsgrad, 0, "保留历史最大的v_t，记为v_{max}，每次计算都是用最大的v_{max}，否则是用当前v_t");
 
+  // FTRL hyper params
+  arg_parser.parse_arg("ftrl.w_alpha", ftrl.w_alpha, 0.01, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.w_beta", ftrl.w_beta, 1.0, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.v_alpha", ftrl.v_alpha, 0.01, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.v_beta", ftrl.v_beta, 1.0, "FTRL hyper-param");
+  arg_parser.parse_arg("ftrl.l1w", ftrl.l1_reg_w, 0.05, "l1 regularization of w");
+  arg_parser.parse_arg("ftrl.l2w", ftrl.l2_reg_w, 5.0,  "l2 regularization of w");
+  arg_parser.parse_arg("ftrl.l1v", ftrl.l1_reg_V, 0.05, "l1 regularization of V");
+  arg_parser.parse_arg("ftrl.l2v", ftrl.l2_reg_V, 5.0,  "l2 regularization of V");
 
   arg_parser.parse_arg("verbose", verbose, 1,
                   "0: only trainning logs. 1: open feature config messages, 2 "

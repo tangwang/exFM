@@ -7,6 +7,7 @@
 #include "feature/fea_manager.h"
 #include "solver/parammeter_container.h"
 #include "utils/base.h"
+#include "train/train_opt.h"
 
 class Sample {
  public:
@@ -54,6 +55,8 @@ class BaseSolver {
   }
 
 protected:
+  virtual void update() = 0;
+
   void rotateSampleIdx() {
     ++sample_idx;
     if (sample_idx == batch_size) {
@@ -75,7 +78,22 @@ protected:
     }
   }
 
-  virtual void update() = 0;
+  void batchReduce(FMParamUnit &grad, int count) {
+    switch (train_opt.batch_grad_reduce_type) {
+      case TrainOption::BatchGradReduceType_Sum:
+        break;
+      case TrainOption::BatchGradReduceType_AvgByOccurrences:
+        grad /= count;
+        break;
+      case TrainOption::BatchGradReduceType_AvgByOccurrencesSqrt:
+        grad /= std::sqrt(count);
+        break;
+      default: 
+      // BatchGradReduceType_AvgByBatchSize by default
+        grad /= train_opt.batch_size;
+        break;
+    }
+  }
 
 protected:
   const FeaManager &fea_manager_;

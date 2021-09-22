@@ -18,7 +18,7 @@ class FtrlSolver : public BaseSolver {
     for (auto & kv : batch_params) {
       ParamContext & param_context = kv.second;
       FMParamUnit & grad = param_context.fm_grad;
-      grad /= train_opt.batch_size;
+      batchReduce(grad, param_context.count);
 
       FtrlParamUnit *backward_param = (FtrlParamUnit *)param_context.param;
       param_context.mutex->lock();

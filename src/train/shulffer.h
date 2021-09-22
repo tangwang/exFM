@@ -45,7 +45,7 @@ class UshortShulffer {
  public:
   UshortShulffer(uint16 max_id) {
     cussor = 0;
-    for (int i = 0; i != max_int16_id; i++) {
+    for (int i = 0; i != total_uint16_counts; i++) {
       shulf_window[i] = i % max_id;
     }
   }
@@ -54,7 +54,7 @@ class UshortShulffer {
   void reset() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 
-    std::shuffle(shulf_window, shulf_window + max_int16_id,
+    std::shuffle(shulf_window, shulf_window + total_uint16_counts,
             std::default_random_engine(seed));
   }
 
@@ -62,8 +62,8 @@ class UshortShulffer {
 
  private:
   uint16 cussor;
-  static const int max_int16_id = 0x10000;
-  uint16 shulf_window[max_int16_id];
+  static const int total_uint16_counts = 0x10000;
+  uint16 shulf_window[total_uint16_counts];
 };
 
 
@@ -72,7 +72,7 @@ class MiniShuffer {
  public:
   MiniShuffer(uint8 max_id) {
     cussor = 0;
-    for (int i = 0; i != max_int16_id; i++) {
+    for (int i = 0; i != total_uint16_counts; i++) {
       shulf_window[i] = i % max_id;
     }
   }
@@ -81,7 +81,7 @@ class MiniShuffer {
   void reset() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 
-    std::shuffle(shulf_window, shulf_window + max_int16_id,
+    std::shuffle(shulf_window, shulf_window + total_uint16_counts,
             std::default_random_engine(seed));
   }
 
@@ -89,6 +89,6 @@ class MiniShuffer {
 
  private:
   uint16 cussor;
-  static const int max_int16_id = 0x10000;
-  uint8 shulf_window[max_int16_id];
+  static const int total_uint16_counts = 0x10000;
+  uint8 shulf_window[total_uint16_counts];
 };

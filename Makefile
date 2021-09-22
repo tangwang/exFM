@@ -17,6 +17,7 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 	  ${wildcard  src/solver/ftrl/*.h} \
 	  ${wildcard  src/solver/adam/*.h} \
 	  ${wildcard  src/solver/sgdm/*.h} \
+	  ${wildcard  src/solver/adagrad/*.h} \
 	  ${wildcard  src/utils/*.h} \
 	  ${wildcard  third_party/*.h} \
 	  ${wildcard  src/train/*.h} \
@@ -30,7 +31,7 @@ all : bin/train bin/train_debug
 CC = g++
 LIB= -lpthread
 INC = -I./third_party  -I./src
-DEBUG_CCFLAGS = -g -std=c++11 -Wall -Wno-reorder -fmax-errors=4 -DDIM=${dim}
+DEBUG_CCFLAGS = -g -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim}
 CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim}
 
 bin/train: ${OBJS} 

@@ -18,7 +18,6 @@ class AdamSolver : public BaseSolver {
         beta2_pow(1.0),
         weight_decay_w(train_opt.adam.weight_decay_w),
         weight_decay_V(train_opt.adam.weight_decay_V),
-        eps(train_opt.adam.eps),
         bias_correct(train_opt.adam.bias_correct != 0) {}
 
   virtual ~AdamSolver() {}
@@ -29,29 +28,16 @@ class AdamSolver : public BaseSolver {
     for (auto &kv : batch_params) {
       ParamContext &param_context = kv.second;
       FMParamUnit grad = param_context.fm_grad;
-
-      switch (train_opt.batch_grad_reduce_type) {
-        case TrainOption::BatchGradReduceType_AvgByBatchSize:
-          grad /= train_opt.batch_size;
-          break;
-        case TrainOption::BatchGradReduceType_AvgByOccurrences:
-          grad /= param_context.count;
-          break;
-        case TrainOption::BatchGradReduceType_AvgByOccurrencesSqrt:
-          grad /= std::sqrt(param_context.count);
-          break;
-        default:
-          break;
-      }
+      batchReduce(grad, param_context.count);
 
       AdamParamUnit *backward_param = (AdamParamUnit *)param_context.param;
       param_context.mutex->lock();
-      // calc fixed_lr
+      // calc corection_lr
       backward_param->beta1power_t *= beta1;
       backward_param->beta2power_t *= beta2;
       real_t bias_correction1 = (1 - backward_param->beta1power_t);
       real_t bias_correction2 = (1 - backward_param->beta2power_t);
-      real_t fixed_lr = lr * std::sqrt(bias_correction2) / bias_correction1;
+      real_t corection_lr = lr * std::sqrt(bias_correction2) / bias_correction1;
 
       // update w
       real_t &w = backward_param->fm_param.w;
@@ -61,24 +47,24 @@ class AdamSolver : public BaseSolver {
       wm = beta1 * wm + (1 - beta1) * grad.w;
       wv = beta2 * wv + (1 - beta2) * grad.w * grad.w;
 
-      DEBUG_OUT << "adam_solver: grad:" << grad << " fixed_lr: "
-                << " count " << param_context.count << fixed_lr << " wm:" << wm
+      DEBUG_OUT << "adam_solver: grad:" << grad << " corection_lr:" << corection_lr
+                << " count " << param_context.count << corection_lr << " wm:" << wm
                 << " wv:" << wv << " update:"
-                << fixed_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w)
+                << corection_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w)
                 << endl
-                << "fm_param: " << backward_param->fm_param.w << ","
+                << "fm_param:" << backward_param->fm_param.w << ","
                 << backward_param->fm_param.V[0] << ","
                 << backward_param->fm_param.V[1] << endl
-                << "momentum: " << backward_param->momentum.w << ","
+                << "momentum:" << backward_param->momentum.w << ","
                 << backward_param->momentum.V[0] << ","
                 << backward_param->momentum.V[1] << endl
-                << "variance_m: " << backward_param->variance_m.w << ","
+                << "variance_m:" << backward_param->variance_m.w << ","
                 << backward_param->variance_m.V[0] << ","
                 << backward_param->variance_m.V[1] << endl
                 << "fm_param.V_0_1 " << backward_param->fm_param.V[0] << ","
                 << backward_param->fm_param.V[1] << endl;
 
-      w -= fixed_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w);
+      w -= corection_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w);
 
       // update V
       for (int f = 0; f < DIM; ++f) {
@@ -90,11 +76,12 @@ class AdamSolver : public BaseSolver {
 
         vmf = beta1 * vmf + (1 - beta1) * vgf;
         vvf = beta2 * vvf + (1 - beta2) * vgf * vgf;
-        vf -= fixed_lr * (vmf / (std::sqrt(vvf) + eps) + weight_decay_V * vf);
+        vf -= corection_lr * (vmf / (std::sqrt(vvf) + eps) + weight_decay_V * vf);
       }
       param_context.mutex->unlock();
     }
   }
+
 
   const real_t lr;
   const real_t beta1;
@@ -103,6 +90,12 @@ class AdamSolver : public BaseSolver {
   real_t beta2_pow;
   const real_t weight_decay_w;
   const real_t weight_decay_V;
-  const real_t eps;
   const bool bias_correct;
+
+  static constexpr real_t eps = 1e-8;
+  static constexpr real_t tolerance = 1e-5;
+  static constexpr bool resetPolicy = true;
+  static constexpr bool exactObjective = false;
+
+
 };

@@ -136,7 +136,12 @@ inline real_t uniform() { return rand() / static_cast<real_t>(RAND_MAX); }
 inline real_t gaussian(real_t mean, real_t stdev) {
   static std::default_random_engine generator;
   static std::normal_distribution<real_t> distribution(mean, stdev);
-  return distribution(generator);
+  real_t ret = distribution(generator);
+  while (ret == 0.0) //TODO 是否要保证不为0.
+  {
+    ret = distribution(generator);
+  }
+  return ret;
 }
 
 inline real_t gaussian() { return gaussian(0.0, 1.0); }

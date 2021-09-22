@@ -32,8 +32,8 @@ class TrainOption {
   int epoch;
 
   enum BatchGradReduceType {
-    BatchGradReduceType_Sum,
     BatchGradReduceType_AvgByBatchSize,
+    BatchGradReduceType_Sum,
     BatchGradReduceType_AvgByOccurrences,
     BatchGradReduceType_AvgByOccurrencesSqrt    
   };
@@ -42,7 +42,7 @@ class TrainOption {
 
   int threads_num;
   int time_interval_of_validation;
-  static const long n_sample_per_output = 50000;
+  static const long n_sample_per_output = 100000;
   static const int task_queue_size = 5000;
   // const int shulf_window_size = 10007;
   // const bool shuffle = false;
@@ -65,24 +65,32 @@ class TrainOption {
   const string fea_type_varlen_sparse = "varlen_sparse_features";
 
   ///////////////////////////////////////////////////////////
-  // FTRL solver
+  // param initial
+  real_t init_stdev;
+
+  ///////////////////////////////////////////////////////////
+  // solver
   std::string solver;
 
   ///////////////////////////////////////////////////////////
   // adam params
   struct AdamParam {
     real_t lr;
-    int bias_correct; // 默认false
     real_t beta1;
     real_t beta2;
     real_t weight_decay_w; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
     real_t weight_decay_V; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
     int amsgrad; // 取值0或1 TODO 暂时未实现
-    static constexpr real_t eps = 1e-8;
-    static constexpr real_t tolerance = 1e-5;
-    static constexpr bool resetPolicy = true;
-    static constexpr bool exactObjective = false;
+    int bias_correct; // 默认false
   } adam;
+
+  ///////////////////////////////////////////////////////////
+  // adagrad params
+  struct AdagradParam {
+    real_t lr;
+    real_t l2_norm_w;
+    real_t l2_norm_V;
+  } adagrad;
 
   ///////////////////////////////////////////////////////////
   // SGDM params (SGD with Momentum)
@@ -98,7 +106,6 @@ class TrainOption {
   ///////////////////////////////////////////////////////////
   // FTRL params
   struct FtrlParam {
-    real_t init_stdev;
     real_t w_alpha;
     real_t w_beta;
     real_t v_alpha;

@@ -110,6 +110,7 @@ int main(int argc, char *argv[]) {
   }
 
   for (int i = 0; i < train_opt.epoch; i++) {
+    cout << "start epoch " << i << endl;
     train_dispatcher(sovers, input_stream);
     if (input_file_stream) {
       input_file_stream->clear();

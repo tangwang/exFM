@@ -4,19 +4,18 @@
 #pragma once
 #include "solver/parammeter_container.h"
 
-class SgdmParamUnit {
-public:
+class AdagradParamUnit {
+ public:
   FMParamUnit fm_param;
-  FMParamUnit momentum;
+  FMParamUnit variance_m; // 2nd raw moment (the uncentered variance) of the gradient
 
-  SgdmParamUnit() {
+  AdagradParamUnit() {
     fm_param.w = 0.0;
-    momentum.w = 0.0;
+    variance_m.w = 0.0;
     for (int f = 0; f < DIM; ++f) {
       fm_param.V[f] = utils::gaussian(0.0, train_opt.init_stdev);
-      momentum.V[f] = 0.0;
+      variance_m.V[f] = 0.0;
     }
   }
-
 };
 
