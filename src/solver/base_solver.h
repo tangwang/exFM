@@ -22,6 +22,7 @@ class Sample {
   vector<ParamContext> backward_params;
 
   real_t logit;
+  real_t loss;
   real_t grad;
   real_t sum[DIM];
   real_t sum_sqr[DIM];
@@ -34,28 +35,37 @@ class BaseSolver {
 
   virtual ~BaseSolver() {}
 
-  int feedSample(const char *line);
-
-  void forward(int &out_y, real_t &out_logit) {
-    batch_samples[sample_idx].forward();
-
-    out_y = batch_samples[sample_idx].y;
-    out_logit = batch_samples[sample_idx].logit;
+  real_t forward(const char *line) {
+    feedSample(line);
+    return batch_samples[sample_idx].forward();
   }
 
-  void train(int &out_y, real_t &out_logit) {
-    forward(out_y, out_logit);
+  void train(const char *line, int &y, real_t &logit, real_t & loss, real_t & grad) {
+    forward(line);
 
     batch_samples[sample_idx].backward();
+    
+    y = batch_samples[sample_idx].y;
+    logit = batch_samples[sample_idx].logit;
+    loss = batch_samples[sample_idx].loss;
+    grad = batch_samples[sample_idx].grad;
 
     rotateSampleIdx();
 
     DEBUG_OUT << "BaseSolver::train "
-              << " y " << out_y << " logit " << out_logit << endl;
+              << " y " << y << " logit " << logit << endl;
+  }
+
+  void test(const char *line, int &y, real_t &logit) {
+    forward(line);
+    y = batch_samples[sample_idx].y;
+    logit = batch_samples[sample_idx].logit;
   }
 
 protected:
   virtual void update() = 0;
+
+  int feedSample(const char *line);
 
   void rotateSampleIdx() {
     ++sample_idx;

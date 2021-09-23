@@ -18,12 +18,16 @@ class Evalution {
     label: 1 被当成正样本，其余取值被当成负样本（0和-1均可）。
     prob： 预测的打分
   */
-  void add(int label, real_t prob) {
+  void add(int label, real_t logit, real_t loss, real_t grad) {
     ++total_samples_processed;
+    sum_grad += grad;
+    sum_loss += loss;
+    sum_abs_grad += std::abs(grad);
+    
 
-    label_prob_list.push_back(std::make_pair(label, prob));
+    label_prob_list.push_back(std::make_pair(label, logit));
 
-    int pred = prob > 0.0 ? 1 : 0;
+    int pred = logit > 0.0 ? 1 : 0;
     if (label == 1) {
       pred == 1 ? ++tp : ++fn;
     } else {
@@ -60,16 +64,18 @@ class Evalution {
                         pos_num * (pos_num + 1)) /
                  (2 * pos_num * neg_num);
     double cost_time = stopwatch.get_elapsed_by_seconds();
-
-    cout << std::fixed << std::setprecision(4) << name << " total_processed "
-         << total_samples_processed << " ("
+    size_t total_samples = tn + fp + fn + tp;
+    cout << std::fixed << std::setprecision(4) << name << " total_processed="
+         << total_samples_processed << "=("
          << (size_t)(total_samples_processed / cost_time)
-         << " per seconds), AUC " << auc << ", confusion_matrix(total|tn,fp,fn,tp): "
-         << tn + fp + fn + tp << " | "
-         << tn << " " << fp << " " << fn << " " << tp
-         << ", acc " << acc
-         << " recall " << recall
-         << " precision " << precision << endl;
+         << " per seconds), LOSS=" << sum_loss / total_samples
+         << ", AUC=" << auc
+         << ", grad=" << sum_grad / total_samples
+         << ", abs_grad=" << sum_abs_grad / total_samples
+         << ", confusion_matrix(total|tn,fp,fn,tp)=" << total_samples << " | " << tn << " " << fp << " " << fn << " " << tp
+         << ", acc=" << acc
+         << " recall=" << recall
+         << " precision=" << precision << endl;
 
         clear();
   }
@@ -100,7 +106,9 @@ class Evalution {
 
   utils::Stopwatch stopwatch;
   size_t total_samples_processed;
-
+  real_t sum_grad;
+  real_t sum_abs_grad;
+  real_t sum_loss;
   vector<std::pair<int, real_t> > label_prob_list;
 
   size_t tn, fp, fn, tp;

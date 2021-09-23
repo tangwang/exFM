@@ -60,7 +60,7 @@ class TrainWorker {
     sleep(2);
 
     int y;
-    real_t logit;
+    real_t logit, loss, grad;
     do {
       task_queue.FeachAll(local_task_queue);
       int task_queue_size = local_task_queue.size();
@@ -69,10 +69,9 @@ class TrainWorker {
                   << " lines" << std::endl;
 
       for (int i = 0; i < task_queue_size; i++) {
-        solver->feedSample(local_task_queue[i].c_str());
         // train_fm_flattern(y, logit);
-        solver->train(y, logit);
-        eval.add(y, logit);
+        solver->train(local_task_queue[i].c_str(), y, logit, loss, grad);
+        eval.add(y, logit, loss, grad);
       }
 
       local_task_queue.clear();
@@ -101,12 +100,11 @@ class TrainWorker {
         std::cout << "validation thread begin forward... " << std::endl;
 
       while (std::getline(input_stream, line_buff)) {
-        solver->feedSample(line_buff.c_str());
         // solver->train_fm_flattern(y, logit, true);
         real_t logit;
         int y;
-        solver->forward(y, logit);
-        eval.add(y, logit);
+        solver->test(line_buff.c_str(), y, logit);
+        eval.add(y, logit, 0.0, 0.0);
       }
       eval.output(task_name_.c_str());
       eval.reset();
@@ -115,12 +113,11 @@ class TrainWorker {
     } while (!stop_flag);
     // 训练完成后再最后跑一遍测试集
     while (std::getline(input_stream, line_buff)) {
-      solver->feedSample(line_buff.c_str());
       // solver->train_fm_flattern(true);
       real_t logit;
       int y;
-      solver->forward(y, logit);
-      eval.add(y, logit);
+      solver->test(line_buff.c_str(), y, logit);
+      eval.add(y, logit, 0.0, 0.0);
     }
     eval.output(task_name_.c_str());
   }
