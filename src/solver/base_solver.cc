@@ -14,9 +14,10 @@ real_t Sample::forward() {
   size_t forward_params_size = forward_params.size();
   for (size_t i = 0; i < forward_params_size; i++) {
     const ParamContext & ctx = forward_params[i];
-    logit += ctx.param->w;
+    real_t x = ctx.x;
+    logit += ctx.param->w * x;
     for (int f = 0; f < DIM; ++f) {
-      real_t d = ctx.param->V[f];
+      real_t d = ctx.param->V[f] * x;
       sum[f] += d;
       sum_sqr[f] += d * d;
     }
@@ -33,10 +34,10 @@ real_t Sample::forward() {
 }
 
 void Sample::backward() {
-  // 计算整体的梯度
+  // 计算整体的梯度:  partitial(loss) / partitial(fm_score(x)) = y * ( sigmoid( fm_score(x) * y ) - 1 ) ， y = {-1, 1}
   grad = y * (1 / (1 + exp(-logit * y)) - 1);
 
-  // 计算每个fmParamUnit的梯度
+  // 计算每个fmParamUnit的梯度： partitial(fm_score(x)) / partitial(\theta),  theata = {w_i, V_i1, Vi2, ... Vif} for i in {0, 1, ... N }
   for (auto &param_context : backward_params) {
     real_t xi = param_context.x;
     real_t grad_i = grad * xi;
@@ -62,7 +63,6 @@ BaseSolver::BaseSolver(const FeaManager &fea_manager)
     varlen_feas.push_back(std::move(VarlenSparseFeaContext(iter)));
   }
 }
-
 
 int BaseSolver::feedSample(const char *line) {
   // label统一为1， -1的形式
