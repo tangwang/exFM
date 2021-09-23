@@ -19,7 +19,7 @@ class ArgsParser {
   // 从配置文件获取参数
   // # 号后面的内容都会被忽略
   // 配置文件中的内容有两种形式： 包含"="和不包含"="的。包含“=”的将被解析为argument，不包含“=”被解析为option
-  bool load_args(const char* config_file_path) {
+  bool loadArgs(const char* config_file_path) {
     // load config file
     if (access(config_file_path, F_OK) == 0) {
       ifstream config_file(config_file_path);
@@ -40,7 +40,7 @@ class ArgsParser {
   }
 
   // 从命令行参数加载参数（带“=”的被解析为argument，不带“=”的被解析为option)，并覆盖之前已经存在的参数
-  bool load_args(int argc, char* argv[]) {
+  bool loadArgs(int argc, char* argv[]) {
     program_name = argv[0];
     for (int i = 1; i < argc; ++i) {
       arg_lines.push_back(string(argv[i]));

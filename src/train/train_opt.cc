@@ -8,8 +8,8 @@ TrainOption train_opt;
 bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   // load config file
 
-  arg_parser.load_args(config_file_path);
-  arg_parser.load_args(argc, argv);
+  arg_parser.loadArgs(config_file_path);
+  arg_parser.loadArgs(argc, argv);
 
   // 训练参数相关配置
 
