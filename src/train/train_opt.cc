@@ -72,17 +72,22 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("sgdm.l2v", sgdm.l2_reg_V, 5.0,  "l2 regularization of V");
 
   // adagrad hyper params
-  arg_parser.parse_arg("adagrad.lr", adagrad.lr, 0.001, "Adam learning rate");
+  arg_parser.parse_arg("adagrad.lr", adagrad.lr, 0.01, "Adam learning rate");
   arg_parser.parse_arg("adagrad.l2_norm_w", adagrad.l2_norm_w, 1e-5, "l2 norm for w");
   arg_parser.parse_arg("adagrad.l2_norm_V", adagrad.l2_norm_V, 1e-5, "l2 norm for embeddings");
-  arg_parser.parse_arg("adagrad.beta2", adagrad.beta2, 0.9, "二阶动量滑动平均。取值0~1，如果>0即为adadelta/RMSProp");
+
+  // rmsprop hyper params
+  arg_parser.parse_arg("rmsprop.lr", rmsprop.lr, 0.001, "Adam learning rate");
+  arg_parser.parse_arg("rmsprop.l2_norm_w", rmsprop.l2_norm_w, 1e-5, "l2 norm for w");
+  arg_parser.parse_arg("rmsprop.l2_norm_V", rmsprop.l2_norm_V, 1e-5, "l2 norm for embeddings");
+  arg_parser.parse_arg("rmsprop.beta2", rmsprop.beta2, 0.9, "二阶动量滑动平均");
 
   // Adam hyper params
   arg_parser.parse_arg("adam.lr", adam.lr, 0.001, "Adam learning rate");
   arg_parser.parse_arg("adam.beta1", adam.beta1, 0.9, "adam一阶动量平滑常数");
   arg_parser.parse_arg("adam.beta2", adam.beta2, 0.999, "adam二阶动量平滑常数");
-  arg_parser.parse_arg("adam.weight_decay_w", adam.weight_decay_w, 2.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
-  arg_parser.parse_arg("adam.weight_decay_V", adam.weight_decay_V, 2.0, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
+  arg_parser.parse_arg("adam.weight_decay_w", adam.weight_decay_w, 0.1, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
+  arg_parser.parse_arg("adam.weight_decay_V", adam.weight_decay_V, 0.1, "l2正则在adam中的实现。对于adam，宜用weight_decay，不宜用l2正则");
 
   // FTRL hyper params
   arg_parser.parse_arg("ftrl.w_alpha", ftrl.w_alpha, 0.01, "FTRL hyper-param");

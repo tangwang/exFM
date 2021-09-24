@@ -7,7 +7,6 @@
 #include "nlohmann/json.hpp"
 #include "synchronize/mutex_adapter.h"
 #include "utils/Hash.h"
-#include "utils/List.h"
 #include "utils/base.h"
 #include "utils/utils.h"
 #include <array>

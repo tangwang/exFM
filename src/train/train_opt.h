@@ -11,7 +11,6 @@
 class TrainOption;
 extern TrainOption train_opt;
 
-
 class TrainOption {
  public:
   TrainOption() {}
@@ -64,15 +63,12 @@ class TrainOption {
   const string fea_type_sparse = "sparse_features";
   const string fea_type_varlen_sparse = "varlen_sparse_features";
 
-  ///////////////////////////////////////////////////////////
   // param initial
   real_t init_stdev;
 
-  ///////////////////////////////////////////////////////////
   // solver
   std::string solver;
 
-  ///////////////////////////////////////////////////////////
   // adam params
   struct AdamParam {
     real_t lr;
@@ -82,16 +78,21 @@ class TrainOption {
     real_t weight_decay_V; // 设置weight_decay，则为AdamW。对于adam，宜用weight_decay，不宜用l2正则
   } adam;
 
-  ///////////////////////////////////////////////////////////
   // adagrad params
   struct AdagradParam {
     real_t lr;
     real_t l2_norm_w;
     real_t l2_norm_V;
-    real_t beta2; //  二阶动量滑动平均。取值0~1，如果>0即为adadelta/RMSProp
   } adagrad;
 
-  ///////////////////////////////////////////////////////////
+  // RMSProp / adadelta params，带有二阶动量滑动平均的adagrad
+  struct RmspropParam {
+    real_t lr;
+    real_t l2_norm_w;
+    real_t l2_norm_V;
+    real_t beta2; //  二阶动量滑动平均
+  } rmsprop;
+
   // SGDM params (SGD with Momentum)
   struct SgdmParam {
     real_t lr;
@@ -102,7 +103,6 @@ class TrainOption {
     real_t l2_reg_V;
   } sgdm;
 
-  ///////////////////////////////////////////////////////////
   // FTRL params
   struct FtrlParam {
     real_t w_alpha;

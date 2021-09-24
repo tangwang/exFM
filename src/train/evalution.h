@@ -14,10 +14,8 @@ class Evalution {
 
   size_t size() const { return label_prob_list.size(); }
 
-  /*
-    label: 1 被当成正样本，其余取值被当成负样本（0和-1均可）。
-    prob： 预测的打分
-  */
+  // label: 1 被当成正样本，其余取值被当成负样本（0和-1均可）。
+  // prob： 预测的打分
   void add(int label, real_t logit, real_t loss, real_t grad) {
     ++total_samples_processed;
     sum_grad += grad;
@@ -35,9 +33,7 @@ class Evalution {
     }
   }
 
-  /*
-  打印当前的统计信息，并将其清理
-  */
+  // 打印当前的统计信息，并将其清理
   void output(const char* name) {
     double recall = double(tp) / (tp + fn);
     double precision = double(tp) / (tp + fp);
@@ -65,14 +61,13 @@ class Evalution {
                  (2 * pos_num * neg_num);
     double cost_time = stopwatch.get_elapsed_by_seconds();
     size_t total_samples = tn + fp + fn + tp;
-    cout << std::fixed << std::setprecision(4) << name << " total_processed="
-         << total_samples_processed << "=("
+    cout << std::fixed << std::setprecision(4) << name << " accumulated="
+         << total_samples_processed << " ("
          << (size_t)(total_samples_processed / cost_time)
-         << " per seconds), LOSS=" << sum_loss / total_samples
+         << "/seconds), LOSS=" << sum_loss / total_samples
          << ", AUC=" << auc
-         << ", grad=" << sum_grad / total_samples
-         << ", abs_grad=" << sum_abs_grad / total_samples
-         << ", confusion_matrix(total|tn,fp,fn,tp)=" << total_samples << " | " << tn << " " << fp << " " << fn << " " << tp
+         << ", grad=" << sum_grad / total_samples << ',' << sum_abs_grad / total_samples
+         << ", N|tn,fp,fn,tp=" << total_samples << '|' << tn << ',' << fp << ',' << fn << ',' << tp
          << ", acc=" << acc
          << " recall=" << recall
          << " precision=" << precision << endl;
@@ -85,22 +80,24 @@ class Evalution {
     fp += rhs.fp;
     fn += rhs.fn;
     tp += rhs.tp;
+    sum_loss += rhs.sum_loss;
+    sum_grad += rhs.sum_grad;
+    sum_abs_grad += rhs.sum_abs_grad;
     label_prob_list.insert(label_prob_list.begin(), rhs.label_prob_list.begin(),
                            rhs.label_prob_list.end());
     return *this;
   }
 
   void reset() {
-    total_samples_processed = tn = fp = fn = tp = 0;
+    clear();
+    total_samples_processed = 0;
     stopwatch.start();
   }
 
  private:
-  /*
- 清理当前所有的信息
- */
   void clear() {
     tn = fp = fn = tp = 0;
+    sum_loss = sum_grad = sum_abs_grad = 0.0;
     label_prob_list.clear();
   }
 

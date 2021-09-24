@@ -28,7 +28,7 @@
 
 /*
 
-字典使用示例：
+examples: 
     Dict<int, std::string> my_dict_1;
     my_dict_1.create("path_to_xxxxx", "\t", "#");
 
@@ -36,31 +36,24 @@
     Set<std::string>  my_set_1;
     my_set_1.create("path_to_xxxxx", "#");
 
- 建立倒排：
     Dict<std::string, std::vector<int> > name_to_ids;
     Dict<int, std::string> id_to_name;
     id_to_name.create("path_to_xxxxx", "\t", "#");
-    DICT_FOREACH(it, id_to_name) {
-        name_to_ids.get_mutable(it->second).push_back(it->first);
+    
+    id_to_name.get(k1);
 
 
-字段解析器特化，参考： 
+define your deserializer of dict field struct:
+
 template<>
 class CommonFieldParser<MyFieldStruct> {
 public:
     typedef MyFieldStruct field_type;
     bool operator()(const std::string & str, field_type & v) {
-        using namespace std;
-        bool ret = false;
-        vector<string> field_segs;
-        boost::split(field_segs, str, boost::is_any_of(","),boost::token_compress_on);
-    。。。
-        try {
-            v.cat_new = boost::lexical_cast<int>(field_segs[0]);
-        } catch (...) {
-            return ret;
-        }
-    。。。
+        v.a = xxx;
+        v.b = xxx;
+        ... ...
+    }
 */
 
 namespace utils {

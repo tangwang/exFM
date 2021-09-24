@@ -3,20 +3,20 @@
  */
 #pragma once
 #include "feature/fea_manager.h"
-#include "solver/adagrad/adagrad_param.h"
+#include "solver/rmsprop/rmsprop_param.h"
 #include "solver/base_solver.h"
 #include "train/train_opt.h"
 
-class AdagradSolver : public BaseSolver {
+class RmspropSolver : public BaseSolver {
  public:
-  AdagradSolver(const FeaManager &fea_manager)
+  RmspropSolver(const FeaManager &fea_manager)
       : BaseSolver(fea_manager),
-        lr(train_opt.adagrad.lr),
-        l2_norm_w(train_opt.adagrad.l2_norm_w),
-        l2_norm_V(train_opt.adagrad.l2_norm_V)
-        {}
+        lr(train_opt.rmsprop.lr),
+        l2_norm_w(train_opt.rmsprop.l2_norm_w),
+        l2_norm_V(train_opt.rmsprop.l2_norm_V),
+        beta2(train_opt.rmsprop.beta2) {}
 
-  virtual ~AdagradSolver() {}
+  virtual ~RmspropSolver() {}
 
   virtual void update() {
 
@@ -25,16 +25,16 @@ class AdagradSolver : public BaseSolver {
       FMParamUnit grad = param_context.fm_grad;
       batchReduce(grad, param_context.count);
 
-      AdagradParamUnit *backward_param = (AdagradParamUnit *)param_context.param;
+      RmspropParamUnit *backward_param = (RmspropParamUnit *)param_context.param;
       param_context.mutex->lock();
 
       // update w
       real_t &w = backward_param->fm_param.w;
       real_t &wv = backward_param->avg_squared.w;
 
-      wv += grad.w * grad.w;
+      wv = beta2 * wv + (1 - beta2) * grad.w * grad.w;
 
-      DEBUG_OUT << "adagrad_solver: grad:" << grad << " decayed_lr" << lr / (std::sqrt(wv) + eps)
+      DEBUG_OUT << "rmsprop_solver: grad:" << grad << " decayed_lr" << lr / (std::sqrt(wv) + eps)
                 << " count " << param_context.count
                 << " wv:" << wv << " update:" 
                 << lr * (grad.w + l2_norm_w * w) / (std::sqrt(wv) + eps)
@@ -48,7 +48,7 @@ class AdagradSolver : public BaseSolver {
         real_t &vvf = backward_param->avg_squared.V[f];
         real_t vgf = grad.V[f];
 
-        vvf += vgf * vgf;
+        vvf = beta2 * vvf + (1 - beta2) * vgf * vgf;
         vf -= lr * (vgf + l2_norm_V * vf)  / (std::sqrt(vvf) + eps);
       }
       param_context.mutex->unlock();
@@ -58,6 +58,7 @@ class AdagradSolver : public BaseSolver {
   const real_t lr;
   const real_t l2_norm_w;
   const real_t l2_norm_V;
+  const real_t beta2;
   static constexpr real_t eps = 1e-7;
   static constexpr bool amsgrad = false; // 保留历史最大的v_t，记为v_{max}，每次计算都是用最大的v_{max}，否则是用当前v_t
   // amsgrad需要多一个保存一份历史最大值平方梯度v_{max}。 暂未实现
