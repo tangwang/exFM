@@ -36,9 +36,9 @@ real_t Sample::forward() {
 void Sample::backward() {
   // 计算整体的梯度:
   // crossEntropyLoss = -log( sigmoid(y * fm_score(x) ) ) ， y = {-1, 1}
-  // partitial(loss) / partitial(fm_score(x)) = -y * sigmoid( - fm_score(x) * y )
+  // partitial(loss) / partitial(fm_score(x)) = -y * sigmoid( - fm_score(x) * y )，y*score
   real_t exp_y_logit = std::exp(logit * y);
-  grad = -y / (1 + exp_y_logit); // TODO 浅层模型是否需要clip gradients
+  grad = -y / (1 + exp_y_logit);
   loss = - std::log(1 - 1/(1+std::max(exp_y_logit, 1e-10)));
   
   // 计算每个fmParamUnit的梯度： partitial(fm_score(x)) / partitial(\theta),  theata = {w_i, V_i1, Vi2, ... Vif} for i in {0, 1, ... N }

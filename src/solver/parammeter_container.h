@@ -154,7 +154,7 @@ class ParamContainerInterface {
       const int weight_size = sizeof(FMParamUnit);
       for (feaid_t i = 0; i < total_fea_num; i++) {
         const FMParamUnit *p = get(i);
-        ofs.write((const char *)&p, weight_size);
+        ofs.write((const char *)p, weight_size);
       }
       ofs.close();
     } else {
