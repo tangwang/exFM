@@ -161,4 +161,47 @@ void split_string(const char *beg, char delimiter, char end_char,
   }
 }
 
+inline bool startswith(const std::string &s, char pfx) {
+  return !s.empty() && s[0] == pfx;
+}
+
+inline bool startswith(const std::string &s, const char *pfx, size_t len) {
+  return s.size() >= len && (std::memcmp(s.data(), pfx, len) == 0);
+}
+
+inline bool startswith(const std::string &s, const char *pfx) {
+  return startswith(s, pfx, std::strlen(pfx));
+}
+
+inline bool startswith(const std::string &s, const std::string &pfx) {
+  return startswith(s, pfx.data(), pfx.size());
+}
+
+inline bool endswith(const std::string &s, char sfx) {
+  return !s.empty() && s[s.size() - 1] == sfx;
+}
+
+inline bool endswith(const std::string &s, const char *sfx, size_t len) {
+  return s.size() >= len &&
+         (std::memcmp(s.data() + s.size() - len, sfx, len) == 0);
+}
+
+inline bool endswith(const std::string &s, const char *sfx) {
+  return endswith(s, sfx, std::strlen(sfx));
+}
+
+inline bool endswith(const std::string &s, const std::string &sfx) {
+  return endswith(s, sfx.data(), sfx.size());
+}
+
+inline std::string::size_type common_prefix_length(const std::string &a,
+                                                   const std::string &b) {
+  std::string::size_type minlen = std::min(a.size(), b.size());
+  std::string::size_type common;
+  for (common = 0; common < minlen; ++common) {
+    if (a[common] != b[common]) break;
+  }
+  return common;
+}
+
 }  // namespace utils

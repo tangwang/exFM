@@ -2,8 +2,6 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include <map>
-
 #include "feature/fea_manager.h"
 #include "solver/parammeter_container.h"
 #include "utils/base.h"

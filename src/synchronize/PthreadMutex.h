@@ -10,7 +10,7 @@ class PthreadMutex {
   pthread_mutex_t lock_;
 
  public:
-  PthreadMutex() { pthread_mutex_init(&lock_, (pthread_mutexattr_t*)NULL); }
+  PthreadMutex() { pthread_mutex_init(&lock_, (pthread_mutexattr_t *)NULL); }
   ~PthreadMutex() { pthread_mutex_destroy(&lock_); }
 
   inline void lock() { pthread_mutex_lock(&lock_); }
@@ -24,7 +24,7 @@ class PthreadMutex {
   inline void notify() {}
 
   // 禁用拷贝
-  private:
+ private:
   PthreadMutex(const PthreadMutex &ohter);
   PthreadMutex &operator=(const PthreadMutex &that);
 };

@@ -12,7 +12,7 @@ class PthreadMutexWithCond {
 
  public:
   PthreadMutexWithCond() {
-    pthread_mutex_init(&lock_, (pthread_mutexattr_t*)NULL);
+    pthread_mutex_init(&lock_, (pthread_mutexattr_t *)NULL);
     pthread_cond_init(&cond_, NULL);
   }
 
@@ -26,7 +26,7 @@ class PthreadMutexWithCond {
 
   inline void notify() { pthread_cond_signal(&cond_); }
   // 禁用拷贝
-  private:
+ private:
   PthreadMutexWithCond(const PthreadMutexWithCond &ohter);
   PthreadMutexWithCond &operator=(const PthreadMutexWithCond &that);
 };

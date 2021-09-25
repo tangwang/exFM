@@ -8,7 +8,7 @@ SparseFeaConfig::SparseFeaConfig() {}
 
 SparseFeaConfig::~SparseFeaConfig() {}
 
-int SparseFeaConfig::initParams() {
+int SparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers) {
   // TODO 暂时都不用词典映射
   if (train_opt.disable_feaid_mapping) {
     use_id_mapping = 0;
@@ -24,8 +24,22 @@ int SparseFeaConfig::initParams() {
     mutex_nums = std::min(mutex_nums, (feaid_t)1000000);
   }
 
-  param_container = creatParamContainer(vocab_size, mutex_nums);
-  warm_start();
+  bool embedding_existed = false;
+  if (!shared_embedding_name.empty()) {
+    auto iter = param_containers.find(shared_embedding_name);
+    if (iter != param_containers.end()) {
+      param_container = iter->second;
+      embedding_existed = true;
+    }
+  }
+  if (!embedding_existed) {
+    param_container = creatParamContainer(vocab_size, mutex_nums);
+    string container_key_name = shared_embedding_name.empty() ? name : shared_embedding_name;
+    param_containers[container_key_name] = param_container;
+    // 共享embedding的feature，param_container的创建者负责warmup，以保证只warm_start()一次
+    warm_start();
+  }
+
 
   if (use_id_mapping != 0 && !id_mapping_dict_path.empty()) {
     // assert(access(id_mapping_dict_path.c_str(), F_OK) != -1 &&
@@ -51,6 +65,7 @@ void to_json(json &j, const SparseFeaConfig &p) {
            {"use_id_mapping", p.use_id_mapping},
            {"max_id", p.max_id},
            {"use_hash", p.use_hash},
+           {"shared_embedding_name", p.shared_embedding_name},
            {"default_value", p.default_value}};
 }
 
@@ -61,6 +76,8 @@ void from_json(const json &j, SparseFeaConfig &p) {
   j.at("max_id").get_to(p.max_id);
   j.at("use_hash").get_to(p.use_hash);
   j.at("id_mapping_dict_path").get_to(p.id_mapping_dict_path);
+  
+  //j.at("shared_embedding_name").get_to(p.shared_embedding_name);
   j.at("default_value").get_to(p.default_value);
 }
 

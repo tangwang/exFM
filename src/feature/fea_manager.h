@@ -26,6 +26,9 @@ class FeaManager {
   vector<SparseFeaConfig> sparse_feas;
   vector<VarlenSparseFeaConfig> varlen_feas;
 
+  // key: 如果有shared_embedding_name则用shared_embedding_name，否则用特征的名称. 用于共享embedding
+  map<string, shared_ptr<ParamContainerInterface>> param_containers;
+
 private:
   void initModelParams(bool show_cfg = false);
 

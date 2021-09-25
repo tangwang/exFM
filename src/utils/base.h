@@ -15,6 +15,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
 
 using std::cerr;
 using std::cin;
@@ -29,6 +30,7 @@ using std::pair;
 using std::shared_ptr;
 using std::string;
 using std::vector;
+using std::map;
 
 #if !DIM
 #define DIM 15

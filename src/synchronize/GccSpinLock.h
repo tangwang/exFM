@@ -5,26 +5,26 @@
 #include <stdlib.h>
 
 class GccSpinLock {
- protected:
-  volatile unsigned char lock_;
-
  public:
   GccSpinLock() { lock_ = 0; }
 
-  inline void lock() {
+  void lock() {
     while (!(__sync_bool_compare_and_swap(&(lock_), 0, 1)))
       ;
   }
 
-  inline void unlock() { __sync_lock_release(&lock_); }
+  void unlock() { __sync_lock_release(&lock_); }
 
-  inline int tryLock() {
+  int tryLock() {
     return (__sync_bool_compare_and_swap(&(lock_), 0, 1) ? 0 : -1);
   }
 
-  inline void wait() {}
+  void wait() {}
 
-  inline void notify() {}
+  void notify() {}
+  
+ protected:
+  volatile unsigned char lock_;
 };
 
 #endif

@@ -8,7 +8,7 @@ DenseFeaConfig::DenseFeaConfig() {}
 
 DenseFeaConfig::~DenseFeaConfig() {}
 
-int DenseFeaConfig::initParams() {
+int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers) {
   const feaid_t onehot_fea_dimension =
       samewide_bucket_nums.size() + bucket_splits.size();
   if (onehot_fea_dimension == 0) return 0;

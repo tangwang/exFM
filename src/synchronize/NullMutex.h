@@ -11,6 +11,7 @@ class NullMutex {
   inline void unlock() {}
 
   inline int tryLock() { return 0; }
+  
   inline void wait() {}
 
   inline void notify() {}

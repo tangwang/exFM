@@ -49,13 +49,13 @@ class CommonFeaConfig {
     return ret;
   }
 
-  virtual int initParams() = 0;
+  virtual int initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers) = 0;
 
-  void init() {
+  void init(map<string, shared_ptr<ParamContainerInterface>> & param_containers) {
     identifier = train_opt.fea_seperator + name + train_opt.fea_kv_seperator;
     identifier_len = identifier.length();
 
-    initParams();
+    initParams(param_containers);
   }
 
   int parseReal(const char *line, real_t &x, real_t default_v) const {

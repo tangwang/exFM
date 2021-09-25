@@ -15,7 +15,7 @@ VarlenSparseFeaContext::VarlenSparseFeaContext(const VarlenSparseFeaConfig &cfg)
 
 VarlenSparseFeaContext::~VarlenSparseFeaContext() {}
 
-int VarlenSparseFeaConfig::initParams() {
+int VarlenSparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers) {
   if (pooling_type == "sum") {
     pooling_type_id = SeqPoolTypeSUM;
   } else if (pooling_type == "avg") {
@@ -25,7 +25,7 @@ int VarlenSparseFeaConfig::initParams() {
     pooling_type_id = SeqPoolTypeSUM;
   }
 
-  sparse_cfg.initParams();
+  sparse_cfg.initParams(param_containers);
   // 保存model会用到。直接引用内部sparse_cfg的param_container
   param_container = sparse_cfg.param_container;
 
@@ -41,6 +41,7 @@ void to_json(json &j, const VarlenSparseFeaConfig &p) {
            {"use_hash", p.sparse_cfg.use_hash},
            {"default_value", p.sparse_cfg.default_value},
            {"max_len", p.max_len},
+           {"shared_embedding_name", p.sparse_cfg.shared_embedding_name},
            {"pooling_type", p.pooling_type}};
 }
 
@@ -55,6 +56,7 @@ void from_json(const json &j, VarlenSparseFeaConfig &p) {
   j.at("default_value").get_to(p.sparse_cfg.default_value);
   j.at("max_len").get_to(p.max_len);
   j.at("pooling_type").get_to(p.pooling_type);
+  j.at("shared_embedding_name").get_to(p.sparse_cfg.shared_embedding_name);
 }
 
 int VarlenSparseFeaContext::feedSample(const char *line,

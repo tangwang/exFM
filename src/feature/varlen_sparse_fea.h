@@ -22,7 +22,7 @@ class VarlenSparseFeaConfig : public CommonFeaConfig {
   SeqPoolType pooling_type_id;
   size_t max_len;
 
-  int initParams();
+  int initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers);
 
   friend ostream & operator << (ostream &out, const VarlenSparseFeaConfig & cfg) {
     out << "------------------------------------- " << endl;
@@ -36,6 +36,7 @@ class VarlenSparseFeaConfig : public CommonFeaConfig {
     out << " id_mapping_dict_path <" << cfg.sparse_cfg.id_mapping_dict_path << ">" << endl;
     out << " fea_id_mapping size <" << cfg.sparse_cfg.fea_id_mapping.size() << ">" << endl;
     out << " vocab_size <" << cfg.sparse_cfg.vocab_size << ">" << endl;
+    out << " shared_embedding_name <" << cfg.sparse_cfg.shared_embedding_name << ">" << endl;
     return out;
   }
 

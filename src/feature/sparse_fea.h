@@ -14,6 +14,7 @@ class SparseFeaConfig : public CommonFeaConfig {
   feaid_t default_value;
   int use_id_mapping;
   bool use_hash;
+  string shared_embedding_name;
 
   string id_mapping_dict_path;
 
@@ -21,7 +22,7 @@ class SparseFeaConfig : public CommonFeaConfig {
   // Dict<std::string, feaid_t> fea_id_mapping;
   Dict<feaid_t, feaid_t> fea_id_mapping;
 
-  int initParams();
+  int initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers);
 
   friend ostream & operator << (ostream &out, const SparseFeaConfig & cfg) {
     out << "------------------------------------- " << endl;
@@ -35,6 +36,7 @@ class SparseFeaConfig : public CommonFeaConfig {
     out << " vocab_size <" << cfg.vocab_size << ">" << endl;
     out << " use_hash <" << cfg.use_hash << ">" << endl;
     out << " default_value <" << cfg.default_value << ">" << endl;
+    out << " shared_embedding_name <" << cfg.shared_embedding_name << ">" << endl;
     return out;
   }
 
