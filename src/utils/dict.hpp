@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <tr1/functional>
 #include <unordered_map>
+#include "utils/cedar.h"
 #if SUPPORT_BOOST
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -374,6 +375,57 @@ private:
     std::string _path;
     InnerDict_t _inner_dict;
 
+};
+
+class TrieDict {
+public:
+    TrieDict() { }
+
+    bool create(std::string path) {
+        _path = path;
+        return _load();
+    }
+
+    size_t size() const {
+        return trie_.num_keys();
+    }
+
+    void update(const std::string &str) {
+        trie_.update(str.c_str(), str.length(), 1);
+    }
+
+    bool isMatch(const std::string& pattern) const {
+        if (trie_.exactMatchSearch<int>(pattern.c_str()) > 0) {
+            return true;
+        }
+        return false;
+    }
+private:
+    bool _load() {
+        using namespace std;
+        bool ret = true;
+        ifstream ifs;
+        ifs.open(_path.c_str());
+        if (!ifs) {
+            return false;
+        }
+        string line;
+        while (ifs) {
+            getline(ifs, line);
+            if (line.empty()) {
+                continue;
+            }
+
+            update(line);
+        }
+        ifs.close();
+        return ret;
+    }
+
+private:
+    cedar::da<int> trie_;
+
+    std::string _path;
 };
 
 

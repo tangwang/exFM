@@ -104,6 +104,8 @@ protected:
   }
 
 protected:
+  
+
   const FeaManager &fea_manager_;
   vector<DenseFeaContext> dense_feas;
   vector<SparseFeaContext> sparse_feas;

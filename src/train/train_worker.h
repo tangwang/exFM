@@ -106,7 +106,7 @@ class TrainWorker {
         solver->test(line_buff.c_str(), y, logit);
         eval.add(y, logit, 0.0, 0.0);
       }
-      eval.output(task_name_.c_str());
+      eval.output(task_name_.c_str(), true);
       eval.reset();
       input_stream.clear();
       input_stream.seekg(0);
@@ -119,7 +119,7 @@ class TrainWorker {
       solver->test(line_buff.c_str(), y, logit);
       eval.add(y, logit, 0.0, 0.0);
     }
-    eval.output(task_name_.c_str());
+    eval.output(task_name_.c_str(), true);
   }
 
  private:
