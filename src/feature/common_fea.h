@@ -21,7 +21,7 @@ class CommonFeaConfig {
 
   mutable shared_ptr<ParamContainerInterface> param_container;
 
-  int warm_start() {
+  int loadModel() {
     int ret = 0;
     if (!train_opt.init_model_path.empty()) {
       ret = param_container->load(train_opt.init_model_path + "/" + name,
@@ -49,13 +49,13 @@ class CommonFeaConfig {
     return ret;
   }
 
-  virtual int initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers) = 0;
+  virtual int initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) = 0;
 
-  void init(map<string, shared_ptr<ParamContainerInterface>> & param_containers) {
+  void init(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
     identifier = train_opt.fea_seperator + name + train_opt.fea_kv_seperator;
     identifier_len = identifier.length();
 
-    initParams(param_containers);
+    initParams(shared_param_container_map);
   }
 
   int parseReal(const char *line, real_t &x, real_t default_v) const {

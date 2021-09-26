@@ -10,7 +10,7 @@ DenseFeaConfig::DenseFeaConfig() {
 
 DenseFeaConfig::~DenseFeaConfig() {}
 
-int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers) {
+int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
   const feaid_t onehot_fea_dimension =
       samewide_bucket_nums.size() + bucket_splits.size();
   if (onehot_fea_dimension == 0) return 0;
@@ -71,7 +71,7 @@ int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> 
 
 
   param_container = creatParamContainer(onehot_fea_dimension, (feaid_t)fea_ids_of_each_buckets.size());
-  warm_start();
+  loadModel();
 
   // 提前取出参数位置
   fea_params_of_each_buckets.resize(fea_ids_of_each_buckets.size());

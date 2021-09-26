@@ -49,7 +49,7 @@ class DenseFeaConfig : public CommonFeaConfig {
     return bucket_id;
   }
 
-  int initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers);
+  int initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
   friend ostream & operator << (ostream &out, const DenseFeaConfig & cfg) {
     out << "------------------------------------- " << endl;

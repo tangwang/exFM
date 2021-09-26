@@ -12,7 +12,7 @@ SparseFeaConfig::SparseFeaConfig() {
 
 SparseFeaConfig::~SparseFeaConfig() {}
 
-int SparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers) {
+int SparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
   // TODO 暂时都不用词典映射
   if (train_opt.disable_feaid_mapping) {
     use_id_mapping = 0;
@@ -28,18 +28,17 @@ int SparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>>
 
   bool embedding_existed = false;
   if (!shared_embedding_name.empty()) {
-    auto iter = param_containers.find(shared_embedding_name);
-    if (iter != param_containers.end()) {
+    auto iter = shared_param_container_map.find(shared_embedding_name);
+    if (iter != shared_param_container_map.end()) {
       param_container = iter->second;
       embedding_existed = true;
     }
   }
   if (!embedding_existed) {
     param_container = creatParamContainer(vocab_size, mutex_nums);
-    string container_key_name = shared_embedding_name.empty() ? name : shared_embedding_name;
-    param_containers[container_key_name] = param_container;
+    if (!shared_embedding_name.empty()) shared_param_container_map[shared_embedding_name] = param_container;
     // 共享embedding的feature，param_container的创建者负责warmup，以保证只warm_start()一次
-    warm_start();
+    loadModel();
   }
 
 

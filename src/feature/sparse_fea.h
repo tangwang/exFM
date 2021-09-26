@@ -22,7 +22,7 @@ class SparseFeaConfig : public CommonFeaConfig {
   // Dict<std::string, feaid_t> fea_id_mapping;
   Dict<feaid_t, feaid_t> fea_id_mapping;
 
-  int initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers);
+  int initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
   friend ostream & operator << (ostream &out, const SparseFeaConfig & cfg) {
     out << "------------------------------------- " << endl;

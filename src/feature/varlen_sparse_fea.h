@@ -22,7 +22,7 @@ class VarlenSparseFeaConfig : public CommonFeaConfig {
   SeqPoolType pooling_type_id;
   size_t max_len;
 
-  int initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers);
+  int initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
   friend ostream & operator << (ostream &out, const VarlenSparseFeaConfig & cfg) {
     out << "------------------------------------- " << endl;

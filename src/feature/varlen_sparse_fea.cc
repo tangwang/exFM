@@ -15,7 +15,7 @@ VarlenSparseFeaContext::VarlenSparseFeaContext(const VarlenSparseFeaConfig &cfg)
 
 VarlenSparseFeaContext::~VarlenSparseFeaContext() {}
 
-int VarlenSparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & param_containers) {
+int VarlenSparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
   if (pooling_type == "sum") {
     pooling_type_id = SeqPoolTypeSUM;
   } else if (pooling_type == "avg") {
@@ -25,7 +25,7 @@ int VarlenSparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInter
     pooling_type_id = SeqPoolTypeSUM;
   }
 
-  sparse_cfg.initParams(param_containers);
+  sparse_cfg.initParams(shared_param_container_map);
   // 保存model会用到。直接引用内部sparse_cfg的param_container
   param_container = sparse_cfg.param_container;
 

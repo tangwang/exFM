@@ -25,15 +25,15 @@ int FeaManager::loadByFeatureConfig(string config_file_name) {
 
 void FeaManager::initModelParams(bool show_cfg) {
   for (auto &fea : dense_feas) {
-    fea.init(param_containers);
+    fea.init(shared_param_container_map);
     if (show_cfg) cout << fea << endl;
   }
   for (auto &fea : sparse_feas) {
-    fea.init(param_containers);
+    fea.init(shared_param_container_map);
     if (show_cfg) cout << fea << endl;
   }
   for (auto &fea : varlen_feas) {
-    fea.init(param_containers);
+    fea.init(shared_param_container_map);
     if (show_cfg) cout << fea << endl;
   }
 }
