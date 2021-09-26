@@ -4,7 +4,9 @@
 #include "feature/dense_fea.h"
 #include "solver/solver_factory.h"
 
-DenseFeaConfig::DenseFeaConfig() {}
+DenseFeaConfig::DenseFeaConfig() {
+  default_value = 0.0;
+}
 
 DenseFeaConfig::~DenseFeaConfig() {}
 
@@ -97,9 +99,9 @@ void from_json(const json &j, DenseFeaConfig &p) {
   j.at("name").get_to(p.name);
   j.at("min").get_to(p.min);
   j.at("max").get_to(p.max);
-  j.at("default_value").get_to(p.default_value);
-  j.at("samewide_bucket_nums").get_to(p.samewide_bucket_nums);
-  j.at("bucket_splits").get_to(p.bucket_splits);
+  if (j.find("default_value") != j.end())           j.at("default_value").get_to(p.default_value);
+  if (j.find("samewide_bucket_nums") != j.end())    j.at("samewide_bucket_nums").get_to(p.samewide_bucket_nums);
+  if (j.find("bucket_splits") != j.end())           j.at("bucket_splits").get_to(p.bucket_splits);
 }
 
 DenseFeaContext::DenseFeaContext(const DenseFeaConfig &cfg) : cfg_(cfg) {}

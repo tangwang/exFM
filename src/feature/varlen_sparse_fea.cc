@@ -4,7 +4,7 @@
 #include "feature/varlen_sparse_fea.h"
 #include "solver/solver_factory.h"
 
-VarlenSparseFeaConfig::VarlenSparseFeaConfig() {}
+VarlenSparseFeaConfig::VarlenSparseFeaConfig() { pooling_type = "sum"; }
 
 VarlenSparseFeaConfig::~VarlenSparseFeaConfig() {}
 
@@ -48,15 +48,15 @@ void to_json(json &j, const VarlenSparseFeaConfig &p) {
 void from_json(const json &j, VarlenSparseFeaConfig &p) {
   j.at("name").get_to(p.name);
   j.at("name").get_to(p.sparse_cfg.name);
-  j.at("max_id").get_to(p.sparse_cfg.max_id);
   j.at("vocab_size").get_to(p.sparse_cfg.vocab_size);
-  j.at("id_mapping_dict_path").get_to(p.sparse_cfg.id_mapping_dict_path);
-  j.at("use_hash").get_to(p.sparse_cfg.use_hash);
-  j.at("use_id_mapping").get_to(p.sparse_cfg.use_id_mapping);
-  j.at("default_value").get_to(p.sparse_cfg.default_value);
   j.at("max_len").get_to(p.max_len);
-  j.at("pooling_type").get_to(p.pooling_type);
-  j.at("shared_embedding_name").get_to(p.sparse_cfg.shared_embedding_name);
+  if (j.find("max_id") != j.end())                       j.at("max_id").get_to(p.sparse_cfg.max_id);
+  if (j.find("id_mapping_dict_path") != j.end())         j.at("id_mapping_dict_path").get_to(p.sparse_cfg.id_mapping_dict_path);
+  if (j.find("use_hash") != j.end())                     j.at("use_hash").get_to(p.sparse_cfg.use_hash);
+  if (j.find("use_id_mapping") != j.end())               j.at("use_id_mapping").get_to(p.sparse_cfg.use_id_mapping);
+  if (j.find("default_value") != j.end())                j.at("default_value").get_to(p.sparse_cfg.default_value);
+  if (j.find("pooling_type") != j.end())                 j.at("pooling_type").get_to(p.pooling_type);
+  if (j.find("shared_embedding_name") != j.end())        j.at("shared_embedding_name").get_to(p.sparse_cfg.shared_embedding_name);
 }
 
 int VarlenSparseFeaContext::feedSample(const char *line,

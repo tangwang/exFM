@@ -163,6 +163,7 @@ if __name__ == '__main__':
                 'use_id_mapping' : 0 if (max_id < 1000 or max_id*3 > ids_num) else 1,
                 'use_hash' : use_hash,
                 'id_mapping_dict_path' : id_mapping_dict_path,
+                 'shared_embedding_name' : '',
                  'default_value' : default_sparse_value
                 } )
         
@@ -207,6 +208,7 @@ if __name__ == '__main__':
                  'default_value' : default_sparse_value,
                  'max_len' : max_len,
                  'id_mapping_dict_path' : id_mapping_dict_path,
+                 'shared_embedding_name' : '',
                 'pooling_type' : seq_pooling_type
                 } )
 
@@ -230,6 +232,7 @@ if __name__ == '__main__':
                 'use_id_mapping' : 0 if (max_id < 1000 or max_id*3 > ids_num) else 1,
                 'use_hash' : use_hash,
                 'id_mapping_dict_path' : id_mapping_dict_path,
+                 'shared_embedding_name' : '',
                  'default_value' : default_sparse_value
                 } )
         
@@ -264,6 +267,7 @@ if __name__ == '__main__':
                 'use_id_mapping' : 0 if (max_id < 1000 or max_id*3 > ids_num) else 1,
                 'use_hash' : use_hash,
                 'id_mapping_dict_path' : id_mapping_dict_path,
+                 'shared_embedding_name' : '',
                  'default_value' : default_sparse_value,
                  'max_len' : max_len,
                  'pooling_type' : seq_pooling_type

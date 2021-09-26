@@ -4,7 +4,11 @@
 #include "feature/sparse_fea.h"
 #include "solver/solver_factory.h"
 
-SparseFeaConfig::SparseFeaConfig() {}
+SparseFeaConfig::SparseFeaConfig() {
+  default_value = -1;
+  use_id_mapping = 0;
+  use_hash = false;
+}
 
 SparseFeaConfig::~SparseFeaConfig() {}
 
@@ -14,8 +18,6 @@ int SparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>>
     use_id_mapping = 0;
     vocab_size = max_id + 2;
   }
-  // TODO 暂时设大一点，后面AUC效果没问题了去掉这一行
-  vocab_size = max_id + 2;
 
   // initail mutexes
   feaid_t mutex_nums = vocab_size;
@@ -72,13 +74,13 @@ void to_json(json &j, const SparseFeaConfig &p) {
 void from_json(const json &j, SparseFeaConfig &p) {
   j.at("name").get_to(p.name);
   j.at("vocab_size").get_to(p.vocab_size);
-  j.at("use_id_mapping").get_to(p.use_id_mapping);
-  j.at("max_id").get_to(p.max_id);
-  j.at("use_hash").get_to(p.use_hash);
-  j.at("id_mapping_dict_path").get_to(p.id_mapping_dict_path);
+  if (j.find("use_id_mapping") != j.end())             j.at("use_id_mapping").get_to(p.use_id_mapping);
+  if (j.find("max_id") != j.end())                     j.at("max_id").get_to(p.max_id);
+  if (j.find("use_hash") != j.end())                   j.at("use_hash").get_to(p.use_hash);
+  if (j.find("id_mapping_dict_path") != j.end())       j.at("id_mapping_dict_path").get_to(p.id_mapping_dict_path);
   
-  //j.at("shared_embedding_name").get_to(p.shared_embedding_name);
-  j.at("default_value").get_to(p.default_value);
+  if (j.find("shared_embedding_name") != j.end())      j.at("shared_embedding_name").get_to(p.shared_embedding_name);
+  if (j.find("default_value") != j.end())              j.at("default_value").get_to(p.default_value);
 }
 
 SparseFeaContext::SparseFeaContext(const SparseFeaConfig &cfg) : cfg_(cfg) {}
