@@ -21,31 +21,32 @@ denseFeaList = [
 'search_uv'              
 ]
 
-# (max_id, embed_size, max_len )
-seqFeaList = {
-'L_authorId_his'    : (0, 16, 30 ) ,
-'L_bid_his'         : (0, 16, 30 ) ,
-'L_c1_his'          : (0, 8, 30 ) ,
-'L_c2_his'          : (0, 8, 30 ) ,
-'L_c3_his'          : (0, 8, 30 ) ,
-'L_pubId_his'       : (0, 8, 30 ) ,
-'L_tag_his'         : (0, 8, 30 ) ,
-'tag'               : (0, 8, 4  ),
+# (max_id, embed_size )
+sparseFeaList = [
+'c2'            , 
+'c3'            , 
+'authorId'      , 
+'pubId'         , 
+'c1'            , 
+'bid'           , 
+'isVip'        , 
+'mode_flag'    
+]
+
+# value为最大长度
+varlenSparseFeaList = {
+'L_authorId_his'    :  30  ,
+'L_bid_his'         :  30  ,
+'L_c1_his'          :  30  ,
+'L_c2_his'          :  30  ,
+'L_c3_his'          :  30  ,
+'L_pubId_his'       :  30  ,
+'L_tag_his'         :  30  ,
+'tag'               :  4  
 }
 
-# (max_id, embed_size )
-sparseFeaList = {
-'c2'            : (0, 8)  , 
-'c3'            : (0, 8)  , 
-'authorId'      : (0, 8)  , 
-'pubId'         : (0, 8)  , 
-'c1'            : (0, 4)  , 
-'bid'           : (0, 16)  , 
-'isVip'         : (0, 1)  , 
-'mode_flag'     : (0, 1)  , 
-}
 
 fea_type_dense = 1
 fea_type_sparce = 2
-fea_type_seq = 3
+fea_type_varlen_sparce = 3
 

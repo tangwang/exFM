@@ -5,7 +5,8 @@
 #include "solver/solver_factory.h"
 
 SparseFeaConfig::SparseFeaConfig() {
-  default_value = -1;
+  default_id = 0;
+  unknown_id = 1;
   use_id_mapping = 0;
   use_hash = false;
 }
@@ -41,17 +42,17 @@ int SparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>>
     loadModel();
   }
 
-
-  if (use_id_mapping != 0 && !id_mapping_dict_path.empty()) {
-    // assert(access(id_mapping_dict_path.c_str(), F_OK) != -1 &&
-    // ("id_mapping_dict_path doesn't exist: " + id_mapping_dict_path));
-    assert(access(id_mapping_dict_path.c_str(), F_OK) != -1);
-    if (fea_id_mapping.create(id_mapping_dict_path,
+  if (use_id_mapping && !mapping_dict_name.empty()) {
+    // assert(access(mapping_dict_name.c_str(), F_OK) != -1 &&
+    // ("mapping_dict_name doesn't exist: " + mapping_dict_name));
+    assert(access(mapping_dict_name.c_str(), F_OK) != -1);
+    fea_id_mapping.setNullValue(unknown_id);
+    if (fea_id_mapping.create(mapping_dict_name,
                               train_opt.fea_id_mapping_dict_seperator)) {
-      std::cout << "load dict <" << id_mapping_dict_path << "> ok, size <"
+      std::cout << "load dict <" << mapping_dict_name << "> ok, size <"
                 << fea_id_mapping.size() << ">" << std::endl;
     } else {
-      std::cerr << "load dict <" << id_mapping_dict_path << "> failed!!!"
+      std::cerr << "load dict <" << mapping_dict_name << "> failed!!!"
                 << std::endl;
     }
   }
@@ -62,12 +63,12 @@ int SparseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>>
 void to_json(json &j, const SparseFeaConfig &p) {
   j = json{{"name", p.name},
            {"vocab_size", p.vocab_size},
-           {"id_mapping_dict_path", p.id_mapping_dict_path},
+           {"mapping_dict_name", p.mapping_dict_name},
            {"use_id_mapping", p.use_id_mapping},
            {"max_id", p.max_id},
            {"use_hash", p.use_hash},
            {"shared_embedding_name", p.shared_embedding_name},
-           {"default_value", p.default_value}};
+           {"default_id", p.default_id}};
 }
 
 void from_json(const json &j, SparseFeaConfig &p) {
@@ -76,10 +77,11 @@ void from_json(const json &j, SparseFeaConfig &p) {
   if (j.find("use_id_mapping") != j.end())             j.at("use_id_mapping").get_to(p.use_id_mapping);
   if (j.find("max_id") != j.end())                     j.at("max_id").get_to(p.max_id);
   if (j.find("use_hash") != j.end())                   j.at("use_hash").get_to(p.use_hash);
-  if (j.find("id_mapping_dict_path") != j.end())       j.at("id_mapping_dict_path").get_to(p.id_mapping_dict_path);
+  if (j.find("mapping_dict_name") != j.end())       j.at("mapping_dict_name").get_to(p.mapping_dict_name);
   
   if (j.find("shared_embedding_name") != j.end())      j.at("shared_embedding_name").get_to(p.shared_embedding_name);
-  if (j.find("default_value") != j.end())              j.at("default_value").get_to(p.default_value);
+  if (j.find("default_id") != j.end())                 j.at("default_id").get_to(p.default_id);
+  if (j.find("unknown_id") != j.end())                 j.at("unknown_id").get_to(p.unknown_id);
 }
 
 SparseFeaContext::SparseFeaContext(const SparseFeaConfig &cfg) : cfg_(cfg) {}
@@ -91,12 +93,11 @@ void SparseFeaContext::forward(vector<ParamContext> &forward_params) {}
 int SparseFeaContext::feedSample(const char *line,
                                   vector<ParamContext> &forward_params,
                                   vector<ParamContext> &backward_params) {
-  cfg_.parseID(line, orig_fea_id, cfg_.default_value);
+  cfg_.parseID(line, orig_fea_id, cfg_.default_id);
 
-  fea_id = cfg_.use_id_mapping == 0 ? orig_fea_id
-                                    : cfg_.fea_id_mapping.get(orig_fea_id);
+  fea_id = cfg_.use_id_mapping ? cfg_.fea_id_mapping.get(orig_fea_id) : orig_fea_id;
   if (!valid()) {
-    return -1;
+    return -1; // TODO 0929 这里要去掉。 之前默认值是-1，现在默认值改成了0，采用默认值的ID
   }
 
   DEBUG_OUT << "feedSample " << cfg_.name << " orig_fea_id " << orig_fea_id << " fea_id " << fea_id << endl;

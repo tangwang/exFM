@@ -36,10 +36,10 @@ void to_json(json &j, const VarlenSparseFeaConfig &p) {
   j = json{{"name", p.name},
            {"max_id", p.sparse_cfg.max_id},
            {"vocab_size", p.sparse_cfg.vocab_size},
-           {"id_mapping_dict_path", p.sparse_cfg.id_mapping_dict_path},
+           {"mapping_dict_name", p.sparse_cfg.mapping_dict_name},
            {"use_id_mapping", p.sparse_cfg.use_id_mapping},
            {"use_hash", p.sparse_cfg.use_hash},
-           {"default_value", p.sparse_cfg.default_value},
+           {"default_id", p.sparse_cfg.default_id},
            {"max_len", p.max_len},
            {"shared_embedding_name", p.sparse_cfg.shared_embedding_name},
            {"pooling_type", p.pooling_type}};
@@ -51,10 +51,10 @@ void from_json(const json &j, VarlenSparseFeaConfig &p) {
   j.at("vocab_size").get_to(p.sparse_cfg.vocab_size);
   j.at("max_len").get_to(p.max_len);
   if (j.find("max_id") != j.end())                       j.at("max_id").get_to(p.sparse_cfg.max_id);
-  if (j.find("id_mapping_dict_path") != j.end())         j.at("id_mapping_dict_path").get_to(p.sparse_cfg.id_mapping_dict_path);
+  if (j.find("mapping_dict_name") != j.end())         j.at("mapping_dict_name").get_to(p.sparse_cfg.mapping_dict_name);
   if (j.find("use_hash") != j.end())                     j.at("use_hash").get_to(p.sparse_cfg.use_hash);
   if (j.find("use_id_mapping") != j.end())               j.at("use_id_mapping").get_to(p.sparse_cfg.use_id_mapping);
-  if (j.find("default_value") != j.end())                j.at("default_value").get_to(p.sparse_cfg.default_value);
+  if (j.find("default_id") != j.end())                j.at("default_id").get_to(p.sparse_cfg.default_id);
   if (j.find("pooling_type") != j.end())                 j.at("pooling_type").get_to(p.pooling_type);
   if (j.find("shared_embedding_name") != j.end())        j.at("shared_embedding_name").get_to(p.sparse_cfg.shared_embedding_name);
 }

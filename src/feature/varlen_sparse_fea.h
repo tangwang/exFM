@@ -32,8 +32,8 @@ class VarlenSparseFeaConfig : public CommonFeaConfig {
     out << " max_id <" << cfg.sparse_cfg.max_id << ">" << endl;
     out << " use_id_mapping <" << cfg.sparse_cfg.use_id_mapping << ">" << endl;
     out << " use_hash <" << cfg.sparse_cfg.use_hash << ">" << endl;
-    out << " default_value <" << cfg.sparse_cfg.default_value << ">" << endl;
-    out << " id_mapping_dict_path <" << cfg.sparse_cfg.id_mapping_dict_path << ">" << endl;
+    out << " default_id <" << cfg.sparse_cfg.default_id << ">" << endl;
+    out << " mapping_dict_name <" << cfg.sparse_cfg.mapping_dict_name << ">" << endl;
     out << " fea_id_mapping size <" << cfg.sparse_cfg.fea_id_mapping.size() << ">" << endl;
     out << " vocab_size <" << cfg.sparse_cfg.vocab_size << ">" << endl;
     out << " shared_embedding_name <" << cfg.sparse_cfg.shared_embedding_name << ">" << endl;

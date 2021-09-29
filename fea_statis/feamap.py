@@ -27,7 +27,7 @@ def dump():
             if k == 'bid': # 特殊处理
                 v = str(int(round(float(v))))
     
-            if k in conf.seqFeaList.keys() or k in conf.sparseFeaList:
+            if k in conf.varlenSparseFeaList.keys() or k in conf.sparseFeaList:
                 fea_statis.setdefault(k, {})
                 for iv in set(v.split(',')):
                     fea_statis[k].setdefault(iv, 0)
@@ -53,7 +53,7 @@ def dump():
                 print(mappedID, k, v, sep='\t', file=f)
         feamap_dict[feaName] = (conf.fea_type_sparce, value_map_dict)
     
-    for feaName in conf.seqFeaList.keys():
+    for feaName in conf.varlenSparseFeaList.keys():
         if not feaName in fea_statis: continue
         feaStatis = fea_statis[feaName]
         value_map_dict = {}
@@ -65,7 +65,7 @@ def dump():
                 if mappedID != 1:
                     value_map_dict[k] = mappedID
                 print(mappedID, k, v, sep='\t', file=f)
-        feamap_dict[feaName] = (conf.fea_type_seq, value_map_dict)
+        feamap_dict[feaName] = (conf.fea_type_varlen_sparce, value_map_dict)
     
     
     for feaName in conf.denseFeaList:
@@ -100,10 +100,10 @@ def map_fea(k, v):
     
     (fea_type, fea_map_dict) = feamap_dict[k]
     # 特殊处理：这些字段，不做映射：
-    if fea_type == conf.fea_type_seq or fea_type == conf.fea_type_sparce:
+    if fea_type == conf.fea_type_varlen_sparce or fea_type == conf.fea_type_sparce:
         return k + ':' + v
 
-    if fea_type == conf.fea_type_seq:
+    if fea_type == conf.fea_type_varlen_sparce:
         # unknown 为 1， 0留给PAD
         mapped_list = [str(fea_map_dict.get(x, 1)) for x in v.split(',')]
         return k + ':' + ','.join(mapped_list)
@@ -140,10 +140,10 @@ def to_np_data(args):
     for fea_name in conf.denseFeaList:
         denseFeaMap[f' {fea_name}:'] = []
     sparseFeaMap = {}
-    for fea_name, _ in conf.sparseFeaList.items():
+    for fea_name in conf.sparseFeaList:
         sparseFeaMap[f' {fea_name}:'] = []
     seqFeaMap = {}
-    for fea_name, (_, _, max_len) in conf.seqFeaList.items():
+    for fea_name, max_len in conf.varlenSparseFeaList.items():
         seqFeaMap[f' {fea_name}:'] = (max_len, [], [])
 
     print(denseFeaMap)

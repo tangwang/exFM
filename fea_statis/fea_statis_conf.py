@@ -6,12 +6,10 @@ value_list_split = ','
 dense_fea_same_wide_bucket_numbers = [10, 25]
 dense_fea_same_freq_bucket_numbers = [10, 25]
 
-default_dense_value = -1
-default_sparse_value = -1
+default_dense_value = 0
+default_sparse_value = 0
 
 use_hash_sparsity_threshold = 0.1 # 如果 ids_num / max_id 小于该值，则启用hash
-
-seq_pooling_type = 'sum'
 
 # dense特征
 dense_fea_list = set([

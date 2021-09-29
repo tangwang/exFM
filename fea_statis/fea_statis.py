@@ -26,9 +26,9 @@ def parse_id(x):
         return -1
     return int(x)
 
-def save_fea_id_mapping_dict(id_mapping_dict_path, fea_num_statis_dict_path, fea_name, fea_id_list):
+def save_fea_id_mapping_dict(mapping_dict_name, fea_num_statis_dict_path, fea_name, fea_id_list):
     sorted_fea_num_list = sorted(fea_id_list.items(), key=lambda x:x[1], reverse=True)
-    with open(id_mapping_dict_path, 'w') as f_id_mapping:
+    with open(mapping_dict_name, 'w') as f_id_mapping:
         with open(fea_num_statis_dict_path, 'w') as f_num_statis:
             for idx, (k, v) in enumerate(sorted_fea_num_list):
                 # id 0和1 预留出来，0可以用来做default，1可以用来做unknown
@@ -49,7 +49,6 @@ if __name__ == '__main__':
     ##########################################
     # 解析数据
     ##########################################
-    
     for line in sys.stdin:
         segs = line.rstrip().split(field_split)[1:]
 
@@ -61,7 +60,6 @@ if __name__ == '__main__':
 
                 if k in dense_fea_dict:
                     dense_fea_dict[k].append(float(v))
-
                 elif k in sparse_id_fea_dict:
                     # 兼容有多个值的情况
                     if value_list_split in v:
@@ -114,19 +112,19 @@ if __name__ == '__main__':
         for n in dense_fea_same_freq_bucket_numbers:
             percentile_values.append([np.percentile(v, 100*pos/n) for pos in range(1, n)])
         print(f' dense_fea: {k} ')
-        print('min', min_v)
-        print('max', max_v)
+        print('min_clip', min_v)
+        print('max_clip', max_v)
         print('mean', mean)
         print('std', std)
         print('num', num)
         print('percentile_values', percentile_values)
 
         dense_features.append( {'name' : k, 
-                'min' : min_v,
-                 'max' : max_v,
+                'min_clip' : min_v,
+                 'max_clip' : max_v,
                  'default_value' : default_dense_value,
-                 'samewide_bucket_nums' : dense_fea_same_wide_bucket_numbers,
-                'bucket_splits' : percentile_values,
+                 'sparse_by_wide' : dense_fea_same_wide_bucket_numbers,
+                'sparse_by_splits' : percentile_values,
                 } )
 
     for k, v in sparse_id_fea_dict.items():
@@ -152,19 +150,19 @@ if __name__ == '__main__':
             use_hash = False
             vocab_size = max_id
 
-        id_mapping_dict_path = os.path.join(id_map_dict_path, f'{k}.dict')
+        mapping_dict_name = os.path.join(id_map_dict_path, f'{k}.dict')
         fea_num_statis_dict_path = os.path.join(id_map_dict_path, f'num_static.{k}.dict')
         fea_counts = Counter(v)
-        save_fea_id_mapping_dict(id_mapping_dict_path, fea_num_statis_dict_path, k, fea_counts)
+        save_fea_id_mapping_dict(mapping_dict_name, fea_num_statis_dict_path, k, fea_counts)
 
         sparse_features.append( {'name' : k, 
                 'vocab_size' : vocab_size,
                 'max_id' : max_id,
                 'use_id_mapping' : 0 if (max_id < 1000 or max_id*3 > ids_num) else 1,
                 'use_hash' : use_hash,
-                'id_mapping_dict_path' : id_mapping_dict_path,
+                'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : '',
-                 'default_value' : default_sparse_value
+                 'default_id' : default_sparse_value
                 } )
         
     for k, v in varlen_sparse_id_fea_dict.items():
@@ -195,21 +193,21 @@ if __name__ == '__main__':
             use_hash = False
             vocab_size = max_id
 
-        id_mapping_dict_path = os.path.join(id_map_dict_path, f'{k}.dict')
+        mapping_dict_name = os.path.join(id_map_dict_path, f'{k}.dict')
         fea_num_statis_dict_path = os.path.join(id_map_dict_path, f'num_static.{k}.dict')
         fea_counts = Counter(v)
-        save_fea_id_mapping_dict(id_mapping_dict_path, fea_num_statis_dict_path, k, fea_counts)
+        save_fea_id_mapping_dict(mapping_dict_name, fea_num_statis_dict_path, k, fea_counts)
 
         varlen_sparse_features.append( {'name' : k,
                 'vocab_size' : vocab_size,
                 'max_id' : max_id,
                 'use_id_mapping' : 0 if (max_id < 1000 or max_id*3 > ids_num) else 1,
                 'use_hash' : use_hash,
-                 'default_value' : default_sparse_value,
+                 'default_id' : default_sparse_value,
                  'max_len' : max_len,
-                 'id_mapping_dict_path' : id_mapping_dict_path,
+                 'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : '',
-                'pooling_type' : seq_pooling_type
+                'pooling_type' : 'sum'
                 } )
 
     for k, v in sparse_str_fea_dict.items():
@@ -231,9 +229,9 @@ if __name__ == '__main__':
                 'max_id' : max_id,
                 'use_id_mapping' : 0 if (max_id < 1000 or max_id*3 > ids_num) else 1,
                 'use_hash' : use_hash,
-                'id_mapping_dict_path' : id_mapping_dict_path,
+                'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : '',
-                 'default_value' : default_sparse_value
+                 'default_id' : default_sparse_value
                 } )
         
     for k, v in varlen_sparse_str_fea_dict.items():
@@ -255,20 +253,20 @@ if __name__ == '__main__':
         use_hash = False
         vocab_size = ids_num
 
-        id_mapping_dict_path = os.path.join(id_map_dict_path, f'{k}.dict')
+        mapping_dict_name = os.path.join(id_map_dict_path, f'{k}.dict')
         fea_num_statis_dict_path = os.path.join(id_map_dict_path, f'num_static.{k}.dict')
 
         fea_counts = Counter(v)
-        save_fea_id_mapping_dict(id_mapping_dict_path, fea_num_statis_dict_path, k, fea_counts)
+        save_fea_id_mapping_dict(mapping_dict_name, fea_num_statis_dict_path, k, fea_counts)
 
         varlen_sparse_features.append( {'name' : k,
                 'vocab_size' : vocab_size,
                 'max_id' : max_id,
                 'use_id_mapping' : 0 if (max_id < 1000 or max_id*3 > ids_num) else 1,
                 'use_hash' : use_hash,
-                'id_mapping_dict_path' : id_mapping_dict_path,
+                'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : '',
-                 'default_value' : default_sparse_value,
+                 'default_id' : default_sparse_value,
                  'max_len' : max_len,
                  'pooling_type' : seq_pooling_type
                 } )

@@ -110,6 +110,10 @@ public:
         return _load();
     }
 
+    void setNullValue(Value_t null_value) {
+        _null_value = null_value;
+    }
+
     virtual ~Dict() { }
 
     bool empty() const {

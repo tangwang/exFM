@@ -12,13 +12,13 @@ DenseFeaConfig::~DenseFeaConfig() {}
 
 int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
   const feaid_t onehot_fea_dimension =
-      samewide_bucket_nums.size() + bucket_splits.size();
+      sparse_by_wide.size() + sparse_by_splits.size();
   if (onehot_fea_dimension == 0) return 0;
   
   vector<pair<real_t, vector<feaid_t>>> all_split_position_and_mapping_ids;
   feaid_t onehot_dimension = 0;
   feaid_t onehot_id = 0;
-  for (int bucket_num : samewide_bucket_nums) {
+  for (int bucket_num : sparse_by_wide) {
     vector<feaid_t> onehot_values(onehot_fea_dimension);
     real_t wide = (max - min) / bucket_num;
     // TODO check边界
@@ -30,7 +30,7 @@ int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> 
     onehot_dimension++;
   }
 
-  for (auto buckets : bucket_splits) {
+  for (auto buckets : sparse_by_splits) {
     vector<feaid_t> onehot_values(onehot_fea_dimension);
     // 因为离散化时是取lower_bound的idx，所以min值也放进去
     onehot_values[onehot_dimension] = onehot_id++;
@@ -88,20 +88,20 @@ int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> 
 
 void to_json(json &j, const DenseFeaConfig &p) {
   j = json{{"name", p.name},
-           {"min", p.min},
-           {"max", p.max},
+           {"min_clip", p.min},
+           {"max_clip", p.max},
            {"default_value", p.default_value},
-           {"samewide_bucket_nums", p.samewide_bucket_nums},
-           {"bucket_splits", p.bucket_splits}};
+           {"sparse_by_wide", p.sparse_by_wide},
+           {"sparse_by_splits", p.sparse_by_splits}};
 }
 
 void from_json(const json &j, DenseFeaConfig &p) {
   j.at("name").get_to(p.name);
-  j.at("min").get_to(p.min);
-  j.at("max").get_to(p.max);
-  if (j.find("default_value") != j.end())           j.at("default_value").get_to(p.default_value);
-  if (j.find("samewide_bucket_nums") != j.end())    j.at("samewide_bucket_nums").get_to(p.samewide_bucket_nums);
-  if (j.find("bucket_splits") != j.end())           j.at("bucket_splits").get_to(p.bucket_splits);
+  j.at("min_clip").get_to(p.min);
+  j.at("max_clip").get_to(p.max);
+  if (j.find("default_value") != j.end())      j.at("default_value").get_to(p.default_value);
+  if (j.find("sparse_by_wide") != j.end())     j.at("sparse_by_wide").get_to(p.sparse_by_wide);
+  if (j.find("sparse_by_splits") != j.end())   j.at("sparse_by_splits").get_to(p.sparse_by_splits);
 }
 
 DenseFeaContext::DenseFeaContext(const DenseFeaConfig &cfg) : cfg_(cfg) {}

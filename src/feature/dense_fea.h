@@ -11,9 +11,9 @@ class DenseFeaConfig : public CommonFeaConfig {
   real_t default_value;
 
   // 配置的等频分桶桶宽
-  vector<int> samewide_bucket_nums;
+  vector<int> sparse_by_wide;
   // 配置的分桶
-  vector<vector<real_t>> bucket_splits;
+  vector<vector<real_t>> sparse_by_splits;
 
   // 以下3个vector，长度一致，按位置一一对应
   vector<real_t> all_splits;                        // 分隔值
@@ -55,9 +55,9 @@ class DenseFeaConfig : public CommonFeaConfig {
     out << "------------------------------------- " << endl;
     out << " DenseFeaConfig name <" << cfg.name << ">" << endl;
 
-    out << " bucket_splits: " << endl << cfg.bucket_splits << endl;
+    out << " sparse_by_splits: " << endl << cfg.sparse_by_splits << endl;
 
-    out << " samewide_bucket_nums: " << endl << cfg.samewide_bucket_nums << endl;
+    out << " sparse_by_wide: " << endl << cfg.sparse_by_wide << endl;
 
     out << " all_splits: " << endl << cfg.all_splits << endl;
 
