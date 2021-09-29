@@ -1,5 +1,4 @@
-#ifndef PthreadMutexWithCond_H_
-#define PthreadMutexWithCond_H_
+#pragma once
 
 #include <pthread.h>
 #include <stdio.h>
@@ -30,5 +29,3 @@ class PthreadMutexWithCond {
   PthreadMutexWithCond(const PthreadMutexWithCond &ohter);
   PthreadMutexWithCond &operator=(const PthreadMutexWithCond &that);
 };
-
-#endif

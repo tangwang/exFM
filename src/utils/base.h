@@ -32,11 +32,14 @@ using std::string;
 using std::vector;
 using std::map;
 
+#ifndef DIM
+#define DIM 15
+#endif
 #if !DIM
 #define DIM 15
 #endif
 
-#define WINDOWS_VER_ 0  // 暂时未测试
+#define WINDOWS_VER_ 0  // 暂未支持windows版本
 
 #ifdef _DEBUG_VER_
 #include <cassert>
@@ -49,8 +52,8 @@ using std::map;
 #define assert(test) (void(0))
 #endif
 
-#ifdef int
-#undef int
+#ifdef uint
+#undef uint
 #endif
 typedef unsigned int uint;
 

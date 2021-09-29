@@ -9,9 +9,6 @@
 #include "train/evalution.h"
 #include "utils/busy_consumer_queue.h"
 
-using std::thread;
-using utils::BusyConsumerQueue;
-
 class TrainWorker {
  public:
   TrainWorker(const char *task_name, int task_id)
@@ -127,7 +124,7 @@ class TrainWorker {
   int task_id_;
   BaseSolver *solver;
   Evalution eval;
-  BusyConsumerQueue<string> task_queue;
+  utils::BusyConsumerQueue<string> task_queue;
   std::thread thread_handler;
   std::atomic<bool> stop_flag;
 };

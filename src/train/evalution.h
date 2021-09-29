@@ -38,6 +38,7 @@ class Evalution {
   void output(const char* name, bool for_validation = false) {
     double recall = double(tp) / (tp + fn);
     double precision = double(tp) / (tp + fp);
+    double f1 = recall + precision > 0.0 ? 2 * recall * precision / (recall + precision) : 0.0;
     double acc = double(tp + tn) / (tn + fp + fn + tp);
 
     // 计算AUC
@@ -60,11 +61,12 @@ class Evalution {
     double auc = double(sum_positive_samples_idx_of_ranked_list * 2 -
                         pos_num * (pos_num + 1)) /
                  (2 * pos_num * neg_num);
-    
+   
     if (auc > max_auc) max_auc = auc;
 
     double cost_time = stopwatch.get_elapsed_by_seconds();
     size_t total_samples = tn + fp + fn + tp;
+
     if (for_validation) {
       cout << std::fixed << std::setprecision(4) << name << " accumulated="
           << total_samples_processed << " ("
@@ -74,7 +76,9 @@ class Evalution {
           << ", N|tn,fp,fn,tp=" << total_samples << '|' << tn << ',' << fp << ',' << fn << ',' << tp
           << ", acc=" << acc
           << " recall=" << recall
-          << " precision=" << precision << endl;
+          << " precision=" << precision
+          << " f1=" << f1
+          << endl;          
     } else {
       cout << std::fixed << std::setprecision(4) << name << " accumulated="
           << total_samples_processed << " ("
@@ -85,10 +89,12 @@ class Evalution {
           << ", N|tn,fp,fn,tp=" << total_samples << '|' << tn << ',' << fp << ',' << fn << ',' << tp
           << ", acc=" << acc
           << " recall=" << recall
-          << " precision=" << precision << endl;
+          << " precision=" << precision 
+          << " f1=" << f1
+          << endl;
     }
 
-        clear();
+    clear();
   }
 
   const Evalution& operator+=(const Evalution& rhs) {

@@ -1,5 +1,4 @@
-#ifndef GccSpinLock_H_
-#define GccSpinLock_H_
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,5 +25,3 @@ class GccSpinLock {
  protected:
   volatile unsigned char lock_;
 };
-
-#endif

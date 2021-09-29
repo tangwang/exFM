@@ -1,5 +1,4 @@
-#ifndef NullMutex_H_
-#define NullMutex_H_
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,4 +16,3 @@ class NullMutex {
   inline void notify() {}
 };
 
-#endif

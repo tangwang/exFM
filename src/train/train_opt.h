@@ -34,17 +34,17 @@ class TrainOption {
     BatchGradReduceType_AvgByBatchSize,
     BatchGradReduceType_Sum,
     BatchGradReduceType_AvgByOccurrences,
-    BatchGradReduceType_AvgByOccurrencesSqrt    
+    BatchGradReduceType_AvgByOccurrencesSqrt
   };
 
-  static const BatchGradReduceType batch_grad_reduce_type = BatchGradReduceType_AvgByOccurrencesSqrt;
+  static constexpr BatchGradReduceType batch_grad_reduce_type = BatchGradReduceType_AvgByBatchSize;
 
   int threads_num;
   int time_interval_of_validation;
-  static const long n_sample_per_output = 100000;
-  static const int task_queue_size = 5000;
-  // const int shulf_window_size = 10007;
-  // const bool shuffle = false;
+  static constexpr long n_sample_per_output = 100000;
+  static constexpr int task_queue_size = 5000;
+  // constexpr int shulf_window_size = 10007;
+  // constexpr bool shuffle = false;
 
   int verbose;
   bool print_help;
@@ -59,9 +59,9 @@ class TrainOption {
   char fea_id_mapping_dict_seperator;
 
   // params for feature_configs
-  const string fea_type_dense = "dense_features";
-  const string fea_type_sparse = "sparse_features";
-  const string fea_type_varlen_sparse = "varlen_sparse_features";
+  constexpr string fea_type_dense = "dense_features";
+  constexpr string fea_type_sparse = "sparse_features";
+  constexpr string fea_type_varlen_sparse = "varlen_sparse_features";
 
   // param initial
   real_t init_stdev;

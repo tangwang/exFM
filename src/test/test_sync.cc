@@ -1,5 +1,5 @@
-#include "synchronize/GccSpinLock.h"
-#include "synchronize/PthreadMutex.h"
+#include "synchronize/gcc_spin_lock.h"
+#include "synchronize/pthread_mutex.h"
 #include "utils/base.h"
 
 using namespace std;

@@ -1,5 +1,4 @@
-#ifndef PTHREADMUTEX_H_
-#define PTHREADMUTEX_H_
+#pragma once
 
 #include <pthread.h>
 #include <stdio.h>
@@ -29,4 +28,3 @@ class PthreadMutex {
   PthreadMutex &operator=(const PthreadMutex &that);
 };
 
-#endif /* PTHREADMUTEX_H_ */

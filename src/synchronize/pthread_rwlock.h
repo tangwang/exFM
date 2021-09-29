@@ -1,5 +1,4 @@
-#ifndef PTHREADRWLOCK_H_
-#define PTHREADRWLOCK_H_
+#pragma once
 
 #include <pthread.h>
 #include <stdio.h>
@@ -28,4 +27,3 @@ class PthreadRWLock {
   PthreadRWLock &operator=(const PthreadRWLock &that);
 };
 
-#endif /* PTHREADRWLOCK_H_ */

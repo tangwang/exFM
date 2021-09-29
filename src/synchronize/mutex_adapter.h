@@ -1,8 +1,7 @@
-#ifndef mutex_adapter_H_
-#define mutex_adapter_H_
+#pragma once
 
-#include "synchronize/NullMutex.h"
-#include "synchronize/PthreadMutex.h"
+#include "synchronize/null_mutex.h"
+#include "synchronize/pthread_mutex.h"
 #include "synchronize/atomic_lock.h"
 
 #ifdef _PREDICT_VER_
@@ -12,4 +11,3 @@ typedef AtomicflagSpinLock Mutex_t;
 // typedef PthreadMutex Mutex_t;
 #endif
 
-#endif /* mutex_adapter_H_ */
