@@ -33,3 +33,7 @@
 
 # Projects
 .vscode
+
+
+*.log
+log/
