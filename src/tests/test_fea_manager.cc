@@ -1,17 +1,17 @@
-#include "feature/dense_fea.h"
-#include "feature/fea_manager.h"
-#include "feature/sparse_fea.h"
-#include "feature/varlen_sparse_fea.h"
+#include "feature/dense_feat.h"
+#include "feature/feat_manager.h"
+#include "feature/sparse_feat.h"
+#include "feature/varlen_sparse_feat.h"
 #include "train/train_worker.h"
 #include "solver/ftrl/ftrl_param.h"
 #include "utils/base.h"
 
-void test_fea_manager() {
+void test_feat_manager() {
 
-  FeaManager fea_manager;
-  fea_manager.loadByFeatureConfig("./config/fea.config");
+  FeatManager feat_manager;
+  feat_manager.loadByFeatureConfig("./config/fea.config");
 
-  Solver trainer(fea_manager, train_opt);
+  Solver trainer(feat_manager, train_opt);
 
   const static int MAX_LINE_BUFF = 10240;
   char line[MAX_LINE_BUFF];
@@ -28,6 +28,6 @@ void test_fea_manager() {
 }
 
 int main(int argc, char *argv[]) {
-  test_fea_manager();
+  test_feat_manager();
   return 0;
 }

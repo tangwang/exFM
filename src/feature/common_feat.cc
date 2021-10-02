@@ -1,7 +1,7 @@
-#include "feature/common_fea.h"
+#include "feature/common_feat.h"
 #include "solver/solver_factory.h"
 
-CommonFeaContext::CommonFeaContext()
+CommonFeatContext::CommonFeatContext()
 {
     forward_param_container = creatParamContainer(1, 1);
     backward_param_container = creatParamContainer(1, 1);

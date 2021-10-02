@@ -2,15 +2,15 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 #include "solver/rmsprop/rmsprop_param.h"
 #include "solver/base_solver.h"
 #include "train/train_opt.h"
 
 class RmspropSolver : public BaseSolver {
  public:
-  RmspropSolver(const FeaManager &fea_manager)
-      : BaseSolver(fea_manager),
+  RmspropSolver(const FeatManager &feat_manager)
+      : BaseSolver(feat_manager),
         lr(train_opt.rmsprop.lr),
         l2_norm_w(train_opt.rmsprop.l2_norm_w),
         l2_norm_V(train_opt.rmsprop.l2_norm_V),

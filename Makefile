@@ -2,15 +2,16 @@ ifndef dim
 dim=15
 endif 
 
-SRC = src/feature/dense_fea.cc \
-      src/feature/common_fea.cc \
-      src/feature/sparse_fea.cc \
-      src/feature/varlen_sparse_fea.cc \
-      src/feature/fea_manager.cc \
+SRC = src/feature/dense_feat.cc \
+      src/feature/common_feat.cc \
+      src/feature/sparse_feat.cc \
+      src/feature/varlen_sparse_feat.cc \
+      src/feature/feat_manager.cc \
       src/train/train_opt.cc \
       src/train/train.cc \
       src/solver/solver_factory.cc \
       src/solver/base_solver.cc \
+	  third_party/murmur_hash3/MurmurHash3.cc
 
 DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 	  ${wildcard  src/solver/*.h} \
@@ -26,13 +27,14 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 OBJS = ${patsubst %.cc, %.o, ${SRC}}
 DEBUG_OBJS = ${patsubst %.cc, %.o_DEBUG, ${SRC}}
 
-all : bin/train bin/train_debug
+# all : bin/train bin/train_debug
+all : bin/train 
 
 CC = g++
 LIB= -lpthread
 INC = -I./third_party  -I./src
-DEBUG_CCFLAGS = -g -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim}
-CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim}
+DEBUG_CCFLAGS = -g -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs
+CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs
 
 bin/train: ${OBJS} 
 	-mkdir -p bin

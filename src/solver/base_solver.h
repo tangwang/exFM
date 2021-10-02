@@ -2,7 +2,7 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 #include "solver/parammeter_container.h"
 #include "utils/base.h"
 #include "train/train_opt.h"
@@ -29,7 +29,7 @@ class Sample {
 
 class BaseSolver {
  public:
-  BaseSolver(const FeaManager &fea_manager);
+  BaseSolver(const FeatManager &feat_manager);
 
   virtual ~BaseSolver() {}
 
@@ -106,10 +106,10 @@ protected:
 protected:
   
 
-  const FeaManager &fea_manager_;
-  vector<DenseFeaContext> dense_feas;
-  vector<SparseFeaContext> sparse_feas;
-  vector<VarlenSparseFeaContext> varlen_feas;
+  const FeatManager &feat_manager_;
+  vector<DenseFeatContext> dense_feas;
+  vector<SparseFeatContext> sparse_feas;
+  vector<VarlenSparseFeatContext> varlen_feas;
 
   const size_t batch_size;
   size_t sample_idx;

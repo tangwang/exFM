@@ -89,6 +89,12 @@ inline double cast_ref_type<std::string, double>(const std::string &s) {
   return atof(s.c_str());
 }
 
+// str -> str
+template <>
+inline std::string cast_ref_type<std::string, std::string>(const std::string &s) {
+  return s;
+}
+
 template <>
 inline double cast_type<const char *, double>(const char *s) {
   return atof(s);

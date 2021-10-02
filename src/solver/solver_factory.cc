@@ -1,7 +1,7 @@
 /**
  *  Copyright (c) 2021 by exFM Contributors
  */
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 #include "solver/solver_factory.h"
 #include "solver/ftrl/ftrl_solver.h"
 #include "solver/adam/adam_solver.h"
@@ -25,19 +25,19 @@ shared_ptr<ParamContainerInterface> creatParamContainer(feaid_t fea_num, feaid_t
   }
 }
 
-BaseSolver * creatSolver(const FeaManager &fea_manager) {
+BaseSolver * creatSolver(const FeatManager &feat_manager) {
   if (train_opt.solver == "ftrl") {
-    return new FtrlSolver(fea_manager);
+    return new FtrlSolver(feat_manager);
   } else if (train_opt.solver == "sgdm") {
-    return new SgdmSolver(fea_manager);
+    return new SgdmSolver(feat_manager);
   } else if (train_opt.solver == "adagrad") {
-    return new AdagradSolver(fea_manager);
+    return new AdagradSolver(feat_manager);
   } else if (train_opt.solver == "rmsprop") {
-    return new RmspropSolver(fea_manager);
+    return new RmspropSolver(feat_manager);
   } else if (train_opt.solver == "adam") {
-    return new AdamSolver(fea_manager);
+    return new AdamSolver(feat_manager);
   } else {
-    return new AdamSolver(fea_manager);
+    return new AdamSolver(feat_manager);
   }
 }
 

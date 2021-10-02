@@ -1,24 +1,28 @@
 /**
  *  Copyright (c) 2021 by exFM Contributors
  */
-#include "feature/dense_fea.h"
+#include "feature/dense_feat.h"
 #include "solver/solver_factory.h"
 
-DenseFeaConfig::DenseFeaConfig() {
+DenseFeatConfig::DenseFeatConfig() {
   default_value = 0.0;
 }
 
-DenseFeaConfig::~DenseFeaConfig() {}
+DenseFeatConfig::~DenseFeatConfig() {}
 
-int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
+bool DenseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
   const feaid_t onehot_fea_dimension =
-      sparse_by_wide.size() + sparse_by_splits.size();
-  if (onehot_fea_dimension == 0) return 0;
+      sparse_by_wide_bins_numbs.size() + sparse_by_splits.size();
+  if (onehot_fea_dimension == 0) {
+    // 对dense特征的使用，暂时只支持稀疏化，不支持使用原始值
+    cerr << " no sparcity method for dense feature " << name << endl;
+    return false;
+  }
   
   vector<pair<real_t, vector<feaid_t>>> all_split_position_and_mapping_ids;
   feaid_t onehot_dimension = 0;
   feaid_t onehot_id = 0;
-  for (int bucket_num : sparse_by_wide) {
+  for (int bucket_num : sparse_by_wide_bins_numbs) {
     vector<feaid_t> onehot_values(onehot_fea_dimension);
     real_t wide = (max - min) / bucket_num;
     // TODO check边界
@@ -69,7 +73,6 @@ int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> 
         all_split_position_and_mapping_ids[split_idx].second);
   }
 
-
   param_container = creatParamContainer(onehot_fea_dimension, (feaid_t)fea_ids_of_each_buckets.size());
   loadModel();
 
@@ -83,32 +86,44 @@ int DenseFeaConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> 
     }
   }
 
-  return 0;
+  return true;
 }
 
-void to_json(json &j, const DenseFeaConfig &p) {
+void to_json(json &j, const DenseFeatConfig &p) {
   j = json{{"name", p.name},
            {"min_clip", p.min},
            {"max_clip", p.max},
            {"default_value", p.default_value},
-           {"sparse_by_wide", p.sparse_by_wide},
+           {"sparse_by_wide_bins_numbs", p.sparse_by_wide_bins_numbs},
            {"sparse_by_splits", p.sparse_by_splits}};
 }
 
-void from_json(const json &j, DenseFeaConfig &p) {
+void from_json(const json &j, DenseFeatConfig &p) {
+  if (j.find("name") == j.end()) {
+    throw "feature config err : no attr \"name\" in dense feature.";
+  }
   j.at("name").get_to(p.name);
-  j.at("min_clip").get_to(p.min);
+
+  if (j.find("min_clip") == j.end()) {
+    throw "feature config err : no attr \"min_clip\" in dense feature.";
+  }
+
+  j.at("max_clip").get_to(p.min);
+  if (j.find("max_clip") == j.end()) {
+    throw "feature config err : no attr \"max_clip\" in dense feature.";
+  }
+
   j.at("max_clip").get_to(p.max);
   if (j.find("default_value") != j.end())      j.at("default_value").get_to(p.default_value);
-  if (j.find("sparse_by_wide") != j.end())     j.at("sparse_by_wide").get_to(p.sparse_by_wide);
+  if (j.find("sparse_by_wide_bins_numbs") != j.end())     j.at("sparse_by_wide_bins_numbs").get_to(p.sparse_by_wide_bins_numbs);
   if (j.find("sparse_by_splits") != j.end())   j.at("sparse_by_splits").get_to(p.sparse_by_splits);
 }
 
-DenseFeaContext::DenseFeaContext(const DenseFeaConfig &cfg) : cfg_(cfg) {}
+DenseFeatContext::DenseFeatContext(const DenseFeatConfig &cfg) : cfg_(cfg) {}
 
-DenseFeaContext::~DenseFeaContext() {}
+DenseFeatContext::~DenseFeatContext() {}
 
-int DenseFeaContext::feedSample(const char *line,
+int DenseFeatContext::feedSample(const char *line,
                                  vector<ParamContext> &forward_params,
                                  vector<ParamContext> &backward_params) {
   cfg_.parseReal(line, orig_x, cfg_.default_value);
@@ -137,7 +152,7 @@ int DenseFeaContext::feedSample(const char *line,
   return 0;
 }
 
-void DenseFeaContext::forward(vector<ParamContext> &forward_params) {}
+void DenseFeatContext::forward(vector<ParamContext> &forward_params) {}
 
-void DenseFeaContext::backward() {
+void DenseFeatContext::backward() {
 }

@@ -8,4 +8,4 @@
 
 shared_ptr<ParamContainerInterface> creatParamContainer(feaid_t fea_num, feaid_t mutex_nums);
 
-BaseSolver * creatSolver(const FeaManager &fea_manager);
+BaseSolver * creatSolver(const FeatManager &feat_manager);

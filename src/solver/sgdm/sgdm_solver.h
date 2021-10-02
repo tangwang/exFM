@@ -2,15 +2,15 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 #include "solver/sgdm/sgdm_param.h"
 #include "solver/base_solver.h"
 #include "train/train_opt.h"
 
 class SgdmSolver : public BaseSolver {
  public:
-  SgdmSolver(const FeaManager &fea_manager)
-      : BaseSolver(fea_manager),
+  SgdmSolver(const FeatManager &feat_manager)
+      : BaseSolver(feat_manager),
         lr(train_opt.sgdm.lr),
         beta1(train_opt.sgdm.beta1),
         l1_reg_w(train_opt.sgdm.l1_reg_w),

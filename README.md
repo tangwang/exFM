@@ -2,6 +2,14 @@
 # exFM
 nexFM -- Flexible(support various feature forms) and high-performance(training and online serving) FM implementation. 
 
+取名exFM意思是扩展的FM，
+
+公开数据集：
+https://github.com/ycjuan/kaggle-2014-criteo
+https://github.com/ycjuan/libffm
+
+
+
 默认15维，如果指定其他维度，用make DIM=xxx进行编译。
 
 1. make DIM=31
@@ -83,3 +91,19 @@ exFM的shuffle只是小范围shufle，具体的讲是给多个worker线程分发
 在使用自适应学习率算法(adagrad, adam)的时候，可以考虑对训练集进行整体的打散，可以避免某些特征集中出现，而导致的有时学习过度、有时学习不足，使得下降方向出现偏差的问题
 
 
+
+
+
+
+
+
+cityhash 的优化选项：
+./configure
+make all check CXXFLAGS="-g -O3"
+sudo make install
+
+Or, if your system has the CRC32 instruction, and you want to build everything:
+
+./configure --enable-sse4.2
+make all check CXXFLAGS="-g -O3 -msse4.2"
+sudo make install

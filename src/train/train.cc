@@ -1,7 +1,7 @@
 /**
  *  Copyright (c) 2021 by exFM Contributors
  */
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 #include "train/train_worker.h"
 #include "train/shulffer.h"
 #include "solver/ftrl/ftrl_solver.h"
@@ -62,17 +62,20 @@ int main(int argc, char *argv[]) {
     return -1; 
   }
 
-  FeaManager fea_manager;
+  FeatManager feat_manager;
   assert(!train_opt.feature_config_path.empty());
   assert(access(train_opt.feature_config_path.c_str(), F_OK) != -1);
-  fea_manager.loadByFeatureConfig(train_opt.feature_config_path);
+  if (!feat_manager.loadByFeatureConfig(train_opt.feature_config_path)) {
+    cerr << "init feature manager faild, check config file " << train_opt.feature_config_path << ". exit" << endl;
+    return -1; 
+  }
 
   vector<TrainWorker *> sovers;
 
   for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
     std::cout << "start train thread " << thread_id << "..." << endl;
     TrainWorker *p = new TrainWorker("train", thread_id);
-    p->RegisteSolver(creatSolver(fea_manager));
+    p->RegisteSolver(creatSolver(feat_manager));
     p->StartTrainLoop();
     sovers.push_back(p);
   }
@@ -103,7 +106,7 @@ int main(int argc, char *argv[]) {
     }
 
     validator = new TrainWorker("valid", 0);
-    validator->RegisteSolver(creatSolver(fea_manager));
+    validator->RegisteSolver(creatSolver(feat_manager));
     validator->StartValidationLoop(valid_stream);
     std::cout << "start validation thread " << "..." << endl;
   }
@@ -137,6 +140,6 @@ int main(int argc, char *argv[]) {
     delete input_file_stream;
   }
 
-  fea_manager.dumpModel();
+  feat_manager.dumpModel();
   return 0;
 }

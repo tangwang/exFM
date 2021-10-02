@@ -108,12 +108,12 @@ class ParamContainerInterface {
         FMParamUnit *p = get(i);
         ifs.read((char *)p, weight_size);
         if (!ifs) {
-          std::cerr << "load model faild, size not match: " << path << " fea_id: " << i <<  std::endl;
+          std::cerr << "load model faild, size not match: " << path << " feat_id: " << i <<  std::endl;
           return -1;
         }
       }
       if (i != total_fea_num) {
-          std::cerr << "load model faild, size not match: " << path << " fea_id: " << i <<  std::endl;
+          std::cerr << "load model faild, size not match: " << path << " feat_id: " << i <<  std::endl;
           return -2;
       }
     } else {
@@ -124,7 +124,7 @@ class ParamContainerInterface {
       for (; i < total_fea_num; i++) {
         FMParamUnit *p = get(i);
         if (!std::getline(ifs, line)) {
-          std::cerr << "load model faild, size not match: " << path << " fea_id: " << i <<  std::endl;
+          std::cerr << "load model faild, size not match: " << path << " feat_id: " << i <<  std::endl;
           return -1;
         }
         real_t * read_end = utils::split_string(line, ' ', (real_t *)p);
@@ -134,7 +134,7 @@ class ParamContainerInterface {
         }
       }
       if (i != total_fea_num) {
-          std::cerr << "load model faild, size not match: " << path << " fea_id: " << i <<  std::endl;
+          std::cerr << "load model faild, size not match: " << path << " feat_id: " << i <<  std::endl;
           return -2;
       }
     }

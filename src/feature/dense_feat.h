@@ -2,16 +2,16 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "feature/common_fea.h"
+#include "feature/common_feat.h"
 
-class DenseFeaConfig : public CommonFeaConfig {
+class DenseFeatConfig : public CommonFeatConfig {
  public:
   real_t min;
   real_t max;
   real_t default_value;
 
   // 配置的等频分桶桶宽
-  vector<int> sparse_by_wide;
+  vector<int> sparse_by_wide_bins_numbs;
   // 配置的分桶
   vector<vector<real_t>> sparse_by_splits;
 
@@ -49,38 +49,32 @@ class DenseFeaConfig : public CommonFeaConfig {
     return bucket_id;
   }
 
-  int initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
+  bool initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
-  friend ostream & operator << (ostream &out, const DenseFeaConfig & cfg) {
-    out << "------------------------------------- " << endl;
-    out << " DenseFeaConfig name <" << cfg.name << ">" << endl;
-
+  friend ostream & operator << (ostream &out, const DenseFeatConfig & cfg) {
+    out << " DenseFeatConfig name <" << cfg.name << ">" << endl;
     out << " sparse_by_splits: " << endl << cfg.sparse_by_splits << endl;
-
-    out << " sparse_by_wide: " << endl << cfg.sparse_by_wide << endl;
-
+    out << " sparse_by_wide_bins_numbs: " << endl << cfg.sparse_by_wide_bins_numbs << endl;
     out << " all_splits: " << endl << cfg.all_splits << endl;
-
     out << " fea_ids_of_each_buckets: " << endl << cfg.fea_ids_of_each_buckets << endl;
-
     out << ">\n min <" << cfg.min << "> max <" << cfg.max << ">" << endl;
     out << " default_value <" << cfg.default_value << ">" << endl;
     return out;
   }
 
-  DenseFeaConfig();
-  ~DenseFeaConfig();
+  DenseFeatConfig();
+  ~DenseFeatConfig();
 };
 
-void to_json(json &j, const DenseFeaConfig &p);
-void from_json(const json &j, DenseFeaConfig &p);
+void to_json(json &j, const DenseFeatConfig &p);
+void from_json(const json &j, DenseFeatConfig &p);
 
-class DenseFeaContext : public CommonFeaContext {
+class DenseFeatContext : public CommonFeatContext {
  public:
   real_t orig_x;
   const vector<FMParamUnit *> *fea_params;
 
-  const DenseFeaConfig &cfg_;
+  const DenseFeatConfig &cfg_;
 
   int feedSample(const char *line, vector<ParamContext> & forward_params, vector<ParamContext> & backward_params);
 
@@ -93,6 +87,6 @@ class DenseFeaContext : public CommonFeaContext {
 
   void backward();
 
-  DenseFeaContext(const DenseFeaConfig &cfg);
-  ~DenseFeaContext();
+  DenseFeatContext(const DenseFeatConfig &cfg);
+  ~DenseFeatContext();
 };

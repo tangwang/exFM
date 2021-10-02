@@ -39,8 +39,6 @@ using std::map;
 #define DIM 15
 #endif
 
-#define WINDOWS_VER_ 0  // 暂未支持windows版本
-
 #ifdef _DEBUG_VER_
 #include <cassert>
 #define DEBUG_OUT std::cout

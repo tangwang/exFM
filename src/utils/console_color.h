@@ -3,7 +3,7 @@
 
 namespace console_color {
 
-#if WINDOWS_VER_
+#ifdef _MSC_VER
 #include <windows.h>
 
 #include <iostream>

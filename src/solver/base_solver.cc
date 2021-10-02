@@ -2,7 +2,7 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #include "solver/base_solver.h"
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 
 real_t Sample::forward() {
   logit = 0.0;
@@ -55,16 +55,16 @@ void Sample::backward() {
   }
 }
 
-BaseSolver::BaseSolver(const FeaManager &fea_manager)
-    : fea_manager_(fea_manager), batch_size(train_opt.batch_size), sample_idx(0), batch_samples(train_opt.batch_size) {
-  for (auto &iter : fea_manager_.dense_feas) {
-    dense_feas.push_back(std::move(DenseFeaContext(iter)));
+BaseSolver::BaseSolver(const FeatManager &feat_manager)
+    : feat_manager_(feat_manager), batch_size(train_opt.batch_size), sample_idx(0), batch_samples(train_opt.batch_size) {
+  for (auto &iter : feat_manager_.dense_feas) {
+    dense_feas.push_back(std::move(DenseFeatContext(iter)));
   }
-  for (auto &iter : fea_manager_.sparse_feas) {
-    sparse_feas.push_back(std::move(SparseFeaContext(iter)));
+  for (auto &iter : feat_manager_.sparse_feas) {
+    sparse_feas.push_back(std::move(SparseFeatContext(iter)));
   }
-  for (auto &iter : fea_manager_.varlen_feas) {
-    varlen_feas.push_back(std::move(VarlenSparseFeaContext(iter)));
+  for (auto &iter : feat_manager_.varlen_feas) {
+    varlen_feas.push_back(std::move(VarlenSparseFeatContext(iter)));
   }
 }
 

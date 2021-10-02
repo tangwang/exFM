@@ -2,15 +2,15 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 #include "solver/adam/adam_param.h"
 #include "solver/base_solver.h"
 #include "train/train_opt.h"
 
 class AdamSolver : public BaseSolver {
  public:
-  AdamSolver(const FeaManager &fea_manager)
-      : BaseSolver(fea_manager),
+  AdamSolver(const FeatManager &feat_manager)
+      : BaseSolver(feat_manager),
         lr(train_opt.adam.lr),
         beta1(train_opt.adam.beta1),
         beta2(train_opt.adam.beta2),

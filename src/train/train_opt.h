@@ -48,7 +48,6 @@ class TrainOption {
 
   int verbose;
   bool print_help;
-  bool disable_feaid_mapping;
 
   int batch_size;
 
@@ -56,12 +55,12 @@ class TrainOption {
   char fea_seperator;
   char fea_kv_seperator;
   char fea_multivalue_seperator;
-  char fea_id_mapping_dict_seperator;
+  char feat_id_dict_seperator;
 
   // params for feature_configs
-  constexpr string fea_type_dense = "dense_features";
-  constexpr string fea_type_sparse = "sparse_features";
-  constexpr string fea_type_varlen_sparse = "varlen_sparse_features";
+  const string fea_type_dense = "dense_features";
+  const string fea_type_sparse = "sparse_features";
+  const string fea_type_varlen_sparse = "varlen_sparse_features";
 
   // param initial
   real_t init_stdev;

@@ -46,12 +46,9 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   fea_multivalue_seperator = parse_seperator_chars(temp_split_param);
 
   // ID映射词典相关配置
-  disable_feaid_mapping = arg_parser.parse_option(
-      "disable_feaid_mapping",
-      "ignore feature ID mapping dicts, using hash or original ID.");
   arg_parser.parse_arg("id_map_dict_sep", temp_split_param, " ",
                    "specify one character(or str \"blank\",\"tab\") for k_v_seperator in line of feature mapping dict");
-  fea_id_mapping_dict_seperator = parse_seperator_chars(temp_split_param);
+  feat_id_dict_seperator = parse_seperator_chars(temp_split_param);
 
 
   // params initallization

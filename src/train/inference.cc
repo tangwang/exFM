@@ -1,7 +1,7 @@
 /**
  *  Copyright (c) 2021 by exFM Contributors
  */
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 #include "train/train_worker.h"
 #include "solver/ftrl/ftrl_param.h"
 #include "train/train_opt.h"
@@ -16,13 +16,13 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  CommonFeaConfig::static_init(&train_opt);
+  CommonFeatConfig::static_init(&train_opt);
 
-  FeaManager fea_manager;
+  FeatManager feat_manager;
   assert(access(train_opt.feature_config_path, F_OK) != -1);
-  fea_manager.loadByFeatureConfig(train_opt.feature_config_path);
+  feat_manager.loadByFeatureConfig(train_opt.feature_config_path);
 
-  Solver * trainer = Solver::Create(fea_manager, train_opt);
+  Solver * trainer = Solver::Create(feat_manager, train_opt);
 
   const static int MAX_LINE_BUFF = 10240;
   char line[MAX_LINE_BUFF];

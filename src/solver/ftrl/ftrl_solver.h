@@ -2,14 +2,14 @@
  *  Copyright (c) 2021 by exFM Contributors
  */
 #pragma once
-#include "feature/fea_manager.h"
+#include "feature/feat_manager.h"
 #include "solver/ftrl/ftrl_param.h"
 #include "solver/base_solver.h"
 #include "train/train_opt.h"
 
 class FtrlSolver : public BaseSolver {
  public:
-  FtrlSolver(const FeaManager &fea_manager) : BaseSolver(fea_manager) {}
+  FtrlSolver(const FeatManager &feat_manager) : BaseSolver(feat_manager) {}
   virtual ~FtrlSolver() {}
 
   virtual void update() {
