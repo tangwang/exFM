@@ -22,7 +22,6 @@ class Evalution {
     sum_grad += grad;
     sum_loss += loss;
     sum_abs_grad += std::abs(grad);
-    
 
     label_prob_list.push_back(std::make_pair(label, logit));
 
@@ -62,7 +61,7 @@ class Evalution {
                         pos_num * (pos_num + 1)) /
                  (2 * pos_num * neg_num);
    
-    if (auc > max_auc) max_auc = auc;
+    if (max_auc < auc) max_auc = auc;
 
     double cost_time = stopwatch.get_elapsed_by_seconds();
     size_t total_samples = tn + fp + fn + tp;
@@ -72,7 +71,7 @@ class Evalution {
           << total_samples_processed << " ("
           << (size_t)(total_samples_processed / cost_time)
           << "/seconds), AUC=" << auc
-          << ", maxAUC=" << auc
+          << ", maxAUC=" << max_auc
           << ", N|tn,fp,fn,tp=" << total_samples << '|' << tn << ',' << fp << ',' << fn << ',' << tp
           << ", acc=" << acc
           << " recall=" << recall

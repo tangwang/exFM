@@ -34,7 +34,7 @@ class BaseSolver {
   virtual ~BaseSolver() {}
 
   real_t forward(const char *line) {
-    feedSample(line);
+    procOneLine(line);
     return batch_samples[sample_idx].forward();
   }
 
@@ -63,7 +63,7 @@ class BaseSolver {
 protected:
   virtual void update() = 0;
 
-  int feedSample(const char *line);
+  int procOneLine(const char *line);
 
   void rotateSampleIdx() {
     ++sample_idx;
@@ -104,8 +104,6 @@ protected:
   }
 
 protected:
-  
-
   const FeatManager &feat_manager_;
   vector<DenseFeatContext> dense_feas;
   vector<SparseFeatContext> sparse_feas;

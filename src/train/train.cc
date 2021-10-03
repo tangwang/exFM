@@ -10,29 +10,29 @@
 #include "solver/adam/adam_solver.h"
 #include "solver/sgdm/sgdm_solver.h"
 
-size_t train_dispatcher(vector<TrainWorker *> &sovers,
+size_t train_dispatcher(vector<TrainWorker *> &workers,
                           std::istream *input_stream, size_t run_sample_num) {
   string input_buff;
   size_t i = run_sample_num;
-  MiniShuffer shulffer((uint8)sovers.size());
+  MiniShuffer shulffer((uint8)workers.size());
   shulffer.reset();
   for (; i != 0 && std::getline(*input_stream, input_buff); --i) {
     int max_retry_times = train_opt.threads_num;
     for (; max_retry_times != 0; --max_retry_times) {
-      if (sovers[shulffer.next()]->TryPush(input_buff))
+      if (workers[shulffer.next()]->TryPush(input_buff))
         break;
     }
     if (max_retry_times == 0) {
-      sovers[shulffer.next()]->WaitAndPush(input_buff);
+      workers[shulffer.next()]->WaitAndPush(input_buff);
     }
   }
   return run_sample_num - i;
 }
 
-void train_dispatcher(vector<TrainWorker *> &sovers,
+void train_dispatcher(vector<TrainWorker *> &workers,
                            std::istream *input_stream) {
 
-  MiniShuffer shulffer((uint8)sovers.size());
+  MiniShuffer shulffer((uint8)workers.size());
   shulffer.reset();
 
   string input_buff;
@@ -41,15 +41,15 @@ void train_dispatcher(vector<TrainWorker *> &sovers,
 #if 1  // TODO check perfermance
     for (;
          max_retry_times != 0 &&
-         !sovers[shulffer.next()]->TryPush(input_buff);
+         !workers[shulffer.next()]->TryPush(input_buff);
          --max_retry_times)
       ;
 
     if (max_retry_times == 0) {
-      sovers[shulffer.next()]->WaitAndPush(input_buff);
+      workers[shulffer.next()]->WaitAndPush(input_buff);
     }
 #else
-    sovers[shulffer.next()]->WaitAndPush(input_buff);
+    workers[shulffer.next()]->WaitAndPush(input_buff);
 #endif
   }
 }
@@ -70,14 +70,14 @@ int main(int argc, char *argv[]) {
     return -1; 
   }
 
-  vector<TrainWorker *> sovers;
+  vector<TrainWorker *> workers;
 
   for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
     std::cout << "start train thread " << thread_id << "..." << endl;
     TrainWorker *p = new TrainWorker("train", thread_id);
     p->RegisteSolver(creatSolver(feat_manager));
     p->StartTrainLoop();
-    sovers.push_back(p);
+    workers.push_back(p);
   }
 
   TrainWorker *validator = NULL;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < train_opt.epoch; i++) {
     cout << "start epoch " << i << endl;
-    train_dispatcher(sovers, input_stream);
+    train_dispatcher(workers, input_stream);
     if (input_file_stream) {
       input_file_stream->clear();
       input_file_stream->seekg(0);
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 
   // 分发完后，结束所有线程
   sleep(5);
-  for (auto p : sovers) {
+  for (auto p : workers) {
     p->Stop();
     p->Join();
     delete p;

@@ -77,7 +77,7 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
   }
 }
 
-int BaseSolver::feedSample(const char *line) {
+int BaseSolver::procOneLine(const char *line) {
   // label统一为1， -1的形式
   // y = atoi(line) > 0 ? 1 : -1;
   if (UNLIKELY(*line == 0)) {
