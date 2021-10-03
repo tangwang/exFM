@@ -43,8 +43,8 @@ feaid_t SparseFeatConfig::featMapping(const string& orig_fea_id) const {
         feat_id %= vocab_size;
       } break;
       default:
-        feat_id = atoi(orig_fea_id.c_str());
-        if (feat_id > max_id) feat_id = unknown_id;
+        int i_orig_fea_id = atoi(orig_fea_id.c_str());
+        feat_id = (i_orig_fea_id < 0 || i_orig_fea_id > (int)max_id) ? unknown_id : (feaid_t)i_orig_fea_id;
         break;
     }
   }
@@ -94,7 +94,10 @@ bool SparseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInterface
     case mapping_by_hash_int32:
     case mapping_by_hash_int64:
     case mapping_by_hash_str:
-      vocab_size = ids_num + 10000;
+    // hash分桶数取值方式
+      vocab_size = std::min(ids_num + 5000, 10 * (ids_num+10));
+      if (vocab_size < min_hash_buckets) vocab_size = min_hash_buckets;
+      if (vocab_size > max_hash_buckets) vocab_size = max_hash_buckets;
       default_id = 0;
       unknown_id = 1;
       break;

@@ -34,6 +34,8 @@ class SparseFeatConfig : public CommonFeatConfig {
   } mapping_type;
 
   static const uint32_t hash_seed = 0;
+  static const size_t max_hash_buckets = 10000000;
+  static const size_t min_hash_buckets = 200;
 
   feaid_t featMapping(const string& orig_fea_id) const;
 
