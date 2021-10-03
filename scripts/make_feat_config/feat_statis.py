@@ -192,6 +192,7 @@ if __name__ == '__main__':
                  'default_id' : default_id_of_sparse_feat,
                  'unknown_id' : unknown_id_of_sparse_feat,
                  'max_len' : max_len,
+                'pooling_type' : seq_feat_pooling_type,
                  'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : ''
                 } )
@@ -247,7 +248,8 @@ if __name__ == '__main__':
                  'shared_embedding_name' : '',
                  'default_id' : default_id_of_sparse_feat,
                  'unknown_id' : unknown_id_of_sparse_feat,
-                 'max_len' : max_len
+                 'max_len' : max_len,
+                'pooling_type' : seq_feat_pooling_type
                 } )
 
     with open(os.path.join(args.output_path, 'feature_config.json'), 'w') as f:

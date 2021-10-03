@@ -12,6 +12,7 @@ default_value_of_dense_feat = 0
 default_id_of_sparse_feat = 0
 unknown_id_of_sparse_feat = 1
 
+seq_feat_pooling_type = "sum" # 暂时只支持sum和avg
 
 # dense特征
 dense_fea_list = set([
