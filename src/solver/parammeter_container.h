@@ -27,6 +27,12 @@ struct FMParamUnit {
       V[i] /= div;
     }
   }
+  void operator*=(real_t value) {
+    w *= value;
+    for (int i = 0; i < DIM; i++) {
+      V[i] *= value;
+    }
+  }
   void clear() {
     w = 0.0;
     for (int i = 0; i < DIM; i++) {
@@ -44,14 +50,22 @@ class ParamContainerInterface;
 struct ParamContext {
   ParamContext(ParamContainerInterface *_container = NULL, FMParamUnit *_param = NULL, Mutex_t *_mutex = NULL,
                real_t _x = 1.0)
-      : param(_param), container(_container), mutex(_mutex), x(_x), count(1) {}
+      : param(_param), container(_container), mutex(_mutex), x(_x), count(1), id_of_linked_forward_param(-1), grad_of_linked_forward_param(1.0) {}
+
+  ParamContext(ParamContainerInterface *_container, FMParamUnit *_param, Mutex_t *_mutex,
+               real_t _x, size_t forward_id, real_t forward_grad)
+      : param(_param), container(_container), mutex(_mutex), x(_x), count(1), id_of_linked_forward_param(forward_id), grad_of_linked_forward_param(forward_grad) {}
 
   FMParamUnit *param;
   ParamContainerInterface *container;
   Mutex_t *mutex;
-  real_t x;
+  
   FMParamUnit fm_grad;
+  real_t x;
   int count;
+  // 链接到的上游网络节点及其偏导数。采用这种设计，只支持一个网络层级，即 backward_param (sum/avg)-> forward_param -> fm_score -> sigmoid+crossEntopy <- label
+  int id_of_linked_forward_param;
+  real_t grad_of_linked_forward_param;
 };
 
 class ParamContainerInterface {

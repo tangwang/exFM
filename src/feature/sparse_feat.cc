@@ -192,13 +192,16 @@ int SparseFeatContext::feedSample(const char *line,
 
   FMParamUnit *fea_param = cfg_.param_container->get(feat_id);
   Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(feat_id);
-  backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0));
+
   FMParamUnit *forward_param = forward_param_container->get();
   param_mutex->lock();
   cfg_.param_container->cpParam(forward_param, fea_param);
   param_mutex->unlock();
 
   forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL, 1.0));
+
+  real_t grad_from_forward2backward = 1.0;
+  backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0, (int)forward_params.size()-1, grad_from_forward2backward));
 
   return 0;
 }

@@ -139,16 +139,17 @@ int DenseFeatContext::feedSample(const char *line,
   FMParamUnit *forward_param = forward_param_container->get();
   forward_param->clear();
 
+  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL, 1.0));
+  real_t grad_from_forward2backward = 1.0;
+
   for (auto fea_param : *fea_params) {
     Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(bucket_id);
-    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0));
-
+    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0, (int)forward_params.size()-1, grad_from_forward2backward));
     param_mutex->lock();
     *forward_param += *fea_param;
     param_mutex->unlock();
   }
 
-  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL, 1.0));
   return 0;
 }
 

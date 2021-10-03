@@ -94,7 +94,17 @@ inline float sign_a_multiply_b(float a, float b) {
   #endif
 }
 
-#if 0
+#if 1 
+// 目前测试该版本的初始化比下面基于std::normal_distribution的初始化效果优一点。待检查
+//  grep valid log_0930_use_gaussian_alphafm/* | grep AUC=0.792  | wc -l
+// 71
+//  grep valid log_adagrad_0926__reduce_grad_by_batch_size___init_as_1e-7/* | grep AUC=0.792  | wc -l
+// 6
+//  grep valid log_0930_use_gaussian_alphafm/* | grep AUC=0.793  | wc -l
+// 4
+//  grep valid log_adagrad_0926__reduce_grad_by_batch_size___init_as_1e-7/* | grep AUC=0.793  | wc -l
+// 0
+ 
 inline double uniform()
 {
     return rand()/((double)RAND_MAX + 1.0);

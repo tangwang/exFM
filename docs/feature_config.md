@@ -38,5 +38,10 @@
 
 ## varlen_sparse_features
 
-相比于sparse_features中的特征配置多一个max_len配置项，代表序列的最大长度。
+包含sparse_features中的所有配置项，这里不再重复，仅列出varlen_sparse_features中多出的配置项。
+
+| 征属性名称   | 值类型 | 是否必须 | 说明                    | 示例  |
+| ------------ | ------ | -------- | ----------------------- | ----- |
+| max_len      | int    | Y        | 序列的最大长度          | 20    |
+| pooling_type | string | Y        | 目前只支持"sum" / "avg" | "sum" |
 

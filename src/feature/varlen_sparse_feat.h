@@ -9,7 +9,6 @@
 class VarlenSparseFeatConfig : public CommonFeatConfig {
  public:
   SparseFeatConfig sparse_cfg;
-  string pooling_type;
 
   enum SeqPoolType {
     SeqPoolTypeSUM = 0,
@@ -27,7 +26,7 @@ class VarlenSparseFeatConfig : public CommonFeatConfig {
   friend ostream & operator << (ostream &out, const VarlenSparseFeatConfig & cfg) {
     out << " VarlenSparseFeatConfig name <" << cfg.name << ">" << endl;
     out << " max_len <" << cfg.max_len << ">" << endl;
-    out << " pooling_type <" << cfg.pooling_type << ">" << endl;
+    out << " pooling_type_id <" << cfg.pooling_type_id << ">" << endl;
     out << cfg.sparse_cfg;
     return out;
   }

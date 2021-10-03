@@ -23,7 +23,6 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 	  ${wildcard  third_party/*.h} \
 	  ${wildcard  src/train/*.h} \
 
-
 OBJS = ${patsubst %.cc, %.o, ${SRC}}
 DEBUG_OBJS = ${patsubst %.cc, %.o_DEBUG, ${SRC}}
 

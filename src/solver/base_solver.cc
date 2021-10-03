@@ -42,16 +42,25 @@ void Sample::backward() {
   loss = - std::log(1 - 1/(1+std::max(exp_y_logit, 1e-10)));
   
   // 计算每个fmParamUnit的梯度： partitial(fm_score(x)) / partitial(\theta),  theata = {w_i, V_i1, Vi2, ... Vif} for i in {0, 1, ... N }
-  for (auto &param_context : backward_params) {
-    real_t xi = param_context.x;
+  size_t params_size = forward_params.size();
+  for (size_t i = 0; i < params_size; i++) {
+    ParamContext & ctx = forward_params[i];
+    real_t xi = ctx.x;
     real_t grad_i = grad * xi;
-    FMParamUnit *backward_param = param_context.param;
-    param_context.fm_grad.w = grad_i;
+    FMParamUnit *backward_param = ctx.param;
+    ctx.fm_grad.w = grad_i;
     for (int f = 0; f < DIM; ++f) {
       real_t &vf = backward_param->V[f];
       real_t vgf = grad_i * (sum[f] - vf * xi);
-      param_context.fm_grad.V[f] = vgf;
+      ctx.fm_grad.V[f] = vgf;
     }
+  }
+
+  params_size = backward_params.size();
+  for (size_t i = 0; i < params_size; i++) {
+    ParamContext & ctx = backward_params[i];
+    ctx.fm_grad = forward_params[(size_t)ctx.id_of_linked_forward_param].fm_grad;
+    ctx.fm_grad *= ctx.grad_of_linked_forward_param;
   }
 }
 

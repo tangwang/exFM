@@ -4,7 +4,7 @@
 #include "feature/varlen_sparse_feat.h"
 #include "solver/solver_factory.h"
 
-VarlenSparseFeatConfig::VarlenSparseFeatConfig() { pooling_type = "sum"; }
+VarlenSparseFeatConfig::VarlenSparseFeatConfig() {}
 
 VarlenSparseFeatConfig::~VarlenSparseFeatConfig() {}
 
@@ -16,15 +16,6 @@ VarlenSparseFeatContext::VarlenSparseFeatContext(const VarlenSparseFeatConfig &c
 VarlenSparseFeatContext::~VarlenSparseFeatContext() {}
 
 bool VarlenSparseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
-  if (pooling_type == "sum") {
-    pooling_type_id = SeqPoolTypeSUM;
-  } else if (pooling_type == "avg") {
-    pooling_type_id = SeqPoolTypeAVG;
-  } else {
-    std::cerr << "Not supported.  use sum pooling." << endl;
-    pooling_type_id = SeqPoolTypeSUM;
-  }
-
   bool ret = sparse_cfg.initParams(shared_param_container_map);
   // 保存model会用到。直接引用内部sparse_cfg的param_container
   param_container = sparse_cfg.param_container;
@@ -40,7 +31,8 @@ void to_json(json &j, const VarlenSparseFeatConfig &p) {
            {"unknown_id", p.sparse_cfg.unknown_id},
            {"max_len", p.max_len},
            {"shared_embedding_name", p.sparse_cfg.shared_embedding_name},
-           {"pooling_type", p.pooling_type}};
+           {"pooling_type", (int)p.pooling_type_id}
+           };
 }
 
 void from_json(const json &j, VarlenSparseFeatConfig &p) {
@@ -52,7 +44,21 @@ void from_json(const json &j, VarlenSparseFeatConfig &p) {
   }
   j.at("name").get_to(p.name);
   j.at("max_len").get_to(p.max_len);
-  
+
+  string pooling_type = "sum";
+  if (j.find("pooling_type") != j.end()) {
+    j.at("pooling_type").get_to(pooling_type);
+  }
+  if (pooling_type == "sum") {
+    p.pooling_type_id = VarlenSparseFeatConfig::SeqPoolTypeSUM;
+  } else if (pooling_type == "avg") {
+    p.pooling_type_id = VarlenSparseFeatConfig::SeqPoolTypeAVG;
+  } else {
+    std::cerr << "Not supported.  use sum pooling." << endl;
+    p.pooling_type_id = VarlenSparseFeatConfig::SeqPoolTypeSUM;
+    throw "feature config err : Not supported pooling type. only support sum/avg";
+  }
+
   from_json(j, p.sparse_cfg);
 }
 
@@ -79,6 +85,12 @@ int VarlenSparseFeatContext::feedSample(const char *line,
   FMParamUnit *forward_param = forward_param_container->get();
   forward_param->clear();
 
+  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), forward_param, NULL, 1.0));
+  real_t grad_from_forward2backward = 1.0;
+  if (cfg_.pooling_type_id == VarlenSparseFeatConfig::SeqPoolTypeAVG) {
+    grad_from_forward2backward = 1.0 / fea_ids.size();
+  }
+
   for (auto id : fea_ids) {
     FMParamUnit *fea_param = cfg_.sparse_cfg.param_container->get(id);
     Mutex_t *param_mutex = cfg_.sparse_cfg.param_container->GetMutexByFeaID(id);
@@ -88,10 +100,9 @@ int VarlenSparseFeatContext::feedSample(const char *line,
     param_mutex->unlock();
     
     fea_params.push_back(fea_param);
-    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), fea_param, param_mutex, 1.0));
+    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), fea_param, param_mutex, 1.0, (int)forward_params.size()-1, grad_from_forward2backward));
   }
 
-  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), forward_param, NULL, 1.0));
 
   return 0;
 }
