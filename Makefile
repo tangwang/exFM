@@ -48,6 +48,9 @@ bin/train_debug: ${DEBUG_OBJS}
 $(OBJS):%.o:%.cc ${DEPEND_INCLUDES}
 	@echo "Compiling $< ==> $@"
 	${CC} ${CCFLAGS} ${INC} -c $< -o $@
+
+$(DEBUG_OBJS):%.o_DEBUG:%.cc ${DEPEND_INCLUDES}
+	@echo "Compiling $< ==> $@"
 	${CC} ${DEBUG_CCFLAGS} -D_DEBUG_VER_ ${INC} -c $< -o $@_DEBUG
 
 clean:

@@ -142,20 +142,20 @@ if __name__ == '__main__':
         print('num', num)
         print('ids_num', ids_num)
 
-        vocab_size = ids_num + 2
-
         mapping_dict_name = os.path.join(id_map_dict_path, f'{k}.dict')
         fea_num_statis_dict_path = os.path.join(id_map_dict_path, f'num_static.{k}.dict')
         fea_counts = Counter(v)
         save_feat_id_dict(mapping_dict_name, fea_num_statis_dict_path, k, fea_counts)
 
         sparse_features.append( {'name' : k, 
-                'vocab_size' : vocab_size,
+                'max_id' : max_id,
+                'ids_num' : ids_num,
                 'value_type' : 'int64',
                 "mapping_type" : "dict",
                 'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : '',
-                 'default_id' : default_id_of_sparse_feat
+                 'default_id' : default_id_of_sparse_feat,
+                 'unknown_id' : unknown_id_of_sparse_feat
                 } )
         
     for k, v in varlen_sparse_id_fea_dict.items():
@@ -179,18 +179,18 @@ if __name__ == '__main__':
         print('num', num)
         print('ids_num', ids_num)
 
-        vocab_size = ids_num + 2
-
         mapping_dict_name = os.path.join(id_map_dict_path, f'{k}.dict')
         fea_num_statis_dict_path = os.path.join(id_map_dict_path, f'num_static.{k}.dict')
         fea_counts = Counter(v)
         save_feat_id_dict(mapping_dict_name, fea_num_statis_dict_path, k, fea_counts)
 
         varlen_sparse_features.append( {'name' : k,
-                'vocab_size' : vocab_size,
+                'max_id' : max_id,
+                'ids_num' : ids_num,
                 'value_type' : 'int64',
                 "mapping_type" : "dict",
                  'default_id' : default_id_of_sparse_feat,
+                 'unknown_id' : unknown_id_of_sparse_feat,
                  'max_len' : max_len,
                  'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : ''
@@ -207,15 +207,14 @@ if __name__ == '__main__':
         print('num', num)
         print('ids_num', ids_num)
 
-        vocab_size = ids_num + 2
-
         sparse_features.append( {'name' : k, 
                 'value_type' : 'str',
                  "mapping_type" : "dict",
-               'vocab_size' : vocab_size,
+                'ids_num' : ids_num,
                 'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : '',
-                 'default_id' : default_id_of_sparse_feat
+                 'default_id' : default_id_of_sparse_feat,
+                 'unknown_id' : unknown_id_of_sparse_feat
                 } )
         
     for k, v in varlen_sparse_str_fea_dict.items():
@@ -234,8 +233,6 @@ if __name__ == '__main__':
         print('num', num)
         print('ids_num', ids_num)
 
-        vocab_size = ids_num + 2
-
         mapping_dict_name = os.path.join(id_map_dict_path, f'{k}.dict')
         fea_num_statis_dict_path = os.path.join(id_map_dict_path, f'num_static.{k}.dict')
 
@@ -244,11 +241,12 @@ if __name__ == '__main__':
 
         varlen_sparse_features.append( {'name' : k,
                 'value_type' : 'str',
-                'vocab_size' : vocab_size,
+                'ids_num' : ids_num,
                 "mapping_type" : "dict",
                 'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : '',
                  'default_id' : default_id_of_sparse_feat,
+                 'unknown_id' : unknown_id_of_sparse_feat,
                  'max_len' : max_len
                 } )
 

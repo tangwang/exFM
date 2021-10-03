@@ -28,12 +28,13 @@
 | --------------------- | ------ | -------- | ------------------------------------------------------------ | -------------------- |
 | name                  | string | Y        | 特征名称                                                     | "bid"                |
 | value_type            | string | Y        | 原始值类型，取值有： "int32" "int64" "str"                   | str                  |
-| default_id            | uint32 | Y        | 取值为[0, vocab_size-1]内的任意整数。 当取不到特征时，直接映射为default_id，并忽略以下操作。 | 0                    |
+| default_id            | uint32 | Y        | 当取不到特征时，直接映射为default_id，并忽略下面的hash、词典映射等操作。 | 0                    |
 | mapping_type          | string | Y        | 三个取值：<br />"orig_id" : 对原始值直接转无符号整形，如果原始值是字符串且不是合法的数字，则取default_id <br />"dict" : 按词典进行映射，词典名称通过下方的配置项dict_name配置。<br /> "hash" : 进行hash映射，hash方式统一采用CityHash32（入参为字符串，如果原始值为整形则先转字符串，出参为无符号的32位整形）。 | "dict"               |
 | mapping_dict_name     | string | N        | 词典名称，通过该词典对原始值进行映射。 映射词典的key类型必须与x的值类型（value_type配置项）一致。value类型一律为32位无符号整形。 | "tagname2tagid.dict" |
-| unknown_id            | int    | N        | 取值为[0, vocab_size-1]内的任意整数。 进行词典映射时，如果词典中没有匹配项，则映射到该ID。 | 8887                 |
-| vocab_size            | int    | Y        | 取值必须大于0 在以上处理之后进行取模操作： x = x % vocab_size。 | 8888                 |
-| shared_embedding_name |        |          | 暂未支持                                                     |                      |
+| unknown_id            | int    | N        | mapping_type=="orig_id"时，大于max_id的特征值将被映射为unknown_id。<br />mapping_type=="dict"时，匹配不到特征ID词典的特征值将被映射为unknown_id。<br />mapping_type=="hash"时，所有的特征值都将被映射为合法的ID，所以不需要该参数。 | 1                    |
+| max_id                | int    | N        | mapping_type=="orig_id"时需填写。将根据该参数确定特征ID总数。 | 8888                 |
+| ids_num               | int    | N        | mapping_type=="hash"时需填写。将根据该参数确定hash桶个数。<br /> | 8888                 |
+| shared_embedding_name | string | N        | 暂未支持                                                     |                      |
 
 
 ## varlen_sparse_features

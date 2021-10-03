@@ -25,7 +25,8 @@ bool VarlenSparseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInt
 
 void to_json(json &j, const VarlenSparseFeatConfig &p) {
   j = json{{"name", p.name},
-           {"vocab_size", p.sparse_cfg.vocab_size},
+           {"ids_num", p.sparse_cfg.ids_num},
+           {"max_id", p.sparse_cfg.max_id},
            {"mapping_dict_name", p.sparse_cfg.mapping_dict_name},
            {"default_id", p.sparse_cfg.default_id},
            {"unknown_id", p.sparse_cfg.unknown_id},

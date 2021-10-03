@@ -9,7 +9,17 @@ using utils::Dict;
 
 class SparseFeatConfig : public CommonFeatConfig {
  public:
+  feaid_t max_id;
+  feaid_t ids_num;
+
+  // mapping_type == "orig_id" 时，vocab_size由max_id确定
+  // mapping_type == "hash" 时，vocab_size由ids_num确定
+  // mapping_type == "dict" 时，vocab_size由配置词典大小确定
   feaid_t vocab_size;
+
+  // mapping_type == "orig_id" 时，default_id设为max_id, unknown_id设为max_id+1
+  // mapping_type == "hash" 时，default_id设为0, unknown_id设为1
+  // mapping_type == "dict" 时，default_id设为0, unknown_id设为1
   feaid_t default_id;
   feaid_t unknown_id;
   
@@ -43,6 +53,8 @@ class SparseFeatConfig : public CommonFeatConfig {
     out << " i32_feat_id_dict size <" << cfg.i32_feat_id_dict.size() << ">" << endl;
     out << " i64_feat_id_dict size <" << cfg.i64_feat_id_dict.size() << ">" << endl;
     out << " str_feat_id_dict size <" << cfg.str_feat_id_dict.size() << ">" << endl;
+    out << " max_id <" << cfg.max_id << ">" << endl;
+    out << " ids_num <" << cfg.ids_num << ">" << endl;
     out << " vocab_size <" << cfg.vocab_size << ">" << endl;
     out << " default_id <" << cfg.default_id << ">" << endl;
     out << " unknown_id <" << cfg.unknown_id << ">" << endl;

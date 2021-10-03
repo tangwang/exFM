@@ -7,7 +7,10 @@ dense_fea_same_wide_bucket_numbers = [10, 25]
 dense_fea_same_freq_bucket_numbers = [10, 25]
 
 default_value_of_dense_feat = 0
+
+# sparse特征ID词典，ID从2开始编号，0和1预留给default_id和unknown_id，分别代表没有值和不在词典中的值
 default_id_of_sparse_feat = 0
+unknown_id_of_sparse_feat = 1
 
 
 # dense特征
