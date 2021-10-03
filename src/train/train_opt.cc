@@ -74,7 +74,7 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("adagrad.l2_norm_V", adagrad.l2_norm_V, 1e-5, "l2 norm for embeddings");
 
   // rmsprop hyper params
-  arg_parser.parse_arg("rmsprop.lr", rmsprop.lr, 0.001, "Adam learning rate");
+  arg_parser.parse_arg("rmsprop.lr", rmsprop.lr, 0.01, "Adam learning rate");
   arg_parser.parse_arg("rmsprop.l2_norm_w", rmsprop.l2_norm_w, 1e-5, "l2 norm for w");
   arg_parser.parse_arg("rmsprop.l2_norm_V", rmsprop.l2_norm_V, 1e-5, "l2 norm for embeddings");
   arg_parser.parse_arg("rmsprop.beta2", rmsprop.beta2, 0.9, "二阶动量滑动平均");
