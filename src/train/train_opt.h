@@ -3,7 +3,6 @@
  */
 #pragma once
 #include <sstream>
-
 #include "utils/base.h"
 #include "utils/utils.h"
 #include "utils/args_parser.h"
@@ -116,11 +115,11 @@ class TrainOption {
 
 private:
   char parse_seperator_chars(const char* param) const {
-    if (0 == strcmp(param, "blank"))
+    if (0 == strcasecmp(param, "blank"))
       return ' ';
-    else if (0 == strcmp(param, "tab"))
+    else if (0 == strcasecmp(param, "tab"))
       return '\t';
-    else if (0 == strcmp(param, "equal"))
+    else if (0 == strcasecmp(param, "equal"))
       return '=';
 
     return param[0];

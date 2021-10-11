@@ -16,12 +16,12 @@ class FtrlSolver : public BaseSolver {
 
     // TODO FTRL并不需要batchsize，这种通用的处理方法带来很多额外的性能开销。 测试一下，batch_size是否对FTRL的精度有效，没什么作用的话为FTRL专门设计一下Solver
     for (auto & kv : batch_params) {
-      ParamContext & param_context = kv.second;
-      FMParamUnit & grad = param_context.fm_grad;
-      batchReduce(grad, param_context.count);
+      ParamNode & param_node = kv.second;
+      FMParamUnit & grad = param_node.fm_grad;
+      batchReduce(grad, param_node.count);
 
-      FtrlParamUnit *backward_param = (FtrlParamUnit *)param_context.param;
-      param_context.mutex->lock();
+      FtrlParamUnit *backward_param = (FtrlParamUnit *)param_node.param;
+      param_node.mutex->lock();
       real_t w_sigama =
           1 / train_opt.ftrl.w_alpha *
           (std::sqrt(backward_param->n.w + grad.w * grad.w) - std::sqrt(backward_param->n.w));
@@ -40,7 +40,7 @@ class FtrlSolver : public BaseSolver {
 
       backward_param->calcFmWeights();
 
-      param_context.mutex->unlock();
+      param_node.mutex->unlock();
     }
   }
 

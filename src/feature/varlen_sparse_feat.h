@@ -45,14 +45,10 @@ class VarlenSparseFeatContext : public CommonFeatContext {
   vector<string> orig_fea_ids;
 
   vector<feaid_t> fea_ids;
-  vector<FMParamUnit *> fea_params;
-
-  void forward(vector<ParamContext> &forward_params);
-  void backward();
 
   bool valid() const { return !fea_ids.empty(); }
 
-  int feedSample(const char* line, vector<ParamContext> & forward_params, vector<ParamContext> & backward_params);
+  int feedSample(const char *line, FmLayerNode & fm_node);
 
   VarlenSparseFeatContext(const VarlenSparseFeatConfig& cfg);
   ~VarlenSparseFeatContext();

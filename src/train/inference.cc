@@ -24,11 +24,11 @@ int main(int argc, char *argv[]) {
 
   Solver * trainer = Solver::Create(feat_manager, train_opt);
 
-  const static int MAX_LINE_BUFF = 10240;
+  const int MAX_LINE_BUFF = 10240;
   char line[MAX_LINE_BUFF];
   size_t line_num = 0;
 
-  size_t time_interval_of_validation = 100000;
+  const size_t time_interval_of_validation = 100000;
   Evalution train_eval;
   Evalution evaldata_eval;
   int processed_samples = 0;

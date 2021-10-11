@@ -9,6 +9,8 @@
 #include "solver/ftrl/ftrl_solver.h"
 #include "solver/adam/adam_solver.h"
 #include "solver/sgdm/sgdm_solver.h"
+#include "solver/adagrad/adagrad_solver.h"
+#include "solver/rmsprop/rmsprop_solver.h"
 
 size_t train_dispatcher(vector<TrainWorker *> &workers,
                           std::istream *input_stream, size_t run_sample_num) {
@@ -67,7 +69,7 @@ int main(int argc, char *argv[]) {
   assert(access(train_opt.feature_config_path.c_str(), F_OK) != -1);
   if (!feat_manager.loadByFeatureConfig(train_opt.feature_config_path)) {
     cerr << "init feature manager faild, check config file " << train_opt.feature_config_path << ". exit" << endl;
-    return -1; 
+    return -1;
   }
 
   vector<TrainWorker *> workers;

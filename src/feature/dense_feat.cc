@@ -123,12 +123,12 @@ DenseFeatContext::DenseFeatContext(const DenseFeatConfig &cfg) : cfg_(cfg) {}
 
 DenseFeatContext::~DenseFeatContext() {}
 
-int DenseFeatContext::feedSample(const char *line,
-                                 vector<ParamContext> &forward_params,
-                                 vector<ParamContext> &backward_params) {
+int DenseFeatContext::feedSample(const char *line, FmLayerNode & fm_node) {
   cfg_.parseReal(line, orig_x, cfg_.default_value);
 
   if (!valid()) {
+    fm_node.forward.clear();
+    fm_node.backward_nodes.clear();
     return -1;
   }
   int bucket_id = cfg_.getFeaBucketId(orig_x);
@@ -136,24 +136,17 @@ int DenseFeatContext::feedSample(const char *line,
 
   DEBUG_OUT << "feedSample " << cfg_.name << " orig_x " << orig_x << " bucket_id " << bucket_id << endl;
 
-  FMParamUnit *forward_param = forward_param_container->get();
-  forward_param->clear();
-
-  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL, 1.0));
-  real_t grad_from_forward2backward = 1.0;
+  fm_node.forward.clear();
+  fm_node.backward_nodes.clear();
 
   for (auto fea_param : *fea_params) {
     Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(bucket_id);
-    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0, (int)forward_params.size()-1, grad_from_forward2backward));
+    fm_node.backward_nodes.push_back(ParamNode(fea_param, param_mutex, 1.0, 1.0));
     param_mutex->lock();
-    *forward_param += *fea_param;
+    fm_node.forward += *fea_param;
     param_mutex->unlock();
   }
 
   return 0;
 }
 
-void DenseFeatContext::forward(vector<ParamContext> &forward_params) {}
-
-void DenseFeatContext::backward() {
-}

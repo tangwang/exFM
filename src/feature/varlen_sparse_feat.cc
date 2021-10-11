@@ -63,33 +63,30 @@ void from_json(const json &j, VarlenSparseFeatConfig &p) {
   from_json(j, p.sparse_cfg);
 }
 
-int VarlenSparseFeatContext::feedSample(const char *line,
-                                        vector<ParamContext> &forward_params,
-                                        vector<ParamContext> &backward_params) {
+int VarlenSparseFeatContext::feedSample(const char *line, FmLayerNode & fm_node) {
   cfg_.parseStrList(line, orig_fea_ids);
   if (orig_fea_ids.size() > cfg_.max_len) {
     orig_fea_ids.resize(cfg_.max_len);
   }
 
-  fea_params.clear();
   fea_ids.clear();
   for (auto orig_fea_id : orig_fea_ids) {
     feaid_t mapped_id = cfg_.sparse_cfg.featMapping(orig_fea_id);
     fea_ids.push_back(mapped_id);
   }
+
+  fm_node.forward.clear();
+  fm_node.backward_nodes.clear();
+
   if (!valid()) {
     return -1;
   }
 
   DEBUG_OUT << "feedSample " << cfg_.name << " orig_fea_ids " << orig_fea_ids << " fea_ids " << fea_ids << endl;
 
-  FMParamUnit *forward_param = forward_param_container->get();
-  forward_param->clear();
-
-  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), forward_param, NULL, 1.0));
-  real_t grad_from_forward2backward = 1.0;
+  real_t grad_from_fm_node = 1.0;
   if (cfg_.pooling_type_id == VarlenSparseFeatConfig::SeqPoolTypeAVG) {
-    grad_from_forward2backward = 1.0 / fea_ids.size();
+    grad_from_fm_node = 1.0 / fea_ids.size();
   }
 
   for (auto id : fea_ids) {
@@ -97,18 +94,11 @@ int VarlenSparseFeatContext::feedSample(const char *line,
     Mutex_t *param_mutex = cfg_.sparse_cfg.param_container->GetMutexByFeaID(id);
 
     param_mutex->lock();
-    *forward_param += *fea_param;
+    fm_node.forward += *fea_param;
     param_mutex->unlock();
     
-    fea_params.push_back(fea_param);
-    backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.sparse_cfg.param_container.get(), fea_param, param_mutex, 1.0, (int)forward_params.size()-1, grad_from_forward2backward));
+    fm_node.backward_nodes.push_back(ParamNode(fea_param, param_mutex, 1.0, grad_from_fm_node));
   }
 
-
   return 0;
-}
-
-void VarlenSparseFeatContext::forward(vector<ParamContext> &forward_params) {}
-
-void VarlenSparseFeatContext::backward() {
 }

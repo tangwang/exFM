@@ -3,7 +3,6 @@ dim=15
 endif 
 
 SRC = src/feature/dense_feat.cc \
-      src/feature/common_feat.cc \
       src/feature/sparse_feat.cc \
       src/feature/varlen_sparse_feat.cc \
       src/feature/feat_manager.cc \
@@ -24,10 +23,10 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 	  ${wildcard  src/train/*.h} \
 
 OBJS = ${patsubst %.cc, %.o, ${SRC}}
-DEBUG_OBJS = ${patsubst %.cc, %.o_DEBUG, ${SRC}}
+DEBUG_OBJS = ${patsubst %.cc, %.debugO, ${SRC}}
 
-# all : bin/train bin/train_debug
-all : bin/train 
+all : bin/train bin/train_debug
+# all : bin/train 
 
 CC = g++
 LIB= -lpthread
@@ -49,9 +48,9 @@ $(OBJS):%.o:%.cc ${DEPEND_INCLUDES}
 	@echo "Compiling $< ==> $@"
 	${CC} ${CCFLAGS} ${INC} -c $< -o $@
 
-$(DEBUG_OBJS):%.o_DEBUG:%.cc ${DEPEND_INCLUDES}
+$(DEBUG_OBJS):%.debugO:%.cc ${DEPEND_INCLUDES}
 	@echo "Compiling $< ==> $@"
-	${CC} ${DEBUG_CCFLAGS} -D_DEBUG_VER_ ${INC} -c $< -o $@_DEBUG
+	${CC} ${DEBUG_CCFLAGS} -D_DEBUG_VER_ ${INC} -c $< -o $@
 
 clean:
 	@rm -f ${OBJS}

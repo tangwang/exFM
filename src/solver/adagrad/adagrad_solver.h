@@ -21,12 +21,12 @@ class AdagradSolver : public BaseSolver {
   virtual void update() {
 
     for (auto &kv : batch_params) {
-      ParamContext &param_context = kv.second;
-      FMParamUnit grad = param_context.fm_grad;
-      batchReduce(grad, param_context.count);
+      ParamNode &param_node = kv.second;
+      FMParamUnit & grad = param_node.fm_grad;
+      batchReduce(grad, param_node.count);
 
-      AdagradParamUnit *backward_param = (AdagradParamUnit *)param_context.param;
-      param_context.mutex->lock();
+      AdagradParamUnit *backward_param = (AdagradParamUnit *)param_node.param;
+      param_node.mutex->lock();
 
       // update w
       real_t &w = backward_param->fm_param.w;
@@ -35,7 +35,7 @@ class AdagradSolver : public BaseSolver {
       wv += grad.w * grad.w;
 
       DEBUG_OUT << "adagrad_solver: grad:" << grad << " decayed_lr" << lr / (std::sqrt(wv) + eps)
-                << " count " << param_context.count
+                << " count " << param_node.count
                 << " wv:" << wv << " update:" 
                 << lr * (grad.w + l2_norm_w * w) / (std::sqrt(wv) + eps)
                 << endl;
@@ -51,7 +51,7 @@ class AdagradSolver : public BaseSolver {
         vvf += vgf * vgf;
         vf -= lr * (vgf + l2_norm_V * vf)  / (std::sqrt(vvf) + eps);
       }
-      param_context.mutex->unlock();
+      param_node.mutex->unlock();
     }
   }
 

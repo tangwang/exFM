@@ -55,7 +55,6 @@ bool SparseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInterface
 
   bool ret = true;
 
-  // 加载词典， 确定vocab_size，default_id, unknown_id
 #define LOAD_FEAT_ID_DICT(dict)                                             \
   do {                                                                      \
     dict.setNullValue(unknown_id);                                          \
@@ -69,6 +68,7 @@ bool SparseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInterface
     }                                                                       \
   } while (0)
 
+  // 加载词典， 确定vocab_size，default_id, unknown_id
   switch (mapping_type) {
     case mapping_by_dict_int32:
       LOAD_FEAT_ID_DICT(i32_feat_id_dict);
@@ -221,16 +221,15 @@ SparseFeatContext::SparseFeatContext(const SparseFeatConfig &cfg) : cfg_(cfg) {}
 
 SparseFeatContext::~SparseFeatContext() {}
 
-void SparseFeatContext::forward(vector<ParamContext> &forward_params) {}
-
-int SparseFeatContext::feedSample(const char *line,
-                                  vector<ParamContext> &forward_params,
-                                  vector<ParamContext> &backward_params) {
+int SparseFeatContext::feedSample(const char *line, FmLayerNode & fm_node) {
   cfg_.parseStr(line, orig_fea_id);
   feat_id = cfg_.featMapping(orig_fea_id);
 
   if (!valid()) {
-    return -1; // TODO 0929 这里要去掉。 之前默认值是-1，现在默认值改成了0，采用默认值的ID
+    fm_node.forward.clear();
+    fm_node.backward_nodes.clear();
+    return -1;  // TODO 0929 这里要去掉。
+                // 之前默认值是-1，现在默认值改成了0，采用默认值的ID
   }
 
   DEBUG_OUT << "feedSample " << cfg_.name << " orig_fea_id " << orig_fea_id << " feat_id " << feat_id << endl;
@@ -238,22 +237,13 @@ int SparseFeatContext::feedSample(const char *line,
   FMParamUnit *fea_param = cfg_.param_container->get(feat_id);
   Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(feat_id);
 
-  FMParamUnit *forward_param = forward_param_container->get();
   param_mutex->lock();
-  cfg_.param_container->cpParam(forward_param, fea_param);
+  fm_node.forward = *fea_param;
   param_mutex->unlock();
 
-  forward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), forward_param, NULL, 1.0));
-
-  real_t grad_from_forward2backward = 1.0;
-  backward_params.push_back(ParamContext((ParamContainerInterface*)cfg_.param_container.get(), fea_param, param_mutex, 1.0, (int)forward_params.size()-1, grad_from_forward2backward));
+  fm_node.backward_nodes.clear();
+  fm_node.backward_nodes.push_back(ParamNode(fea_param, param_mutex, 1.0));
 
   return 0;
 }
 
-void SparseFeatContext::backward() {
-  // FMParamUnit *p = backward_param_container->get();
-
-  // FMParamUnit *fea_param = cfg_.param_container->get(feat_id);
-  // cfg_.sparse_cfg.param_container->addWeightsTo(p, fea_param);
-}

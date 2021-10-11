@@ -113,20 +113,10 @@ class CommonFeatConfig {
 
 class CommonFeatContext {
  public:
-  shared_ptr<ParamContainerInterface> forward_param_container;
-  shared_ptr<ParamContainerInterface> backward_param_container;
-
-  // forward_params中的参数指针只用于前向传递值，计算loss，所以为性能考虑，都从参数容器中取出来后放入线程本地内存（FeatContext中的本地参数容器），计算loss时不会对forward_params中的元素加锁
-  virtual int feedSample(const char *line,
-                          vector<ParamContext> &forward_params,
-                          vector<ParamContext> &backward_params) = 0;
+  virtual int feedSample(const char *line, FmLayerNode & fm_node) = 0;
   virtual bool valid() const = 0;
 
-  // TODO改造
-  virtual void forward(vector<ParamContext> &forward_params) = 0;
-  virtual void backward() = 0;
-
-  CommonFeatContext();
+  CommonFeatContext() {}
 
   virtual ~CommonFeatContext() {}
 };

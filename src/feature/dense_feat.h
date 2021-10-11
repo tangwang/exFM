@@ -76,16 +76,12 @@ class DenseFeatContext : public CommonFeatContext {
 
   const DenseFeatConfig &cfg_;
 
-  int feedSample(const char *line, vector<ParamContext> & forward_params, vector<ParamContext> & backward_params);
+  int feedSample(const char *line, FmLayerNode & fm_node);
 
   bool valid() const {
     // TODO 暂时只支持离散特征
     return orig_x != cfg_.default_value && !cfg_.all_splits.empty();
   }
-
-  void forward(vector<ParamContext> &forward_params);
-
-  void backward();
 
   DenseFeatContext(const DenseFeatConfig &cfg);
   ~DenseFeatContext();

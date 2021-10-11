@@ -23,24 +23,12 @@ class SgdmSolver : public BaseSolver {
   virtual void update() {
 
     for (auto & kv : batch_params) {
-      ParamContext & param_context = kv.second;
-      FMParamUnit & grad = param_context.fm_grad;
-      switch (train_opt.batch_grad_reduce_type) {
-        case TrainOption::BatchGradReduceType_AvgByBatchSize:
-          grad /= train_opt.batch_size;
-          break;
-        case TrainOption::BatchGradReduceType_AvgByOccurrences:
-          grad /= param_context.count;
-          break;
-        case TrainOption::BatchGradReduceType_AvgByOccurrencesSqrt:
-          grad /= std::sqrt(param_context.count);
-          break;
-        default:
-          break;
-      }
+      ParamNode & param_node = kv.second;
+      FMParamUnit & grad = param_node.fm_grad;
+      batchReduce(grad, param_node.count);
 
-      SgdmParamUnit *backward_param = (SgdmParamUnit *)param_context.param;
-      param_context.mutex->lock();
+      SgdmParamUnit *backward_param = (SgdmParamUnit *)param_node.param;
+      param_node.mutex->lock();
 
       real_t & w = backward_param->fm_param.w;
       real_t & wm = backward_param->momentum.w;
@@ -56,7 +44,7 @@ class SgdmSolver : public BaseSolver {
         vmf = beta1 * vmf + (1-beta1) * vgf;
         vf -= lr * (vmf + vf * l2_reg_V);
       }
-      param_context.mutex->unlock();
+      param_node.mutex->unlock();
     }
   }
 

@@ -51,7 +51,6 @@ class TrainWorker {
   void task_process_thread_loop() {
     std::vector<string> local_task_queue;
     int counter_for_evalution = 0;
-    const int n_sample_per_output = train_opt.n_sample_per_output;
     const bool verbose_debug = train_opt.verbose > 1;
 
     sleep(2);
@@ -73,7 +72,7 @@ class TrainWorker {
 
       local_task_queue.clear();
       counter_for_evalution += task_queue_size;
-      if (counter_for_evalution >= n_sample_per_output) {
+      if (counter_for_evalution >= train_opt.n_sample_per_output) {
         counter_for_evalution = 0;
         eval.output(task_name_.c_str());
       }

@@ -22,16 +22,14 @@ class AdamSolver : public BaseSolver {
   virtual ~AdamSolver() {}
 
   virtual void update() {
-    // TODO 这里的pow(beta1_pow, t), t是取总步数，该是取该参数更新的次数？
-
     for (auto &kv : batch_params) {
-      ParamContext &param_context = kv.second;
-      FMParamUnit grad = param_context.fm_grad;
-      batchReduce(grad, param_context.count);
+      ParamNode &param_node = kv.second;
+      FMParamUnit & grad = param_node.fm_grad;
+      batchReduce(grad, param_node.count);
 
-      AdamParamUnit *backward_param = (AdamParamUnit *)param_context.param;
-      param_context.mutex->lock();
-      // calc corection_lr
+      AdamParamUnit *backward_param = (AdamParamUnit *)param_node.param;
+      param_node.mutex->lock();
+      // correction learning rate
       backward_param->beta1power_t *= beta1;
       backward_param->beta2power_t *= beta2;
       real_t bias_correction1 = (1 - backward_param->beta1power_t);
@@ -48,7 +46,7 @@ class AdamSolver : public BaseSolver {
       wv = amsgrad ? std::max(wv, avg_squared) : avg_squared;
 
       DEBUG_OUT << "adam_solver: grad:" << grad << " corection_lr:" << corection_lr
-                << " count " << param_context.count << corection_lr << " wm:" << wm
+                << " count " << param_node.count << " wm:" << wm
                 << " wv:" << wv << " update:"
                 << corection_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w)
                 << endl
@@ -82,7 +80,7 @@ class AdamSolver : public BaseSolver {
         vvf = beta2 * vvf + (1 - beta2) * vgf * vgf;
         vf -= corection_lr * (vmf / (std::sqrt(vvf) + eps) + weight_decay_V * vf);
       }
-      param_context.mutex->unlock();
+      param_node.mutex->unlock();
     }
   }
 

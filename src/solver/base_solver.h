@@ -16,9 +16,8 @@ class Sample {
 
   void backward();
 
-  vector<ParamContext> forward_params;
-  vector<ParamContext> backward_params;
-
+  vector<FmLayerNode> fm_layer_nodes;
+  
   real_t logit;
   real_t loss;
   real_t grad;
@@ -68,15 +67,18 @@ protected:
   void rotateSampleIdx() {
     ++sample_idx;
     if (sample_idx == batch_size) {
-      // merge grads
+      // merge gradient
       batch_params.clear();
       for (size_t i = 0; i < batch_size; i++) {
-        Sample &sample = batch_samples[i];
-        for (const auto &param_unit : sample.backward_params) {
-          auto ins_ret = batch_params.insert({param_unit.param, param_unit});
-          if (!ins_ret.second) {
-            ins_ret.first->second.fm_grad += param_unit.fm_grad;
-            ins_ret.first->second.count += 1;
+        const Sample &sample = batch_samples[i];
+
+        for (const auto & fm_node : sample.fm_layer_nodes) {
+          for (const auto & param_node : fm_node.backward_nodes) {
+            auto ins_ret = batch_params.insert({param_node.param, param_node});
+            if (!ins_ret.second) {
+              ins_ret.first->second.fm_grad += param_node.fm_grad;
+              ins_ret.first->second.count += 1;
+            }
           }
         }
       }
@@ -113,5 +115,5 @@ protected:
   size_t sample_idx;
   vector<Sample> batch_samples;
 
-  std::map<FMParamUnit *, ParamContext> batch_params;
+  std::map<FMParamUnit *, ParamNode> batch_params;
 };

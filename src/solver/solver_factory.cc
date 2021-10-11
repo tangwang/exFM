@@ -10,33 +10,35 @@
 #include "solver/rmsprop/rmsprop_solver.h"
 
 shared_ptr<ParamContainerInterface> creatParamContainer(feaid_t fea_num, feaid_t mutex_nums) {
-  if (train_opt.solver == "ftrl") {
+  if (0 == strcasecmp(train_opt.solver.c_str(), "ftrl")) {
     return std::make_shared<ParamContainer<FtrlParamUnit>>(fea_num, mutex_nums);
-  } else if (train_opt.solver == "sgd") {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "sgd")) {
     return std::make_shared<ParamContainer<SgdmParamUnit>>(fea_num, mutex_nums);
-  } else if (train_opt.solver == "adagrad") {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "adagrad")) {
     return std::make_shared<ParamContainer<AdagradParamUnit>>(fea_num, mutex_nums);
-  } else if (train_opt.solver == "rmsprop") {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "rmsprop")) {
     return std::make_shared<ParamContainer<RmspropParamUnit>>(fea_num, mutex_nums);
-  } else if (train_opt.solver == "adam") {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "adam")) {
     return std::make_shared<ParamContainer<AdamParamUnit>>(fea_num, mutex_nums);
   } else {
+    cerr << "unknown solver, use adam by default." << endl;
     return std::make_shared<ParamContainer<AdamParamUnit>>(fea_num, mutex_nums);
   }
 }
 
 BaseSolver * creatSolver(const FeatManager &feat_manager) {
-  if (train_opt.solver == "ftrl") {
+  if (0 == strcasecmp(train_opt.solver.c_str(), "ftrl")) {
     return new FtrlSolver(feat_manager);
-  } else if (train_opt.solver == "sgdm") {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "sgdm")) {
     return new SgdmSolver(feat_manager);
-  } else if (train_opt.solver == "adagrad") {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "adagrad")) {
     return new AdagradSolver(feat_manager);
-  } else if (train_opt.solver == "rmsprop") {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "rmsprop")) {
     return new RmspropSolver(feat_manager);
-  } else if (train_opt.solver == "adam") {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "adam")) {
     return new AdamSolver(feat_manager);
   } else {
+    cerr << "unknown solver, use adam by default." << endl;
     return new AdamSolver(feat_manager);
   }
 }

@@ -80,11 +80,7 @@ class SparseFeatContext : public CommonFeatContext {
 
   bool valid() const { return feat_id != cfg_.default_id; }
 
-  void forward(vector<ParamContext>& forward_params);
-  void backward();
-
-  int feedSample(const char* line, vector<ParamContext>& forward_params,
-                  vector<ParamContext>& backward_params);
+  int feedSample(const char *line, FmLayerNode & fm_node);
 
   SparseFeatContext(const SparseFeatConfig& cfg);
   ~SparseFeatContext();

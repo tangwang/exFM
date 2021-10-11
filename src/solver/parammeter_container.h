@@ -11,7 +11,7 @@
 // 通用参数的头部结构
 struct FMParamUnit {
   FMParamUnit() {
-    clear();
+    clear(); // TODO 有时候不需初始化
   }
   real_t w;
   real_t V[DIM];
@@ -45,27 +45,23 @@ struct FMParamUnit {
   }
 };
 
-class ParamContainerInterface;
-
-struct ParamContext {
-  ParamContext(ParamContainerInterface *_container = NULL, FMParamUnit *_param = NULL, Mutex_t *_mutex = NULL,
-               real_t _x = 1.0)
-      : param(_param), container(_container), mutex(_mutex), x(_x), grad_of_linked_forward_param(1.0), id_of_linked_forward_param(-1), count(1) {}
-
-  ParamContext(ParamContainerInterface *_container, FMParamUnit *_param, Mutex_t *_mutex,
-               real_t _x, size_t forward_id, real_t forward_grad)
-      : param(_param), container(_container), mutex(_mutex), x(_x), grad_of_linked_forward_param(forward_grad), id_of_linked_forward_param(forward_id), count(1) {}
+struct ParamNode {
+  ParamNode(FMParamUnit *_param = NULL, Mutex_t *_mutex = NULL,
+               real_t _x = 1.0, real_t grad = 1.0)
+      : param(_param), mutex(_mutex), grad_from_fm_node(grad), x(_x), count(1) {}
 
   FMParamUnit *param;
-  ParamContainerInterface *container;
   Mutex_t *mutex;
-  
   FMParamUnit fm_grad;
+  real_t grad_from_fm_node;
   real_t x;
-  // 链接到的上游网络节点及其偏导数。采用这种设计，只支持一个网络层级，即 backward_param (sum/avg to)-> forward_param -> fm_score -> sigmoid+crossEntopy <- label
-  real_t grad_of_linked_forward_param;
-  int id_of_linked_forward_param;
   int count;
+};
+
+  // 采用这种设计，只支持一个网络层级，即 backward_param (sum/avg to)-> forward_param -> fm_score -> sigmoid+crossEntopy <- label
+struct FmLayerNode {
+  FMParamUnit forward;
+  vector<ParamNode> backward_nodes;
 };
 
 class ParamContainerInterface {
@@ -91,7 +87,7 @@ class ParamContainerInterface {
   }
 
   FMParamUnit *get(feaid_t id) {
-    if (UNLIKELY(isBadID(id))) {
+    if (unlikely(isBadID(id))) {
       id = getUNKnownID();
     }
     return (FMParamUnit *)(param_base_addr + param_size_of_one_fea * id);

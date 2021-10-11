@@ -11,13 +11,11 @@ real_t Sample::forward() {
     sum[f] = sum_sqr[f] = 0.0;
   }
 
-  size_t forward_params_size = forward_params.size();
-  for (size_t i = 0; i < forward_params_size; i++) {
-    const ParamContext & ctx = forward_params[i];
-    real_t x = ctx.x;
-    logit += ctx.param->w * x;
+  for (const auto & node : fm_layer_nodes) {
+    real_t x = 1.0;
+    logit += node.forward.w * x;
     for (int f = 0; f < DIM; ++f) {
-      real_t d = ctx.param->V[f] * x;
+      real_t d = node.forward.V[f] * x;
       sum[f] += d;
       sum_sqr[f] += d * d;
     }
@@ -26,9 +24,8 @@ real_t Sample::forward() {
   for (int f = 0; f < DIM; ++f) {
     sum_factors_score += (sum[f] * sum[f] - sum_sqr[f]);
   }
-  sum_factors_score *= 0.5;
 
-  logit += sum_factors_score;
+  logit += (0.5 * sum_factors_score);
 
   return logit;
 }
@@ -41,26 +38,22 @@ void Sample::backward() {
   grad = -y / (1 + exp_y_logit);
   loss = - std::log(1 - 1/(1+std::max(exp_y_logit, 1e-10)));
   
-  // 计算每个fmParamUnit的梯度： partitial(fm_score(x)) / partitial(\theta),  theata = {w_i, V_i1, Vi2, ... Vif} for i in {0, 1, ... N }
-  size_t params_size = forward_params.size();
-  for (size_t i = 0; i < params_size; i++) {
-    ParamContext & ctx = forward_params[i];
-    real_t xi = ctx.x;
+  FMParamUnit backward;
+  for (auto & node : fm_layer_nodes) {
+    //  partitial(fm_score(x)) / partitial(fm_node)
+    real_t xi = 1.0;
     real_t grad_i = grad * xi;
-    FMParamUnit *backward_param = ctx.param;
-    ctx.fm_grad.w = grad_i;
+    backward.w = grad_i;
     for (int f = 0; f < DIM; ++f) {
-      real_t &vf = backward_param->V[f];
+      real_t &vf = node.forward.V[f];
       real_t vgf = grad_i * (sum[f] - vf * xi);
-      ctx.fm_grad.V[f] = vgf;
+      backward.V[f] = vgf;
     }
-  }
-
-  params_size = backward_params.size();
-  for (size_t i = 0; i < params_size; i++) {
-    ParamContext & ctx = backward_params[i];
-    ctx.fm_grad = forward_params[(size_t)ctx.id_of_linked_forward_param].fm_grad;
-    ctx.fm_grad *= ctx.grad_of_linked_forward_param;
+    // 计算每个fmParamUnit的梯度： partitial(fm_score(x)) / partitial(\theta),  theata = {w_i, V_i1, Vi2, ... Vif} for i in {0, 1, ... N }
+    for (auto & param_node : node.backward_nodes) {
+      param_node.fm_grad = backward;
+      param_node.fm_grad *= param_node.grad_from_fm_node;
+    }
   }
 }
 
@@ -75,12 +68,15 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
   for (auto &iter : feat_manager_.varlen_feas) {
     varlen_feas.push_back(std::move(VarlenSparseFeatContext(iter)));
   }
+  for (auto & sample : batch_samples) {
+    sample.fm_layer_nodes.resize(dense_feas.size() + sparse_feas.size() + varlen_feas.size());
+  }
 }
 
 int BaseSolver::procOneLine(const char *line) {
   // label统一为1， -1的形式
   // y = atoi(line) > 0 ? 1 : -1;
-  if (UNLIKELY(*line == 0)) {
+  if (unlikely(*line == 0)) {
     return -1;
   }
 
@@ -91,16 +87,15 @@ int BaseSolver::procOneLine(const char *line) {
     ++line;
   } while (*line != train_opt.fea_seperator);
 
-  sample.forward_params.clear();
-  sample.backward_params.clear();
+  size_t feat_idx = 0;
   for (auto &iter : dense_feas) {
-    iter.feedSample(line, sample.forward_params, sample.backward_params);
+    iter.feedSample(line, sample.fm_layer_nodes[feat_idx++]);
   }
   for (auto &iter : sparse_feas) {
-    iter.feedSample(line, sample.forward_params, sample.backward_params);
+    iter.feedSample(line, sample.fm_layer_nodes[feat_idx++]);
   }
   for (auto &iter : varlen_feas) {
-    iter.feedSample(line, sample.forward_params, sample.backward_params);
+    iter.feedSample(line, sample.fm_layer_nodes[feat_idx++]);
   }
   return 0;
 }
@@ -109,12 +104,12 @@ int BaseSolver::procOneLine(const char *line) {
 #if 0 // 单个样本的sgdm, adam, ftrl参数更新
 
   void update_by_sgdm() {
-    for (auto & param_context : backward_params) {
-      real_t grad = param_context.grad;
-      real_t xi = param_context.xi;
+    for (auto & param_node : backward_params) {
+      real_t grad = param_node.grad;
+      real_t xi = param_node.xi;
 
-      SgdmParamUnit *backward_param = (SgdmParamUnit *)param_context.param;
-      param_context.mutex->lock();
+      SgdmParamUnit *backward_param = (SgdmParamUnit *)param_node.param;
+      param_node.mutex->lock();
 
       real_t & w = backward_param->fm_param.w;
       real_t & wm = backward_param->momentum.w;
@@ -132,19 +127,19 @@ int BaseSolver::procOneLine(const char *line) {
 
         vf -= lr * (vmf + vf * l2_reg_V);
       }
-      param_context.mutex->unlock();
+      param_node.mutex->unlock();
     }
   }
 
   virtual void update_by_adam() {
     // TODO 这里的pow(beta1_pow, t), t是取总步数，该是取该参数更新的次数？
 
-    for (auto & param_context : backward_params) {
-      real_t grad = param_context.grad;
-      real_t xi = param_context.xi;
+    for (auto & param_node : backward_params) {
+      real_t grad = param_node.grad;
+      real_t xi = param_node.xi;
 
-      AdamParamUnit *backward_param = (AdamParamUnit *)param_context.param;
-      param_context.mutex->lock();
+      AdamParamUnit *backward_param = (AdamParamUnit *)param_node.param;
+      param_node.mutex->lock();
       // calc fixed_lr
       backward_param->beta1power_t *= beta1;
       backward_param->beta2power_t *= beta2;
@@ -186,19 +181,19 @@ int BaseSolver::procOneLine(const char *line) {
         vvf = beta2 * vvf + (1 - beta2) * vgf * vgf;
         vf -= fixed_lr * (vmf / (std::sqrt(vvf) + eps) + weight_decay_V * vf);
       }
-      param_context.mutex->unlock();
+      param_node.mutex->unlock();
     }
   }
 
   void update_by_adam_raw(real_t grad) {
     // TODO 这里的pow(beta1_pow, t), t是取总步数，该是取该参数更新的次数？
 
-    for (auto & param_context : backward_params) {
-      real_t grad = param_context.grad;
-      real_t xi = param_context.xi;
+    for (auto & param_node : backward_params) {
+      real_t grad = param_node.grad;
+      real_t xi = param_node.xi;
 
-      AdamParamUnit *backward_param = (AdamParamUnit *)param_context.param;
-      param_context.mutex->lock();
+      AdamParamUnit *backward_param = (AdamParamUnit *)param_node.param;
+      param_node.mutex->lock();
 
       real_t & w = backward_param->fm_param.w;
       real_t & wm = backward_param->momentum.w;
@@ -236,7 +231,7 @@ int BaseSolver::procOneLine(const char *line) {
                (std::sqrt(corrected_vvf) + eps)  + weight_decay_V * vf);
       }
 
-      param_context.mutex->unlock();
+      param_node.mutex->unlock();
     }
   }
 
@@ -244,12 +239,12 @@ int BaseSolver::procOneLine(const char *line) {
   void update_by_ftrl() {
 
     // TODO FTRL并不需要batchsize，这种通用的处理方法带来很多额外的性能开销。 测试一下，batch_size是否对FTRL的精度有效，没什么作用的话为FTRL专门设计一下Solver
-    for (auto & param_context : backward_params) {
-      real_t grad = param_context.grad;
-      real_t xi = param_context.xi;
+    for (auto & param_node : backward_params) {
+      real_t grad = param_node.grad;
+      real_t xi = param_node.xi;
 
-      FtrlParamUnit *backward_param = (FtrlParamUnit *)param_context.param;
-      param_context.mutex->lock();
+      FtrlParamUnit *backward_param = (FtrlParamUnit *)param_node.param;
+      param_node.mutex->lock();
       real_t w_sigama =
           1 / train_opt.ftrl.w_alpha *
           (std::sqrt(backward_param->n.w + grad * grad) - std::sqrt(backward_param->n.w));
@@ -268,17 +263,8 @@ int BaseSolver::procOneLine(const char *line) {
 
       backward_param->calcFmWeights();
 
-      param_context.mutex->unlock();
+      param_node.mutex->unlock();
     }
   }  
 
 #endif
-
-// void BaseSolver::update__by_container(real_t grad) {
-
-//   for (auto param_context : backward_params) {
-//     param_context.mutex->lock();
-//     param_context.container->update_param(param_context.param, grad);
-//     param_context.mutex->unlock();
-//   }
-// }

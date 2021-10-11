@@ -50,7 +50,6 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
                    "specify one character(or str \"blank\",\"tab\") for k_v_seperator in line of feature mapping dict");
   feat_id_dict_seperator = parse_seperator_chars(temp_split_param);
 
-
   // params initallization
   arg_parser.parse_arg("init_stdev", init_stdev, 0.001,
                   "stdev for initialization of 2-way factors");
