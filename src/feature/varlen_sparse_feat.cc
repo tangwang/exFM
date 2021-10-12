@@ -107,7 +107,7 @@ int VarlenSparseFeatContext::feedSample(char *feat_str, FmLayerNode & fm_node) {
     fm_node.forward += *fea_param;
     param_mutex->unlock();
     
-    fm_node.backward_nodes.push_back(ParamNode(fea_param, param_mutex, 1.0, grad_from_fm_node));
+    fm_node.backward_nodes.emplace_back(fea_param, param_mutex, 1.0, grad_from_fm_node);
   }
 
   return 0;

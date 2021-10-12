@@ -143,7 +143,7 @@ int DenseFeatContext::feedSample(char *feat_str, FmLayerNode & fm_node) {
 
   for (auto fea_param : *fea_params) {
     Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(bucket_id);
-    fm_node.backward_nodes.push_back(ParamNode(fea_param, param_mutex, 1.0, 1.0));
+    fm_node.backward_nodes.emplace_back(fea_param, param_mutex, 1.0, 1.0);
     param_mutex->lock();
     fm_node.forward += *fea_param;
     param_mutex->unlock();

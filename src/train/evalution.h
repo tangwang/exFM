@@ -23,7 +23,7 @@ class Evalution {
     sum_loss += loss;
     sum_abs_grad += std::abs(grad);
 
-    label_prob_list.push_back(std::make_pair(label, logit));
+    label_prob_list.emplace_back(std::make_pair(label, logit));
 
     int pred = logit > 0.0 ? 1 : 0;
     if (label == 1) {

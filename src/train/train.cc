@@ -40,7 +40,6 @@ void train_dispatcher(vector<TrainWorker *> &workers,
   string input_buff;
   while (std::getline(*input_stream, input_buff)) {
     int max_retry_times = train_opt.threads_num;
-#if 1  // TODO check perfermance
     for (;
          max_retry_times != 0 &&
          !workers[shulffer.next()]->TryPush(input_buff);
@@ -50,9 +49,6 @@ void train_dispatcher(vector<TrainWorker *> &workers,
     if (max_retry_times == 0) {
       workers[shulffer.next()]->WaitAndPush(input_buff);
     }
-#else
-    workers[shulffer.next()]->WaitAndPush(input_buff);
-#endif
   }
 }
 

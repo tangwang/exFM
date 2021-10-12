@@ -112,12 +112,12 @@ void split_string(const string &line, char delimiter, vector<value_type> &r) {
   size_t begin = 0;
   for (size_t i = 0; i < line.size(); ++i) {
     if (line[i] == delimiter) {
-      r.push_back(cast_ref_type<string, value_type>(line.substr(begin, i - begin)));
+      r.emplace_back(cast_ref_type<string, value_type>(line.substr(begin, i - begin)));
       begin = i + 1;
     }
   }
   if (begin < line.size()) {
-    r.push_back(
+    r.emplace_back(
         cast_ref_type<string, value_type>(line.substr(begin, line.size() - begin)));
   }
 }
@@ -157,13 +157,13 @@ void split_string(const char *beg, char delimiter, char end_char,
   for (; *p && *p != end_char; p++) {
     if (*p == delimiter) {
       if (feaid_beg < p) {
-        vec.push_back(cast_type<const char *, value_type>(feaid_beg));
+        vec.emplace_back(cast_type<const char *, value_type>(feaid_beg));
       }
       feaid_beg = p + 1;
     }
   }
   if (feaid_beg < p) {
-    vec.push_back(cast_type<const char *, value_type>(feaid_beg));
+    vec.emplace_back(cast_type<const char *, value_type>(feaid_beg));
   }
 }
 

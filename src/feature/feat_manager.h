@@ -21,7 +21,6 @@ class FeatManager {
 
   bool dumpModel();
   
-  // TODO 改变feedSample的方式，最好x按列解析好，直接跟featCfgs对应起来，而不是把整行数据直接丢给各个feaCfg。 以下几个feas直接暴露给外部不太好。
   vector<DenseFeatConfig> dense_feas;
   vector<SparseFeatConfig> sparse_feas;
   vector<VarlenSparseFeatConfig> varlen_feas;

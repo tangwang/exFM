@@ -72,7 +72,7 @@ void CalcMeanAndStdev(const vector<value_type> &vec, value_type &mean,
 
 // @return : if (a > 0) return b; else return -b;
 inline double sign_a_multiply_b(double a, double b) {
-  #if 1 // TODO check性能差异
+  #if 1
   if (a > 0) return b; else return -b;
   #else
   unsigned long *p = (unsigned long *)&a;

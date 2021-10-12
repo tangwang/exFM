@@ -243,7 +243,7 @@ int SparseFeatContext::feedSample(char *feat_str, FmLayerNode & fm_node) {
   param_mutex->unlock();
 
   fm_node.backward_nodes.clear();
-  fm_node.backward_nodes.push_back(ParamNode(fea_param, param_mutex, 1.0));
+  fm_node.backward_nodes.emplace_back(fea_param, param_mutex, 1.0);
 
   return 0;
 }

@@ -61,14 +61,14 @@ void Sample::backward() {
 
 BaseSolver::BaseSolver(const FeatManager &feat_manager)
     : feat_manager_(feat_manager), batch_size(train_opt.batch_size), sample_idx(0), batch_samples(train_opt.batch_size) {
-  for (auto &iter : feat_manager_.dense_feas) {
-    dense_feas.push_back(std::move(DenseFeatContext(iter)));
+  for (const auto &iter : feat_manager_.dense_feas) {
+    dense_feas.emplace_back(iter);
   }
-  for (auto &iter : feat_manager_.sparse_feas) {
-    sparse_feas.push_back(std::move(SparseFeatContext(iter)));
+  for (const auto &iter : feat_manager_.sparse_feas) {
+    sparse_feas.emplace_back(iter);
   }
-  for (auto &iter : feat_manager_.varlen_feas) {
-    varlen_feas.push_back(std::move(VarlenSparseFeatContext(iter)));
+  for (const auto &iter : feat_manager_.varlen_feas) {
+    varlen_feas.emplace_back(iter);
   }
   for (auto & sample : batch_samples) {
     sample.fm_layer_nodes.resize(dense_feas.size() + sparse_feas.size() + varlen_feas.size());

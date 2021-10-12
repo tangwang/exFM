@@ -11,7 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <vector>
 #include <algorithm>
@@ -90,14 +90,11 @@ template <typename Key_t, typename Value_t,
           class KeyParser_t = CommonFieldParser<Key_t>,
           class ValueParser_t = CommonFieldParser<Value_t> >
 class Dict {
-    // TODO 这里改成unordered_map
-   // typedef std::unordered_map<Key_t, Value_t> InnerDict_t;
-     typedef std::map<Key_t, Value_t> InnerDict_t;
+     typedef std::unordered_map<Key_t, Value_t> InnerDict_t;
 public:
     typedef typename InnerDict_t::const_iterator const_iterator;
     typedef Key_t key_type;
     typedef Value_t value_type;
-
 
 public:
     Dict(Value_t null_value = Value_t())
@@ -216,17 +213,6 @@ private:
     InnerDict_t _inner_dict;
 
 };
-
-
-#if SUPPORT_BOOST
-inline bool startWisth(const string &mainstr, const string &substr) {
-    return boost::starts_with(line, _comment);
-}
-#else
-inline bool startWisth(const string &mainstr, const string &substr) {
-    return strncmp(mainstr.c_str(), substr.c_str() ,substr.length()) == 0;
-}
-#endif
 
 template <typename Key_t,
           class KeyParser_t = CommonFieldParser<Key_t> >

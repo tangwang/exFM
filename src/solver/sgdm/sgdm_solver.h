@@ -48,7 +48,6 @@ class SgdmSolver : public BaseSolver {
     }
   }
 
-
   const real_t lr;
   const real_t beta1;
   const real_t l1_reg_w;
