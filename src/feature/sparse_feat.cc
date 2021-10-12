@@ -17,23 +17,27 @@ feaid_t SparseFeatConfig::featMapping(const char * orig_fea_id) const {
   if (likely(orig_fea_id[0] != 0)) {
     switch (mapping_type) {
       case mapping_by_dict_int32: {
-        int i_orig_fea_id = atoi(orig_fea_id);
+        // int i_orig_fea_id = atoi(orig_fea_id);
+        int i_orig_fea_id = int(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
         feat_id = i32_feat_id_dict.get(i_orig_fea_id);
       } break;
       case mapping_by_dict_int64: {
-        long i_orig_fea_id = atol(orig_fea_id);
+        // long i_orig_fea_id = atol(orig_fea_id);
+        long i_orig_fea_id = long(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
         feat_id = i64_feat_id_dict.get(i_orig_fea_id);
       } break;
       case mapping_by_dict_str: {
         feat_id = str_feat_id_dict.get(orig_fea_id);
       } break;
       case mapping_by_hash_int32: {
-        int i_orig_fea_id = atoi(orig_fea_id);
+        // int i_orig_fea_id = atoi(orig_fea_id);
+        int i_orig_fea_id = int(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
         feat_id = MurmurHash3_x86_32((void *)&i_orig_fea_id, sizeof(i_orig_fea_id), hash_seed);
         feat_id %= vocab_size;
       } break;
       case mapping_by_hash_int64: {
-        long i_orig_fea_id = atol(orig_fea_id);
+        // long i_orig_fea_id = atol(orig_fea_id);
+        long i_orig_fea_id = long(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
         feat_id = MurmurHash3_x86_32((void *)&i_orig_fea_id, sizeof(i_orig_fea_id), hash_seed);
         feat_id %= vocab_size;
       } break;
@@ -43,7 +47,8 @@ feaid_t SparseFeatConfig::featMapping(const char * orig_fea_id) const {
         feat_id %= vocab_size;
       } break;
       default:
-        int i_orig_fea_id = atoi(orig_fea_id);
+        // int i_orig_fea_id = atoi(orig_fea_id);
+        int i_orig_fea_id = int(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
         feat_id = (i_orig_fea_id < 0 || i_orig_fea_id > (int)max_id) ? unknown_id : (feaid_t)i_orig_fea_id;
         break;
     }
