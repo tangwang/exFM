@@ -21,7 +21,7 @@ class VarlenSparseFeatConfig : public CommonFeatConfig {
   SeqPoolType pooling_type_id;
   size_t max_len;
 
-  bool initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
+  bool initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
   friend ostream & operator << (ostream &out, const VarlenSparseFeatConfig & cfg) {
     out << " VarlenSparseFeatConfig name <" << cfg.name << ">" << endl;
@@ -42,13 +42,11 @@ class VarlenSparseFeatContext : public CommonFeatContext {
  public:
   const VarlenSparseFeatConfig& cfg_;
 
-  vector<string> orig_fea_ids;
-
   vector<feaid_t> fea_ids;
 
   bool valid() const { return !fea_ids.empty(); }
 
-  int feedSample(const char *line, FmLayerNode & fm_node);
+  int feedSample(char *feat_str, FmLayerNode & fm_node);
 
   VarlenSparseFeatContext(const VarlenSparseFeatConfig& cfg);
   ~VarlenSparseFeatContext();

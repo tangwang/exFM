@@ -66,7 +66,7 @@ class TrainWorker {
 
       for (int i = 0; i < task_queue_size; i++) {
         // train_fm_flattern(y, logit);
-        solver->train(local_task_queue[i].c_str(), y, logit, loss, grad);
+        solver->train(local_task_queue[i], y, logit, loss, grad);
         eval.add(y, logit, loss, grad);
       }
 
@@ -99,7 +99,7 @@ class TrainWorker {
         // solver->train_fm_flattern(y, logit, true);
         real_t logit;
         int y;
-        solver->test(line_buff.c_str(), y, logit);
+        solver->test(line_buff, y, logit);
         eval.add(y, logit, 0.0, 0.0);
       }
       eval.output(task_name_.c_str(), true);
@@ -112,7 +112,7 @@ class TrainWorker {
       // solver->train_fm_flattern(true);
       real_t logit;
       int y;
-      solver->test(line_buff.c_str(), y, logit);
+      solver->test(line_buff, y, logit);
       eval.add(y, logit, 0.0, 0.0);
     }
     eval.output(task_name_.c_str(), true);

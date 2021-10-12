@@ -12,38 +12,38 @@ SparseFeatConfig::SparseFeatConfig() {
 
 SparseFeatConfig::~SparseFeatConfig() {}
 
-feaid_t SparseFeatConfig::featMapping(const string& orig_fea_id) const {
+feaid_t SparseFeatConfig::featMapping(const char * orig_fea_id) const {
   feaid_t feat_id = default_id;
-  if (!orig_fea_id.empty()) {
+  if (likely(orig_fea_id[0] != 0)) {
     switch (mapping_type) {
       case mapping_by_dict_int32: {
-        int i_orig_fea_id = atoi(orig_fea_id.c_str());
+        int i_orig_fea_id = atoi(orig_fea_id);
         feat_id = i32_feat_id_dict.get(i_orig_fea_id);
       } break;
       case mapping_by_dict_int64: {
-        long i_orig_fea_id = atol(orig_fea_id.c_str());
+        long i_orig_fea_id = atol(orig_fea_id);
         feat_id = i64_feat_id_dict.get(i_orig_fea_id);
       } break;
       case mapping_by_dict_str: {
         feat_id = str_feat_id_dict.get(orig_fea_id);
       } break;
       case mapping_by_hash_int32: {
-        int i_orig_fea_id = atoi(orig_fea_id.c_str());
+        int i_orig_fea_id = atoi(orig_fea_id);
         feat_id = MurmurHash3_x86_32((void *)&i_orig_fea_id, sizeof(i_orig_fea_id), hash_seed);
         feat_id %= vocab_size;
       } break;
       case mapping_by_hash_int64: {
-        long i_orig_fea_id = atol(orig_fea_id.c_str());
+        long i_orig_fea_id = atol(orig_fea_id);
         feat_id = MurmurHash3_x86_32((void *)&i_orig_fea_id, sizeof(i_orig_fea_id), hash_seed);
         feat_id %= vocab_size;
       } break;
       case mapping_by_hash_str: {
         feat_id =
-            MurmurHash3_x86_32(orig_fea_id.c_str(), orig_fea_id.size(), hash_seed);
+            MurmurHash3_x86_32(orig_fea_id, strlen(orig_fea_id), hash_seed);
         feat_id %= vocab_size;
       } break;
       default:
-        int i_orig_fea_id = atoi(orig_fea_id.c_str());
+        int i_orig_fea_id = atoi(orig_fea_id);
         feat_id = (i_orig_fea_id < 0 || i_orig_fea_id > (int)max_id) ? unknown_id : (feaid_t)i_orig_fea_id;
         break;
     }
@@ -51,7 +51,7 @@ feaid_t SparseFeatConfig::featMapping(const string& orig_fea_id) const {
   return feat_id;
 }
 
-bool SparseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
+bool SparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
 
   bool ret = true;
 
@@ -217,13 +217,14 @@ void from_json(const json &j, SparseFeatConfig &p) {
   if (j.find("shared_embedding_name") != j.end())      j.at("shared_embedding_name").get_to(p.shared_embedding_name);
 }
 
-SparseFeatContext::SparseFeatContext(const SparseFeatConfig &cfg) : cfg_(cfg) {}
+SparseFeatContext::SparseFeatContext(const SparseFeatConfig &cfg) : cfg_(cfg) {
+  feat_cfg = &cfg_;
+}
 
 SparseFeatContext::~SparseFeatContext() {}
 
-int SparseFeatContext::feedSample(const char *line, FmLayerNode & fm_node) {
-  cfg_.parseStr(line, orig_fea_id);
-  feat_id = cfg_.featMapping(orig_fea_id);
+int SparseFeatContext::feedSample(char *feat_str, FmLayerNode & fm_node) {
+  feat_id = cfg_.featMapping(feat_str);
 
   if (!valid()) {
     fm_node.forward.clear();
@@ -232,7 +233,7 @@ int SparseFeatContext::feedSample(const char *line, FmLayerNode & fm_node) {
                 // 之前默认值是-1，现在默认值改成了0，采用默认值的ID
   }
 
-  DEBUG_OUT << "feedSample " << cfg_.name << " orig_fea_id " << orig_fea_id << " feat_id " << feat_id << endl;
+  DEBUG_OUT << "feedSample " << cfg_.name << " feat_str " << feat_str << " feat_id " << feat_id << endl;
 
   FMParamUnit *fea_param = cfg_.param_container->get(feat_id);
   Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(feat_id);

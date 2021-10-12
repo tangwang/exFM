@@ -51,9 +51,9 @@ class TrainOption {
   int batch_size;
 
   // train data format
-  char fea_seperator;
-  char fea_kv_seperator;
-  char fea_multivalue_seperator;
+  char feat_seperator;
+  char feat_kv_seperator;
+  char feat_value_list_seperator;
   char feat_id_dict_seperator;
 
   // params for feature_configs

@@ -29,21 +29,21 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("threads", threads_num, 11, "trainning threads_num");
 
   const char *temp_split_param = NULL;
-  arg_parser.parse_arg("fea_sep", temp_split_param, "\t",
+  arg_parser.parse_arg("feat_sep", temp_split_param, "blank",
                    "specify one character (or str \"blank\",\"tab\") for "
-                   "fea_seperator in line of sample. ");
-  fea_seperator = parse_seperator_chars(temp_split_param);
+                   "feat_seperator in line of sample. ");
+  feat_seperator = parse_seperator_chars(temp_split_param);
 
   arg_parser.parse_arg(
-      "fea_kv_sep", temp_split_param, ":",
+      "feat_kv_sep", temp_split_param, ":",
       "specify one character (or str \"blank\",\"tab\", \"eqaul\"(for \"=\"))  "
-      "for fea_kv_seperator in line of sample. ");
-  fea_kv_seperator = parse_seperator_chars(temp_split_param);
+      "for feat_kv_seperator in line of sample. ");
+  feat_kv_seperator = parse_seperator_chars(temp_split_param);
 
-  arg_parser.parse_arg("fea_values_sep", temp_split_param, ",",
+  arg_parser.parse_arg("feat_values_sep", temp_split_param, ",",
                    "specify one character(or str \"blank\",\"tab\")  for "
-                   "fea_multivalue_seperator in line of sample. ");
-  fea_multivalue_seperator = parse_seperator_chars(temp_split_param);
+                   "feat_value_list_seperator in line of sample. ");
+  feat_value_list_seperator = parse_seperator_chars(temp_split_param);
 
   // ID映射词典相关配置
   arg_parser.parse_arg("id_map_dict_sep", temp_split_param, " ",

@@ -49,7 +49,7 @@ class DenseFeatConfig : public CommonFeatConfig {
     return bucket_id;
   }
 
-  bool initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
+  bool initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
   friend ostream & operator << (ostream &out, const DenseFeatConfig & cfg) {
     out << " DenseFeatConfig name <" << cfg.name << ">" << endl;
@@ -76,7 +76,7 @@ class DenseFeatContext : public CommonFeatContext {
 
   const DenseFeatConfig &cfg_;
 
-  int feedSample(const char *line, FmLayerNode & fm_node);
+  int feedSample(char *feat_str, FmLayerNode & fm_node);
 
   bool valid() const {
     // TODO 暂时只支持离散特征

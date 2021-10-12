@@ -25,8 +25,8 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 OBJS = ${patsubst %.cc, %.o, ${SRC}}
 DEBUG_OBJS = ${patsubst %.cc, %.debugO, ${SRC}}
 
-all : bin/train bin/train_debug
-# all : bin/train 
+# all : bin/train bin/train_debug
+all : bin/train 
 
 CC = g++
 LIB= -lpthread

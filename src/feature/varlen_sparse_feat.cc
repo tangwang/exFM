@@ -10,12 +10,13 @@ VarlenSparseFeatConfig::~VarlenSparseFeatConfig() {}
 
 VarlenSparseFeatContext::VarlenSparseFeatContext(const VarlenSparseFeatConfig &cfg)
     : cfg_(cfg) {
+  feat_cfg = &cfg_;
   fea_ids.reserve(cfg_.max_len);
 }
 
 VarlenSparseFeatContext::~VarlenSparseFeatContext() {}
 
-bool VarlenSparseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
+bool VarlenSparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
   bool ret = sparse_cfg.initParams(shared_param_container_map);
   // 保存model会用到。直接引用内部sparse_cfg的param_container
   param_container = sparse_cfg.param_container;
@@ -63,15 +64,24 @@ void from_json(const json &j, VarlenSparseFeatConfig &p) {
   from_json(j, p.sparse_cfg);
 }
 
-int VarlenSparseFeatContext::feedSample(const char *line, FmLayerNode & fm_node) {
-  cfg_.parseStrList(line, orig_fea_ids);
-  if (orig_fea_ids.size() > cfg_.max_len) {
-    orig_fea_ids.resize(cfg_.max_len);
-  }
-
+int VarlenSparseFeatContext::feedSample(char *feat_str, FmLayerNode & fm_node) {
+  // parse feat ids
   fea_ids.clear();
-  for (auto orig_fea_id : orig_fea_ids) {
-    feaid_t mapped_id = cfg_.sparse_cfg.featMapping(orig_fea_id);
+  char *featid_beg = feat_str;
+  char *p = feat_str;
+  for (; *p; p++) {
+    if (*p == train_opt.feat_value_list_seperator) {
+      if (featid_beg < p) {
+        *p = '\0';
+        feaid_t mapped_id = cfg_.sparse_cfg.featMapping(featid_beg);
+        fea_ids.push_back(mapped_id);
+        if (fea_ids.size() == cfg_.max_len) break;
+      }
+      featid_beg = p + 1;
+    }
+  }
+  if (featid_beg < p && fea_ids.size() != cfg_.max_len) {
+    feaid_t mapped_id = cfg_.sparse_cfg.featMapping(featid_beg);
     fea_ids.push_back(mapped_id);
   }
 
@@ -82,7 +92,7 @@ int VarlenSparseFeatContext::feedSample(const char *line, FmLayerNode & fm_node)
     return -1;
   }
 
-  DEBUG_OUT << "feedSample " << cfg_.name << " orig_fea_ids " << orig_fea_ids << " fea_ids " << fea_ids << endl;
+  DEBUG_OUT << "feedSample " << cfg_.name << " feat_str " << feat_str << " fea_ids " << fea_ids << endl;
 
   real_t grad_from_fm_node = 1.0;
   if (cfg_.pooling_type_id == VarlenSparseFeatConfig::SeqPoolTypeAVG) {

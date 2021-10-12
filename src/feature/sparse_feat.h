@@ -37,7 +37,7 @@ class SparseFeatConfig : public CommonFeatConfig {
   static const size_t max_hash_buckets = 10000000;
   static const size_t min_hash_buckets = 200;
 
-  feaid_t featMapping(const string& orig_fea_id) const;
+  feaid_t featMapping(const char * orig_fea_id) const;
 
   string shared_embedding_name;
 
@@ -47,7 +47,7 @@ class SparseFeatConfig : public CommonFeatConfig {
   Dict<long, feaid_t> i64_feat_id_dict;
   Dict<string, feaid_t> str_feat_id_dict;
 
-  bool initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
+  bool initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
   friend ostream & operator << (ostream &out, const SparseFeatConfig & cfg) {
     out << " SparseFeatConfig name " << cfg.name << ">" << endl;
@@ -75,12 +75,11 @@ class SparseFeatContext : public CommonFeatContext {
  public:
   const SparseFeatConfig& cfg_;
 
-  string orig_fea_id;
   feaid_t feat_id;
 
   bool valid() const { return feat_id != cfg_.default_id; }
 
-  int feedSample(const char *line, FmLayerNode & fm_node);
+  int feedSample(char *feat_str, FmLayerNode & fm_node);
 
   SparseFeatContext(const SparseFeatConfig& cfg);
   ~SparseFeatContext();

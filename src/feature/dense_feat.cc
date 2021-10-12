@@ -10,7 +10,7 @@ DenseFeatConfig::DenseFeatConfig() {
 
 DenseFeatConfig::~DenseFeatConfig() {}
 
-bool DenseFeatConfig::initParams(map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
+bool DenseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
   const feaid_t onehot_fea_dimension =
       sparse_by_wide_bins_numbs.size() + sparse_by_splits.size();
   if (onehot_fea_dimension == 0) {
@@ -119,14 +119,16 @@ void from_json(const json &j, DenseFeatConfig &p) {
   if (j.find("sparse_by_splits") != j.end())   j.at("sparse_by_splits").get_to(p.sparse_by_splits);
 }
 
-DenseFeatContext::DenseFeatContext(const DenseFeatConfig &cfg) : cfg_(cfg) {}
+DenseFeatContext::DenseFeatContext(const DenseFeatConfig &cfg) : cfg_(cfg) {
+  feat_cfg = &cfg_;
+}
 
 DenseFeatContext::~DenseFeatContext() {}
 
-int DenseFeatContext::feedSample(const char *line, FmLayerNode & fm_node) {
-  cfg_.parseReal(line, orig_x, cfg_.default_value);
+int DenseFeatContext::feedSample(char *feat_str, FmLayerNode & fm_node) {
+  orig_x = atof(feat_str);
 
-  if (!valid()) {
+  if (!valid()) { // TODO remove
     fm_node.forward.clear();
     fm_node.backward_nodes.clear();
     return -1;

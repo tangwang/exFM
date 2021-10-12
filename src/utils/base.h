@@ -15,12 +15,12 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 // containers
 using std::string;
 using std::vector;
-using std::map;
+using std::unordered_map;
 
 using std::pair;
 using std::shared_ptr;

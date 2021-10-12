@@ -48,7 +48,7 @@ bool FeatManager::loadByFeatureConfig(string config_file_name) {
 
 bool FeatManager::initModelParams(bool show_cfg) {
   for (auto &feat : dense_feas) {
-    if (!feat.init(shared_param_container_map)) {
+    if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
     }
@@ -56,7 +56,7 @@ bool FeatManager::initModelParams(bool show_cfg) {
     if (show_cfg) cout << feat << endl;
   }
   for (auto &feat : sparse_feas) {
-    if (!feat.init(shared_param_container_map)) {
+    if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
     }
@@ -64,7 +64,7 @@ bool FeatManager::initModelParams(bool show_cfg) {
     if (show_cfg) cout << feat << endl;
   }
   for (auto &feat : varlen_feas) {
-    if (!feat.init(shared_param_container_map)) {
+    if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
     }

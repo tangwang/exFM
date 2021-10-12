@@ -27,7 +27,7 @@ class FeatManager {
   vector<VarlenSparseFeatConfig> varlen_feas;
 
   // key: 如果有shared_embedding_name则用shared_embedding_name，否则用特征的名称. 用于共享embedding
-  map<string, shared_ptr<ParamContainerInterface>> shared_param_container_map;
+  unordered_map<string, shared_ptr<ParamContainerInterface>> shared_param_container_map;
 
 private:
   bool initModelParams(bool show_cfg = false);

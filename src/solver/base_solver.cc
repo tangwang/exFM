@@ -11,7 +11,8 @@ real_t Sample::forward() {
     sum[f] = sum_sqr[f] = 0.0;
   }
 
-  for (const auto & node : fm_layer_nodes) {
+  for (size_t i = 0; i < fm_layer_nodes_size; i++) {
+    const auto & node = fm_layer_nodes[i];
     real_t x = 1.0;
     logit += node.forward.w * x;
     for (int f = 0; f < DIM; ++f) {
@@ -39,7 +40,8 @@ void Sample::backward() {
   loss = - std::log(1 - 1/(1+std::max(exp_y_logit, 1e-10)));
   
   FMParamUnit backward;
-  for (auto & node : fm_layer_nodes) {
+  for (size_t i = 0; i < fm_layer_nodes_size; i++) {
+    auto & node = fm_layer_nodes[i];
     //  partitial(fm_score(x)) / partitial(fm_node)
     real_t xi = 1.0;
     real_t grad_i = grad * xi;
@@ -71,33 +73,17 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
   for (auto & sample : batch_samples) {
     sample.fm_layer_nodes.resize(dense_feas.size() + sparse_feas.size() + varlen_feas.size());
   }
-}
 
-int BaseSolver::procOneLine(const char *line) {
-  // label统一为1， -1的形式
-  // y = atoi(line) > 0 ? 1 : -1;
-  if (unlikely(*line == 0)) {
-    return -1;
-  }
-
-  Sample & sample = batch_samples[sample_idx];
-  sample.y = line[0] == '1' ? 1 : -1;
-
-  do {
-    ++line;
-  } while (*line != train_opt.fea_seperator);
-
-  size_t feat_idx = 0;
   for (auto &iter : dense_feas) {
-    iter.feedSample(line, sample.fm_layer_nodes[feat_idx++]);
+    feat_map[iter.feat_cfg->name] = &iter;
   }
   for (auto &iter : sparse_feas) {
-    iter.feedSample(line, sample.fm_layer_nodes[feat_idx++]);
+    feat_map[iter.feat_cfg->name] = &iter;
   }
   for (auto &iter : varlen_feas) {
-    iter.feedSample(line, sample.fm_layer_nodes[feat_idx++]);
+    feat_map[iter.feat_cfg->name] = &iter;
   }
-  return 0;
+  
 }
 
 
