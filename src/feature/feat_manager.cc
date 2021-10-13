@@ -27,7 +27,7 @@ bool FeatManager::loadByFeatureConfig(string config_file_name) {
                       .get<vector<VarlenSparseFeatConfig>>();
     
     ret = true;
-  } catch (char *err_msg) {
+  } catch (const char * err_msg) {
     std::cerr << "exception occured while parse " << parsing
               << " features : " << err_msg << endl;
   } catch (std::exception &ex) {

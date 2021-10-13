@@ -133,6 +133,8 @@ inline void split_string(const string &line, char delimiter, vector<string> &r) 
   }
   if (begin < line.size()) {
     r.emplace_back(line.substr(begin, line.size() - begin));
+  } else {
+    r.emplace_back("");
   }
 }
 

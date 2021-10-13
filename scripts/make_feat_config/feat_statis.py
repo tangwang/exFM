@@ -33,10 +33,10 @@ def proc_line(job_queue, process_id,
         line = job_queue.get()
         if line is None:
             break
-        segs = line.rstrip().split(field_split)[1:]
+        segs = line.rstrip().split(feat_sep)[1:]
 
         for kv in segs:
-            k, v = kv.split(kv_seperator)
+            k, v = kv.split(feat_kv_sep)
             if not v:
                 continue
 
@@ -44,25 +44,25 @@ def proc_line(job_queue, process_id,
                 dense_feat_dict[k].append(float(v))
             elif k in sparse_id_feat_dict:
                 # 兼容有多个值的情况
-                if value_list_split in v:
-                    v = v.split(value_list_split)[0]
+                if feat_values_sep in v:
+                    v = v.split(feat_values_sep)[0]
                 sparse_id_feat_dict[k].append(parse_id(v) if '.' in v else int(v))
             
             elif k in varlen_sparse_id_feat_dict:
-                #varlen_sparse_id_feat_dict[k].append([int(x) for x in v.split(value_list_split)])
-                value_list = [parse_id(x) for x in v.split(value_list_split)]
+                #varlen_sparse_id_feat_dict[k].append([int(x) for x in v.split(feat_values_sep)])
+                value_list = [parse_id(x) for x in v.split(feat_values_sep)]
                 varlen_sparse_id_feat_dict[k].extend(value_list)
                 varlen_sparse_id_feat_len_dict[k].append(len(value_list))
 
             elif k in sparse_str_feat_dict:
                 # 兼容有多个值的情况
-                if value_list_split in v:
-                    v = v.split(value_list_split)[0]
+                if feat_values_sep in v:
+                    v = v.split(feat_values_sep)[0]
                 sparse_id_feat_dict[k].append(v)
             
             elif k in varlen_sparse_str_feat_dict:
-                #varlen_sparse_id_feat_dict[k].append([int(x) for x in v.split(value_list_split)])
-                value_list = v.split(value_list_split)
+                #varlen_sparse_id_feat_dict[k].append([int(x) for x in v.split(feat_values_sep)])
+                value_list = v.split(feat_values_sep)
                 varlen_sparse_str_feat_dict[k].extend(value_list)
                 varlen_sparse_str_feat_len_dict[k].append(len(value_list))
 

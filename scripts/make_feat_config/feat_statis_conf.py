@@ -1,7 +1,13 @@
 
-field_split = '\t'
-kv_seperator = ':'
-value_list_split = ','
+# data_formart 训练数据格式，支持libsvm和csv两种格式
+# 如果为libcsv格式，通过feat_sep, feat_kv_sep, feat_values_sep配置特征之间的分隔符、特征key和value之间的分隔符、varlen_sparse_feature中多个值的分隔符
+# 如果为csv格式，通过feat_sep, feat_values_sep列之间的分隔符、varlen_sparse_feature中多个值的分隔符。将读取第一行作为表头，通过表头各列的名称与特征配置文件中的特征名关联。
+# 分隔符如果需要配置为制表符、空格、等于号，分别用blank, tab, equal代替
+data_formart     =  "libsvm"
+
+feat_sep = '\t'
+feat_kv_sep = ':'
+feat_values_sep = ','
 
 dense_feat_same_wide_bucket_numbers = [10, 25]
 dense_feat_same_freq_bucket_numbers = [10, 25]

@@ -103,6 +103,7 @@ bool SparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContaine
       vocab_size = std::min(ids_num + 5000, 10 * (ids_num+10));
       if (vocab_size < min_hash_buckets) vocab_size = min_hash_buckets;
       if (vocab_size > max_hash_buckets) vocab_size = max_hash_buckets;
+      cout << "feat " << name << " hash bucket size " << vocab_size << endl;
       default_id = 0;
       unknown_id = 1;
       break;
