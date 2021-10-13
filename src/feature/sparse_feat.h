@@ -37,7 +37,7 @@ class SparseFeatConfig : public CommonFeatConfig {
   static const size_t max_hash_buckets = 10000000;
   static const size_t min_hash_buckets = 200;
 
-  feaid_t featMapping(const char * orig_fea_id) const;
+  feaid_t featMapping(const char * orig_fea_id, size_t str_len) const;
 
   string shared_embedding_name;
 
@@ -79,7 +79,7 @@ class SparseFeatContext : public CommonFeatContext {
 
   bool valid() const { return feat_id != cfg_.default_id; }
 
-  int feedSample(const char *feat_str, FmLayerNode & fm_node);
+  int feedSample(const char *feat_str, size_t feat_str_len, FmLayerNode & fm_node);
 
   SparseFeatContext(const SparseFeatConfig& cfg);
   ~SparseFeatContext();

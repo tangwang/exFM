@@ -13,13 +13,27 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 
   // 训练参数相关配置
 
-  arg_parser.parse_arg("fea_cfg", feature_config_path, string(),
+  arg_parser.parse_arg("feat_cfg", feature_config_path, string(),
                    "feature_config_path", true);
   arg_parser.parse_arg("train", train_path, string(), 
                    "trainning data path, use stdin(standard input) if not set");
   arg_parser.parse_arg("valid", valid_path, string(), "validation data path");
   arg_parser.parse_arg("valid_interval", time_interval_of_validation,
                    60, "how many seconds between two validition");
+
+  string str_data_formart;
+  arg_parser.parse_arg(
+      "data_formart", str_data_formart, string(),
+      "train and validation formart, support libSVM / CSV (case insensitive)",
+      true);
+  if (0 == strcasecmp(str_data_formart.c_str(), "libSVM")) {
+    data_formart = DataFormart_libSVM;
+  } else if (0 == strcasecmp(str_data_formart.c_str(), "CSV")) {
+    data_formart = DataFormart_CSV;
+  } else {
+    cerr << "arg data_formart must be libSVM / CSV (case insensitive)" << endl;
+    return false;
+  }
 
   arg_parser.parse_arg("epoch", epoch, 1, "train epochs");
 

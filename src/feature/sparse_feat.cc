@@ -12,7 +12,7 @@ SparseFeatConfig::SparseFeatConfig() {
 
 SparseFeatConfig::~SparseFeatConfig() {}
 
-feaid_t SparseFeatConfig::featMapping(const char * orig_fea_id) const {
+feaid_t SparseFeatConfig::featMapping(const char * orig_fea_id, size_t str_len) const {
   feaid_t feat_id = default_id;
   if (likely(orig_fea_id[0] != 0)) {
     switch (mapping_type) {
@@ -43,7 +43,7 @@ feaid_t SparseFeatConfig::featMapping(const char * orig_fea_id) const {
       } break;
       case mapping_by_hash_str: {
         feat_id =
-            MurmurHash3_x86_32(orig_fea_id, strlen(orig_fea_id), hash_seed);
+            MurmurHash3_x86_32(orig_fea_id, str_len, hash_seed);
         feat_id %= vocab_size;
       } break;
       default:
@@ -91,9 +91,9 @@ bool SparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContaine
       break;
 
     case mapping_by_orig_id:
-      vocab_size = max_id + 2;
-      default_id = max_id;
-      unknown_id = max_id + 1;
+      default_id = max_id + 1;
+      unknown_id = max_id + 2;
+      vocab_size = max_id + 3;
       break;
 
     case mapping_by_hash_int32:
@@ -228,8 +228,8 @@ SparseFeatContext::SparseFeatContext(const SparseFeatConfig &cfg) : cfg_(cfg) {
 
 SparseFeatContext::~SparseFeatContext() {}
 
-int SparseFeatContext::feedSample(const char *feat_str, FmLayerNode & fm_node) {
-  feat_id = cfg_.featMapping(feat_str);
+int SparseFeatContext::feedSample(const char *feat_str, size_t feat_str_len, FmLayerNode & fm_node) {
+  feat_id = cfg_.featMapping(feat_str, feat_str_len);
 
   if (!valid()) {
     fm_node.forward.clear();

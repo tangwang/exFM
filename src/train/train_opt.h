@@ -42,7 +42,7 @@ class TrainOption {
     DataFormart_CSV,
     DataFormart_libSVM
   };
-  static constexpr DataFormart data_formart = DataFormart_libSVM;
+  DataFormart data_formart = DataFormart_libSVM;
   vector<string> csv_columns;
 
 

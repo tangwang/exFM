@@ -32,7 +32,7 @@ CC = g++
 LIB= -lpthread
 INC = -I./third_party  -I./src
 DEBUG_CCFLAGS = -g -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs
-CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs
+CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs  -march=native 
 
 bin/train: ${OBJS} 
 	-mkdir -p bin

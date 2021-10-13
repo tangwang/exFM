@@ -163,13 +163,14 @@ real_t BaseSolver::feedLine_libSVM(const string & aline) {
     feat_beg = feat_end + 1;
     feat_end = strchr(feat_beg, train_opt.feat_seperator);
     feat_kv_pos = strchr(feat_beg, train_opt.feat_kv_seperator);
-    if (likely(feat_kv_pos != NULL && (feat_end == NULL || feat_kv_pos + 1 < feat_end))) {
+    int feat_len = (feat_end == NULL) ? (int)strlen(feat_kv_pos + 1) : feat_end - (feat_kv_pos + 1);
+    if (likely(feat_kv_pos != NULL && feat_len > 0)) {
       *feat_kv_pos = '\0';
       if (feat_end) *feat_end = '\0';
       auto got = feat_map.find(feat_beg);
       if (got != feat_map.end()) {
         DEBUG_OUT << " feed : "<< fm_node_idx << " " << feat_beg << " " << feat_kv_pos + 1 << endl;
-        got->second->feedSample(feat_kv_pos + 1, sample.fm_layer_nodes[fm_node_idx++]);
+        got->second->feedSample(feat_kv_pos + 1, feat_len, sample.fm_layer_nodes[fm_node_idx++]);
       }
     }
   } while (feat_end != NULL);
@@ -195,7 +196,8 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   // parse featrues
   size_t fm_node_idx = 0;
   for (const auto &feat_entrie : feat_entries) {
-    feat_entrie.second->feedSample(line_split_buff[feat_entrie.first].c_str(), sample.fm_layer_nodes[fm_node_idx++]);
+    const string & feat_str = line_split_buff[feat_entrie.first];
+    feat_entrie.second->feedSample(feat_str.c_str(), feat_str.size(), sample.fm_layer_nodes[fm_node_idx++]);
   }
   sample.fm_layer_nodes_size = fm_node_idx;
 

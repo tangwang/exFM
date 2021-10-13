@@ -66,13 +66,13 @@ def proc_line(job_queue, process_id,
                 varlen_sparse_str_feat_dict[k].extend(value_list)
                 varlen_sparse_str_feat_len_dict[k].append(len(value_list))
 
-    for k, v in dense_feat_dict                 .items() : a_dense_feat_dict                 [k] = v
-    for k, v in sparse_id_feat_dict             .items() : a_sparse_id_feat_dict             [k] = v
-    for k, v in varlen_sparse_id_feat_dict      .items() : a_varlen_sparse_id_feat_dict      [k] = v
-    for k, v in varlen_sparse_id_feat_len_dict  .items() : a_varlen_sparse_id_feat_len_dict  [k] = v
-    for k, v in sparse_str_feat_dict            .items() : a_sparse_str_feat_dict            [k] = v
-    for k, v in varlen_sparse_str_feat_dict     .items() : a_varlen_sparse_str_feat_dict     [k] = v
-    for k, v in varlen_sparse_str_feat_len_dict .items() : a_varlen_sparse_str_feat_len_dict [k] = v
+    a_dense_feat_dict                   .update(dense_feat_dict                )
+    a_sparse_id_feat_dict               .update(sparse_id_feat_dict            )
+    a_varlen_sparse_id_feat_dict        .update(varlen_sparse_id_feat_dict     )
+    a_varlen_sparse_id_feat_len_dict    .update(varlen_sparse_id_feat_len_dict )
+    a_sparse_str_feat_dict              .update(sparse_str_feat_dict           )
+    a_varlen_sparse_str_feat_dict       .update(varlen_sparse_str_feat_dict    )
+    a_varlen_sparse_str_feat_len_dict   .update(varlen_sparse_str_feat_len_dict)
 
 
 def merge_dicts_to(list_of_dict, d):

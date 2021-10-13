@@ -76,7 +76,7 @@ class DenseFeatContext : public CommonFeatContext {
 
   const DenseFeatConfig &cfg_;
 
-  int feedSample(const char *feat_str, FmLayerNode & fm_node);
+  int feedSample(const char *feat_str, size_t feat_str_len, FmLayerNode & fm_node);
 
   bool valid() const {
     // TODO 暂时只支持离散特征

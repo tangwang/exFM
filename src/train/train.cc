@@ -110,6 +110,11 @@ int main(int argc, char *argv[]) {
       return -1;
     }
 
+  if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
+    string csv_header;
+    std::getline(valid_stream, csv_header);
+  }
+
     validator = new TrainWorker("valid", 0);
     validator->RegisteSolver(creatSolver(feat_manager));
     validator->StartValidationLoop(valid_stream);

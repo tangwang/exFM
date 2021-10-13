@@ -52,7 +52,7 @@ class CommonFeatConfig {
 
 class CommonFeatContext {
  public:
-  virtual int feedSample(const char *feat_str, FmLayerNode & fm_node) = 0;
+  virtual int feedSample(const char *feat_str, size_t feat_str_len, FmLayerNode & fm_node) = 0;
   virtual bool valid() const = 0;
 
   CommonFeatContext() : feat_cfg(NULL) {}

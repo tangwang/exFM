@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <tr1/functional>
 #include <unordered_map>
-#include "cedar.h"
+#include "cedar/cedar.h"
 #if SUPPORT_BOOST
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>

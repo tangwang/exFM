@@ -64,27 +64,29 @@ void from_json(const json &j, VarlenSparseFeatConfig &p) {
   from_json(j, p.sparse_cfg);
 }
 
-int VarlenSparseFeatContext::feedSample(const char *feat_str, FmLayerNode & fm_node) {
+int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_len, FmLayerNode & fm_node) {
   // parse feat ids
   fea_ids.clear();
   const char *featid_beg = feat_str;
   const char *p = feat_str;
   for (; *p; p++) {
     if (*p == train_opt.feat_value_list_seperator) {
-      size_t item_len = p - featid_beg;
+      int item_len = std::min((int)(p - featid_beg), (int)sizeof(feat_id_buff)-1);
       if (item_len > 0) {
-        strncpy(feat_id_buff, featid_beg, std::min(item_len, sizeof(feat_id_buff)));
-        feaid_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff);
+        memcpy(feat_id_buff, featid_beg, item_len);
+        feat_id_buff[item_len+1] = '\0';
+        feaid_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff, item_len);
         fea_ids.push_back(mapped_id);
         if (fea_ids.size() == cfg_.max_len) break;
       }
       featid_beg = p + 1;
     }
   }
-  size_t item_len = p - featid_beg;
+  int item_len = std::min((int)(p - featid_beg), (int)sizeof(feat_id_buff)-1);
   if (item_len > 0 && fea_ids.size() != cfg_.max_len) {
-    strncpy(feat_id_buff, featid_beg, std::min(item_len, sizeof(feat_id_buff)));
-    feaid_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff);
+    memcpy(feat_id_buff, featid_beg, item_len);
+    feat_id_buff[item_len+1] = '\0';
+    feaid_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff, item_len);
     fea_ids.push_back(mapped_id);
   }
 
