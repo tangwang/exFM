@@ -83,9 +83,146 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
   for (auto &iter : varlen_feas) {
     feat_map[iter.feat_cfg->name] = &iter;
   }
-  
+  if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
+    for (size_t i = 0; i < train_opt.csv_columns.size(); i++) {
+      const string &column = train_opt.csv_columns[i];
+      auto got = feat_map.find(column);
+      if (got != feat_map.end()) {
+        feat_entries.push_back(make_pair(i, got->second));
+      }
+    }
+    lineProcessor = &BaseSolver::feedLine_CSV;
+  } else {
+    lineProcessor = &BaseSolver::feedLine_libSVM;
+  }
 }
 
+void BaseSolver::rotateSampleIdx() {
+  ++sample_idx;
+  if (sample_idx == batch_size) {
+    // merge gradient
+    batch_params.clear();
+    for (size_t i = 0; i < batch_size; i++) {
+      const Sample &sample = batch_samples[i];
+
+      for (size_t feat_idx = 0; feat_idx < sample.fm_layer_nodes_size; feat_idx++) {
+        const auto & fm_node = sample.fm_layer_nodes[feat_idx];
+        for (const auto & param_node : fm_node.backward_nodes) {
+          auto ins_ret = batch_params.insert({param_node.param, param_node});
+          if (!ins_ret.second) {
+            ins_ret.first->second.fm_grad += param_node.fm_grad;
+            ins_ret.first->second.count += 1;
+          }
+        }
+      }
+    }
+    DEBUG_OUT << "batch update :" << batch_params.size() << endl;
+    update();
+    sample_idx = 0;
+  }
+}
+
+void BaseSolver::batchReduce(FMParamUnit &grad, int count) {
+  switch (train_opt.batch_grad_reduce_type) {
+    case TrainOption::BatchGradReduceType_Sum:
+      break;
+    case TrainOption::BatchGradReduceType_AvgByOccurrences:
+      grad /= count;
+      break;
+    case TrainOption::BatchGradReduceType_AvgByOccurrencesSqrt:
+      grad /= std::sqrt(count);
+      break;
+    default: 
+    // BatchGradReduceType_AvgByBatchSize by default
+      grad /= train_opt.batch_size;
+      break;
+  }
+}
+
+real_t BaseSolver::feedLine_libSVM(const string & aline) {
+  // label统一为1， -1的形式
+  // y = atoi(line) > 0 ? 1 : -1;
+  char line[aline.size() + 1];
+  memcpy(line, aline.c_str(), aline.size() + 1);
+  char * pos = line;
+  char * feat_beg = NULL;
+  char * feat_end = strchr(pos, train_opt.feat_seperator);
+  char * feat_kv_pos = NULL;
+  if (unlikely(*pos == '\0' || feat_end == NULL)) {
+    return -1;
+  }
+
+  Sample &sample = batch_samples[sample_idx];
+
+  // parse label
+  sample.y = pos[0] == '1' ? 1 : -1;
+
+  // parse featrues
+  size_t fm_node_idx = 0;
+  do {
+    feat_beg = feat_end + 1;
+    feat_end = strchr(feat_beg, train_opt.feat_seperator);
+    feat_kv_pos = strchr(feat_beg, train_opt.feat_kv_seperator);
+    if (likely(feat_kv_pos != NULL && (feat_end == NULL || feat_kv_pos + 1 < feat_end))) {
+      *feat_kv_pos = '\0';
+      if (feat_end) *feat_end = '\0';
+      auto got = feat_map.find(feat_beg);
+      if (got != feat_map.end()) {
+        DEBUG_OUT << " feed : "<< fm_node_idx << " " << feat_beg << " " << feat_kv_pos + 1 << endl;
+        got->second->feedSample(feat_kv_pos + 1, sample.fm_layer_nodes[fm_node_idx++]);
+      }
+    }
+  } while (feat_end != NULL);
+  sample.fm_layer_nodes_size = fm_node_idx;
+
+  return sample.forward();
+}
+
+real_t BaseSolver::feedLine_CSV(const string & aline) {
+  // label统一为1， -1的形式
+  // y = atoi(line) > 0 ? 1 : -1;
+  utils::split_string(aline, train_opt.feat_seperator, line_split_buff);
+
+  if (unlikely(line_split_buff.size() < train_opt.csv_columns.size() || line_split_buff[0].empty())) {
+    return -1;
+  }
+
+  Sample &sample = batch_samples[sample_idx];
+
+  // parse label
+  sample.y = line_split_buff[0][0] == '1' ? 1 : -1;
+
+  // parse featrues
+  size_t fm_node_idx = 0;
+  for (const auto &feat_entrie : feat_entries) {
+    feat_entrie.second->feedSample(line_split_buff[feat_entrie.first].c_str(), sample.fm_layer_nodes[fm_node_idx++]);
+  }
+  sample.fm_layer_nodes_size = fm_node_idx;
+
+  return sample.forward();
+}
+
+void BaseSolver::train(const string & line, int &y, real_t &logit, real_t & loss, real_t & grad) {
+  (this->*lineProcessor)(line);
+
+  batch_samples[sample_idx].backward();
+  
+  y = batch_samples[sample_idx].y;
+  logit = batch_samples[sample_idx].logit;
+  loss = batch_samples[sample_idx].loss;
+  grad = batch_samples[sample_idx].grad;
+
+  rotateSampleIdx();
+
+  DEBUG_OUT << "BaseSolver::train "
+            << " y " << y << " logit " << logit << endl;
+}
+
+void BaseSolver::test(const string & line, int &y, real_t &logit) {
+  (this->*lineProcessor)(line);
+  y = batch_samples[sample_idx].y;
+  logit = batch_samples[sample_idx].logit;
+}
 
 #if 0 // 单个样本的sgdm, adam, ftrl参数更新
 

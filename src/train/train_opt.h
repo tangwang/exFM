@@ -38,6 +38,14 @@ class TrainOption {
 
   static constexpr BatchGradReduceType batch_grad_reduce_type = BatchGradReduceType_AvgByBatchSize;
 
+  enum DataFormart {
+    DataFormart_CSV,
+    DataFormart_libSVM
+  };
+  static constexpr DataFormart data_formart = DataFormart_libSVM;
+  vector<string> csv_columns;
+
+
   int threads_num;
   int time_interval_of_validation;
   static constexpr long n_sample_per_output = 100000;

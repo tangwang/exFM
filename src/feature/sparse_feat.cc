@@ -228,7 +228,7 @@ SparseFeatContext::SparseFeatContext(const SparseFeatConfig &cfg) : cfg_(cfg) {
 
 SparseFeatContext::~SparseFeatContext() {}
 
-int SparseFeatContext::feedSample(char *feat_str, FmLayerNode & fm_node) {
+int SparseFeatContext::feedSample(const char *feat_str, FmLayerNode & fm_node) {
   feat_id = cfg_.featMapping(feat_str);
 
   if (!valid()) {

@@ -125,7 +125,7 @@ DenseFeatContext::DenseFeatContext(const DenseFeatConfig &cfg) : cfg_(cfg) {
 
 DenseFeatContext::~DenseFeatContext() {}
 
-int DenseFeatContext::feedSample(char *feat_str, FmLayerNode & fm_node) {
+int DenseFeatContext::feedSample(const char *feat_str, FmLayerNode & fm_node) {
   orig_x = atof(feat_str);
 
   if (!valid()) { // TODO remove

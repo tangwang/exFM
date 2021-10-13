@@ -122,6 +122,20 @@ void split_string(const string &line, char delimiter, vector<value_type> &r) {
   }
 }
 
+template <>
+inline void split_string(const string &line, char delimiter, vector<string> &r) {
+  size_t begin = 0;
+  for (size_t i = 0; i < line.size(); ++i) {
+    if (line[i] == delimiter) {
+      r.emplace_back(line.substr(begin, i - begin));
+      begin = i + 1;
+    }
+  }
+  if (begin < line.size()) {
+    r.emplace_back(line.substr(begin, line.size() - begin));
+  }
+}
+
 template <typename value_type>
 value_type * split_string(const string &line, char delimiter, value_type * r) {
   size_t begin = 0;

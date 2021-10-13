@@ -79,7 +79,7 @@ class SparseFeatContext : public CommonFeatContext {
 
   bool valid() const { return feat_id != cfg_.default_id; }
 
-  int feedSample(char *feat_str, FmLayerNode & fm_node);
+  int feedSample(const char *feat_str, FmLayerNode & fm_node);
 
   SparseFeatContext(const SparseFeatConfig& cfg);
   ~SparseFeatContext();

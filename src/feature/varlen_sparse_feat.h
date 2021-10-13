@@ -46,7 +46,9 @@ class VarlenSparseFeatContext : public CommonFeatContext {
 
   bool valid() const { return !fea_ids.empty(); }
 
-  int feedSample(char *feat_str, FmLayerNode & fm_node);
+  int feedSample(const char *feat_str, FmLayerNode & fm_node);
+
+  char feat_id_buff[128]; // temp variable for parse single feat_id
 
   VarlenSparseFeatContext(const VarlenSparseFeatConfig& cfg);
   ~VarlenSparseFeatContext();
