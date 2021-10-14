@@ -12,7 +12,7 @@
 shared_ptr<ParamContainerInterface> creatParamContainer(feaid_t fea_num, feaid_t mutex_nums) {
   if (0 == strcasecmp(train_opt.solver.c_str(), "ftrl")) {
     return std::make_shared<ParamContainer<FtrlParamUnit>>(fea_num, mutex_nums);
-  } else if (0 == strcasecmp(train_opt.solver.c_str(), "sgd")) {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "sgd") || 0 == strcasecmp(train_opt.solver.c_str(), "sgdm")) {
     return std::make_shared<ParamContainer<SgdmParamUnit>>(fea_num, mutex_nums);
   } else if (0 == strcasecmp(train_opt.solver.c_str(), "adagrad")) {
     return std::make_shared<ParamContainer<AdagradParamUnit>>(fea_num, mutex_nums);
@@ -29,7 +29,7 @@ shared_ptr<ParamContainerInterface> creatParamContainer(feaid_t fea_num, feaid_t
 BaseSolver * creatSolver(const FeatManager &feat_manager) {
   if (0 == strcasecmp(train_opt.solver.c_str(), "ftrl")) {
     return new FtrlSolver(feat_manager);
-  } else if (0 == strcasecmp(train_opt.solver.c_str(), "sgdm")) {
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "sgd") || 0 == strcasecmp(train_opt.solver.c_str(), "sgdm")) {
     return new SgdmSolver(feat_manager);
   } else if (0 == strcasecmp(train_opt.solver.c_str(), "adagrad")) {
     return new AdagradSolver(feat_manager);

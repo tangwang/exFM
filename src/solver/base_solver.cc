@@ -185,12 +185,10 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   line_split_buff.clear();
   utils::split_string(aline, train_opt.feat_seperator, line_split_buff);
 
-  cout <<line_split_buff.size() << " bb "  << train_opt.csv_columns.size()  << "bb " <<  line_split_buff[0] << " AAAAAA " <<   endl;
   if (unlikely(line_split_buff.size() < train_opt.csv_columns.size() || line_split_buff[0].empty())) {
     return -1;
   }
   
-  cout << "KKKKKKKKKKKKKKK" << feat_entries.size() <<  endl;
   Sample &sample = batch_samples[sample_idx];
 
   // parse label
@@ -200,8 +198,7 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   size_t fm_node_idx = 0;
   for (const auto &feat_entrie : feat_entries) {
     const string & feat_str = line_split_buff[feat_entrie.first];
-    cout << feat_str << " KKKKKKKKKKKKKK " <<  feat_entrie.first <<  endl; // feat_entries在构造函数明明有值，在这就空了
-    feat_entrie.second->feedSample(feat_str.c_str(), feat_str.size(), sample.fm_layer_nodes[fm_node_idx++]);
+        feat_entrie.second->feedSample(feat_str.c_str(), feat_str.size(), sample.fm_layer_nodes[fm_node_idx++]);
   }
   sample.fm_layer_nodes_size = fm_node_idx;
 

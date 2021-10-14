@@ -59,27 +59,7 @@ int main(int argc, char *argv[]) {
     cerr << "parse args faild, exit" << endl;
     return -1; 
   }
-
-  FeatManager feat_manager;
-  assert(!train_opt.feature_config_path.empty());
-  assert(access(train_opt.feature_config_path.c_str(), F_OK) != -1);
-  if (!feat_manager.loadByFeatureConfig(train_opt.feature_config_path)) {
-    cerr << "init feature manager faild, check config file " << train_opt.feature_config_path << ". exit" << endl;
-    return -1;
-  }
-
-  vector<TrainWorker *> workers;
-
-  for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
-    std::cout << "start train thread " << thread_id << "..." << endl;
-    TrainWorker *p = new TrainWorker("train", thread_id);
-    p->RegisteSolver(creatSolver(feat_manager));
-    p->StartTrainLoop();
-    workers.push_back(p);
-  }
-
-  TrainWorker *validator = NULL;
-
+  // init train input stream
   std::istream *input_stream = NULL;
   std::istream *input_file_stream = NULL;
   if (!train_opt.train_path.empty()) {
@@ -102,6 +82,27 @@ int main(int argc, char *argv[]) {
     utils::split_string(csv_header, train_opt.feat_seperator, train_opt.csv_columns);
   }
 
+  // init trainning workers
+  FeatManager feat_manager;
+  assert(!train_opt.feature_config_path.empty());
+  assert(access(train_opt.feature_config_path.c_str(), F_OK) != -1);
+  if (!feat_manager.loadByFeatureConfig(train_opt.feature_config_path)) {
+    cerr << "init feature manager faild, check config file " << train_opt.feature_config_path << ". exit" << endl;
+    return -1;
+  }
+
+  vector<TrainWorker *> workers;
+  for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
+    std::cout << "start train thread " << thread_id << "..." << endl;
+    TrainWorker *p = new TrainWorker("train", thread_id);
+    p->RegisteSolver(creatSolver(feat_manager));
+    p->StartTrainLoop();
+    workers.push_back(p);
+  }
+
+  // init validation worker
+  TrainWorker *validator = NULL;
+
   std::ifstream valid_stream;
   if (!train_opt.valid_path.empty()) {
     valid_stream.open(train_opt.valid_path);
@@ -110,10 +111,10 @@ int main(int argc, char *argv[]) {
       return -1;
     }
 
-  if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
-    string csv_header;
-    std::getline(valid_stream, csv_header);
-  }
+    if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
+      string csv_header;
+      std::getline(valid_stream, csv_header);
+    }
 
     validator = new TrainWorker("valid", 0);
     validator->RegisteSolver(creatSolver(feat_manager));
@@ -121,6 +122,7 @@ int main(int argc, char *argv[]) {
     std::cout << "start validation thread " << "..." << endl;
   }
 
+  // start training
   for (int i = 0; i < train_opt.epoch; i++) {
     cout << "start epoch " << i << endl;
     train_dispatcher(workers, input_stream);
