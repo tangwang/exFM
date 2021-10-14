@@ -23,6 +23,7 @@ class TrainOption {
   std::string train_path;
   std::string valid_path;
   std::string feature_config_path;
+  std::string mapping_dict_path;
   std::string model_path;
   std::string model_format;
   std::string init_model_path;

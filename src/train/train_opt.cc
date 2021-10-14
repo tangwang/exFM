@@ -15,6 +15,10 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 
   arg_parser.parse_arg("feat_cfg", feature_config_path, string(),
                    "feature_config_path", true);
+
+  feature_config_path = string("config/") + feature_config_path + "/feature_config.json";
+  mapping_dict_path = string("config/") + train_opt.feature_config_path + "/feat_id_dict/";
+
   arg_parser.parse_arg("train", train_path, string(), 
                    "trainning data path, use stdin(standard input) if not set");
   arg_parser.parse_arg("valid", valid_path, string(), "validation data path");

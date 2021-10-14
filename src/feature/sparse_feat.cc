@@ -220,6 +220,9 @@ void from_json(const json &j, SparseFeatConfig &p) {
   if (j.find("default_id") != j.end())                 j.at("default_id").get_to(p.default_id);
   if (j.find("unknown_id") != j.end())                 j.at("unknown_id").get_to(p.unknown_id);
   if (j.find("mapping_dict_name") != j.end())       j.at("mapping_dict_name").get_to(p.mapping_dict_name);
+
+  p.mapping_dict_name = train_opt.mapping_dict_path + p.mapping_dict_name;
+
   if (j.find("shared_embedding_name") != j.end())      j.at("shared_embedding_name").get_to(p.shared_embedding_name);
 }
 

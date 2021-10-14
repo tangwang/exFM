@@ -16,9 +16,19 @@ default_value_of_dense_feat = 0
 # sparse特征ID词典，ID从2开始编号，0和1预留给default_id和unknown_id，分别代表没有值和不在词典中的值
 default_id_of_sparse_feat = 0
 unknown_id_of_sparse_feat = 1
+min_freq_for_sparse_feat_dict = 0 # 特征出现大于该值时，才加入特征ID映射词典
 
 seq_feat_pooling_type = "sum" # 暂时只支持sum和avg
 
+
 # dense特征
 dense_feat_list = [f'I{i}' for i in range(1, 14)]
-sparse_id_feat_list = [f'C{i}' for i in range(1, 27)]
+
+sparse_id_feat_list = []
+
+varlen_sparse_id_feat_list = []
+
+sparse_str_feat_list = [f'C{i}' for i in range(1, 27)]
+
+varlen_sparse_str_feat_list = []
+

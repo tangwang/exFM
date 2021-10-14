@@ -22,7 +22,7 @@ class PthreadMutex {
 
   inline void notify() {}
 
-  // 禁用拷贝
+  // disable copy
  private:
   PthreadMutex(const PthreadMutex &ohter);
   PthreadMutex &operator=(const PthreadMutex &that);

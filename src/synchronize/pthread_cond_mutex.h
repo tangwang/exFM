@@ -24,7 +24,7 @@ class PthreadMutexWithCond {
   inline void wait() { pthread_cond_wait(&cond_, &lock_); }
 
   inline void notify() { pthread_cond_signal(&cond_); }
-  // 禁用拷贝
+  // disable copy
  private:
   PthreadMutexWithCond(const PthreadMutexWithCond &ohter);
   PthreadMutexWithCond &operator=(const PthreadMutexWithCond &that);

@@ -1,6 +1,6 @@
 
 # exFM
-nexFM -- Flexible(support various feature forms) and high-performance(training and online serving) FM implementation. 
+exFM -- FM with some useful extensions
 
 取名exFM意思是扩展的FM，
 

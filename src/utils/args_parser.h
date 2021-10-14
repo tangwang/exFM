@@ -149,8 +149,7 @@ class ArgsParser {
 
   void print_helper() const {
     std::cerr
-        << "\n\nexFM -- Flexible(support various feature forms) and "
-           "high-performance(training and online serving) FM implementation. \n"
+        << "\n\nexFM -- FM with some useful extensions. \n"
            "usage : "
         << program_name << " arg1=value1 arg2=value2 ...  opt1 opt2 ... " << endl;
     std::cerr << help_message.str() << endl;

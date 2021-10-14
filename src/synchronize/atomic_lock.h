@@ -25,7 +25,7 @@ public:
     inline void notify() {}
 private:
     std::atomic_flag m_lock;
-  // 禁用拷贝
+  // disable copy
   private:
   AtomicflagSpinLock(const AtomicflagSpinLock &ohter);
   AtomicflagSpinLock &operator=(const AtomicflagSpinLock &that);
@@ -55,7 +55,7 @@ class AtomicSpinLockWithoutMemOder {
   inline void wait() {}
 
   inline void notify() {}
-  // 禁用拷贝
+  // disable copy
   private:
   AtomicSpinLockWithoutMemOder(const AtomicSpinLockWithoutMemOder &ohter);
   AtomicSpinLockWithoutMemOder &operator=(const AtomicSpinLockWithoutMemOder &that);

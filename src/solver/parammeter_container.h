@@ -97,15 +97,6 @@ class ParamContainerInterface {
     return param_size_of_one_fea;
   }
 
-  void cpParam(FMParamUnit * dest, feaid_t fid) {
-    const FMParamUnit * param_addr = get(fid);
-    cpParam(dest, param_addr);
-  }
-
-  void cpParam(FMParamUnit * dest, const FMParamUnit * param_addr) {
-    memcpy((void *)dest, (const void *)param_addr, param_size_of_one_fea);
-  }
-
   int load(string path, string model_fmt) {
     feaid_t total_fea_num = fea_num + 1;
     int ret = 0;
@@ -185,14 +176,6 @@ class ParamContainerInterface {
     return ret;
   }
 
-  // // backward  现在update是靠solver中的虚函数实现的，没有用这里的update。
-  // // 如果放在这里，则不需要solver的多态，update的多态在这里实现，只需要一个solver的实现就行。但是不方便保存update的一些中间变量。需要一个context。
-  // void update_param(feaid_t fid, real_t grad) {
-  //   FMParamUnit *backward_param = get(fid);
-  //   update_param(backward_param, grad);
-  // }
-  // virtual void update_param(FMParamUnit *backward_param, real_t grad) = 0;
-
   unsigned char * param_base_addr;
   vector<Mutex_t> mutexes;
   const size_t param_size_of_one_fea;
@@ -205,7 +188,7 @@ class ParamContainerInterface {
   }
 
  private:
-  // 禁用拷贝
+  // disable copy
   ParamContainerInterface(const ParamContainerInterface &ohter);
   ParamContainerInterface &operator=(const ParamContainerInterface &that);
 };

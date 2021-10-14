@@ -21,7 +21,7 @@ class PthreadRWLock {
   inline int tryWrlock() { return pthread_rwlock_trywrlock(&lock_); }
 
   inline void unlock() { pthread_rwlock_unlock(&lock_); }
-  // 禁用拷贝
+  // disable copy
  private:
   PthreadRWLock(const PthreadRWLock &ohter);
   PthreadRWLock &operator=(const PthreadRWLock &that);

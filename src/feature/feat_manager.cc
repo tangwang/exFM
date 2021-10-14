@@ -5,9 +5,9 @@
 #include <exception>
 
 
-bool FeatManager::loadByFeatureConfig(string config_file_name) {
+bool FeatManager::loadByFeatureConfig(string config_path) {
   bool ret = false;
-  std::ifstream fin(config_file_name);
+  std::ifstream fin(config_path);
 
   json cfg_json;
   fin >> cfg_json;

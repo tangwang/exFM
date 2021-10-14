@@ -17,7 +17,7 @@ class FeatManager {
   FeatManager() {}
   ~FeatManager() {}
 
-  bool loadByFeatureConfig(string config_file_name);
+  bool loadByFeatureConfig(string config_path);
 
   bool dumpModel();
   

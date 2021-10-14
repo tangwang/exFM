@@ -29,7 +29,7 @@
 | name                  | string | Y        | 特征名称                                                     | "bid"                |
 | value_type            | string | Y        | 原始值类型，取值有： "int32" "int64" "str"                   | str                  |
 | default_id            | uint32 | Y        | 当取不到特征时，直接映射为default_id，并忽略下面的hash、词典映射等操作。 | 0                    |
-| mapping_type          | string | Y        | 三个取值：<br />"orig_id" : 对原始值直接转无符号整形，如果原始值是字符串且不是合法的数字，则取default_id <br />"dict" : 按词典进行映射，词典名称通过下方的配置项dict_name配置。<br /> "hash" : 进行hash映射，hash方式统一采用CityHash32（入参为字符串，如果原始值为整形则先转字符串，出参为无符号的32位整形）。 | "dict"               |
+| mapping_type          | string | Y        | 4个取值：<br />"orig_id" : 对原始值直接转无符号整形，如果原始值是字符串且不是合法的数字，则取default_id <br /> "hash" : 进行hash映射，hash方式统一采用MurmurHash3。<br />"dict" : 按词典进行映射，需要通过mapping_dict_name配置词典名称。<br />"lru_dict" : 边训练边构建词典，需要通过lru_dict_max_size配置最大的词典个数。<br /><br />对于类别、渠道等不经常变动的离散特征，可以配置dict方式，按事先统计的映射表进行映射。<br />对于uid之类的大规模离散特征，可以配置hash以控制参数量。<br />对于待排序的itemID，通常不希望hash冲突，而且也有新老的更替，所以按hash或者dict进行映射可能都不理想，可以使用lru_dict，模型将一直维护最新的N个ID的参数。 | "dict"               |
 | mapping_dict_name     | string | N        | 词典名称，通过该词典对原始值进行映射。 映射词典的key类型必须与x的值类型（value_type配置项）一致。value类型一律为32位无符号整形。 | "tagname2tagid.dict" |
 | unknown_id            | int    | N        | mapping_type=="orig_id"时，小于0或者大于max_id的特征值将被映射为unknown_id。<br />mapping_type=="dict"时，匹配不到特征ID词典的特征值将被映射为unknown_id。<br />mapping_type=="hash"时，所有的特征值都将被映射为合法的ID，所以不需要该参数。 | 1                    |
 | max_id                | int    | N        | mapping_type=="orig_id"时需填写。将根据该参数确定特征ID总数。 | 8888                 |
