@@ -13,11 +13,12 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 
   // 训练参数相关配置
 
-  arg_parser.parse_arg("feat_cfg", feature_config_path, string(),
-                   "feature_config_path", true);
+  string feat_cfg;
+  arg_parser.parse_arg("feat_cfg", feat_cfg, string(),
+                   "feature config name(dir) under config dir", true);
 
-  feature_config_path = string("config/") + feature_config_path + "/feature_config.json";
-  mapping_dict_path = string("config/") + train_opt.feature_config_path + "/feat_id_dict/";
+  feature_config_path = string("config/") + feat_cfg + "/feature_config.json";
+  mapping_dict_path = string("config/") + feat_cfg + "/feat_id_dict/";
 
   arg_parser.parse_arg("train", train_path, string(), 
                    "trainning data path, use stdin(standard input) if not set");

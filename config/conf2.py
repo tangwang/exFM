@@ -28,7 +28,7 @@ sparse_id_feat_list = []
 
 varlen_sparse_id_feat_list = []
 
-sparse_str_feat_list = [f'C{i}' for i in range(1, 27)]
+sparse_str_feat_list = [f'C{i}' for i in range(1, 27)] + [f'I{i}' for i in range(1, 14)]
 
 varlen_sparse_str_feat_list = []
 

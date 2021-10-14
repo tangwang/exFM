@@ -43,7 +43,6 @@ def proc_line__csv(job_queue, process_id, dict_feat_name_to_id,
             continue
 
         for column_id, column_list in dense_feat_dict.items():
-            print(column_id, segs[column_id])
             column_list.append(float(segs[column_id]) if segs[column_id] else 0.0)
         for column_id, column_list in sparse_id_feat_dict.items():
             # 兼容有多个值的情况
