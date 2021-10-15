@@ -11,7 +11,7 @@ import numpy as np
 from collections import Counter
 import multiprocessing
 
-from conf2 import *
+from conf import *
 
 def proc_line__csv(job_queue, process_id, dict_feat_name_to_id,
     a_dense_feat_dict,
@@ -292,7 +292,7 @@ if __name__ == '__main__':
         std = np.std(v)
         num = len(v)
         percentile_values = []
-        for n in dense_feat_same_freq_bucket_numbers:
+        for n in dense_feat_freq_splits:
             split_values = [np.percentile(v, 100*pos/n) for pos in range(1, n)]
             compact_split_values = [split_values[0]]
             last_value = split_values[0]
@@ -313,7 +313,7 @@ if __name__ == '__main__':
                 'min_clip' : min_v,
                  'max_clip' : max_v,
                  'default_value' : default_value_of_dense_feat,
-                 'sparse_by_wide_bins_numbs' : dense_feat_same_wide_bucket_numbers,
+                 'sparse_by_wide_bins_numbs' : dense_feat_wide_splits,
                 'sparse_by_splits' : percentile_values,
                 } )
 
