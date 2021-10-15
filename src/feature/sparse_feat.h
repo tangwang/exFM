@@ -9,19 +9,19 @@ using utils::Dict;
 
 class SparseFeatConfig : public CommonFeatConfig {
  public:
-  feaid_t max_id;
-  feaid_t ids_num;
+  feat_id_t max_id;
+  feat_id_t ids_num;
 
   // mapping_type == "orig_id" 时，vocab_size由max_id确定
   // mapping_type == "hash" 时，vocab_size由ids_num确定
   // mapping_type == "dict" 时，vocab_size由配置词典大小确定
-  feaid_t vocab_size;
+  feat_id_t vocab_size;
 
   // mapping_type == "orig_id" 时，default_id设为max_id, unknown_id设为max_id+1
   // mapping_type == "hash" 时，default_id设为0, unknown_id设为1
   // mapping_type == "dict" 时，default_id设为0, unknown_id设为1
-  feaid_t default_id;
-  feaid_t unknown_id;
+  feat_id_t default_id;
+  feat_id_t unknown_id;
   
   enum MappingType {
     mapping_by_orig_id,
@@ -37,15 +37,15 @@ class SparseFeatConfig : public CommonFeatConfig {
   static const size_t max_hash_buckets = 10000000;
   static const size_t min_hash_buckets = 200;
 
-  feaid_t featMapping(const char * orig_fea_id, size_t str_len) const;
+  feat_id_t featMapping(const char * orig_feat_id, size_t str_len) const;
 
   string shared_embedding_name;
 
   string mapping_dict_name;
 
-  Dict<int, feaid_t> i32_feat_id_dict;
-  Dict<long, feaid_t> i64_feat_id_dict;
-  Dict<string, feaid_t> str_feat_id_dict;
+  Dict<int, feat_id_t> i32_feat_id_dict;
+  Dict<long, feat_id_t> i64_feat_id_dict;
+  Dict<string, feat_id_t> str_feat_id_dict;
 
   bool initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
@@ -75,7 +75,7 @@ class SparseFeatContext : public CommonFeatContext {
  public:
   const SparseFeatConfig& cfg_;
 
-  feaid_t feat_id;
+  feat_id_t feat_id;
 
   bool valid() const { return feat_id != cfg_.default_id; }
 

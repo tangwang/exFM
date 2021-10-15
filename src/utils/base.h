@@ -95,5 +95,5 @@ typedef unsigned char uint8;
 // typedef float real_t;
 typedef double real_t;
 
-// typedef unsigned long feaid_t;
-typedef unsigned int feaid_t;
+// typedef unsigned long feat_id_t;
+typedef unsigned int feat_id_t;

@@ -11,19 +11,19 @@ DenseFeatConfig::DenseFeatConfig() {
 DenseFeatConfig::~DenseFeatConfig() {}
 
 bool DenseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map) {
-  const feaid_t onehot_fea_dimension =
+  const feat_id_t onehot_feat_dimension =
       sparse_by_wide_bins_numbs.size() + sparse_by_splits.size();
-  if (onehot_fea_dimension == 0) {
+  if (onehot_feat_dimension == 0) {
     // 对dense特征的使用，暂时只支持稀疏化，不支持使用原始值
     cerr << " no sparcity method for dense feature " << name << endl;
     return false;
   }
   
-  vector<pair<real_t, vector<feaid_t>>> all_split_position_and_mapping_ids;
-  feaid_t onehot_dimension = 0;
-  feaid_t onehot_id = 0;
+  vector<pair<real_t, vector<feat_id_t>>> all_split_position_and_mapping_ids;
+  feat_id_t onehot_dimension = 0;
+  feat_id_t onehot_id = 0;
   for (int bucket_num : sparse_by_wide_bins_numbs) {
-    vector<feaid_t> onehot_values(onehot_fea_dimension);
+    vector<feat_id_t> onehot_values(onehot_feat_dimension);
     real_t wide = (max - min) / bucket_num;
     // TODO check边界
     for (int bucket_id = 0; bucket_id < bucket_num; bucket_id++) {
@@ -35,7 +35,7 @@ bool DenseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainer
   }
 
   for (auto buckets : sparse_by_splits) {
-    vector<feaid_t> onehot_values(onehot_fea_dimension);
+    vector<feat_id_t> onehot_values(onehot_feat_dimension);
     // 因为离散化时是取lower_bound的idx，所以min值也放进去
     onehot_values[onehot_dimension] = onehot_id++;
     all_split_position_and_mapping_ids.push_back(
@@ -51,15 +51,15 @@ bool DenseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainer
 
   sort(all_split_position_and_mapping_ids.begin(),
        all_split_position_and_mapping_ids.end(),
-       utils::judgeByPairFirst<real_t, vector<feaid_t>>);
+       utils::judgeByPairFirst<real_t, vector<feat_id_t>>);
 
   for (size_t split_idx = 1; split_idx < all_split_position_and_mapping_ids.size();
        split_idx++) {
-    // 补全各个维度的fea_id
-    for (size_t dimension = 0; dimension < onehot_fea_dimension; dimension++) {
-      feaid_t &this_id =
+    // 补全各个维度的feat_id
+    for (size_t dimension = 0; dimension < onehot_feat_dimension; dimension++) {
+      feat_id_t &this_id =
           all_split_position_and_mapping_ids[split_idx].second[dimension];
-      feaid_t last_id =
+      feat_id_t last_id =
           all_split_position_and_mapping_ids[split_idx - 1].second[dimension];
 
       this_id = std::max(this_id, last_id);
@@ -68,21 +68,21 @@ bool DenseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainer
     // 记录映射关系
     // 分隔值
     all_splits.push_back(all_split_position_and_mapping_ids[split_idx].first);
-    // 分桶内的各维度的fea_id
-    fea_ids_of_each_buckets.push_back(
+    // 分桶内的各维度的feat_id
+     feat_ids_of_each_buckets.push_back(
         all_split_position_and_mapping_ids[split_idx].second);
   }
 
-  param_container = creatParamContainer(onehot_fea_dimension, (feaid_t)fea_ids_of_each_buckets.size());
+  param_container = creatParamContainer(onehot_feat_dimension, (feat_id_t)feat_ids_of_each_buckets.size());
   loadModel();
 
   // 提前取出参数位置
-  fea_params_of_each_buckets.resize(fea_ids_of_each_buckets.size());
-  for (size_t i = 0; i < fea_ids_of_each_buckets.size(); i++) {
-    auto &i_value = fea_ids_of_each_buckets[i];
-    fea_params_of_each_buckets[i].resize(i_value.size());
+   feat_params_of_each_buckets.resize(feat_ids_of_each_buckets.size());
+  for (size_t i = 0; i <  feat_ids_of_each_buckets.size(); i++) {
+    auto &i_value =  feat_ids_of_each_buckets[i];
+     feat_params_of_each_buckets[i].resize(i_value.size());
     for (size_t j = 0; j < i_value.size(); j++) {
-      fea_params_of_each_buckets[i][j] = param_container->get(i_value[j]);
+       feat_params_of_each_buckets[i][j] = param_container->get(i_value[j]);
     }
   }
 
@@ -134,18 +134,18 @@ int DenseFeatContext::feedSample(const char *feat_str, size_t feat_str_len, FmLa
     return -1;
   }
   int bucket_id = cfg_.getFeaBucketId(orig_x);
-  fea_params = &cfg_.fea_params_of_each_buckets[bucket_id];
+   feat_params = &cfg_.feat_params_of_each_buckets[bucket_id];
 
   DEBUG_OUT << "feedSample " << cfg_.name << " orig_x " << orig_x << " bucket_id " << bucket_id << endl;
 
   fm_node.forward.clear();
   fm_node.backward_nodes.clear();
 
-  for (auto fea_param : *fea_params) {
+  for (auto  feat_param : *feat_params) {
     Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(bucket_id);
-    fm_node.backward_nodes.emplace_back(fea_param, param_mutex, 1.0, 1.0);
+    fm_node.backward_nodes.emplace_back(feat_param, param_mutex, 1.0, 1.0);
     param_mutex->lock();
-    fm_node.forward += *fea_param;
+    fm_node.forward += *feat_param;
     param_mutex->unlock();
   }
 

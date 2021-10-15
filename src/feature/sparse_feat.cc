@@ -12,44 +12,44 @@ SparseFeatConfig::SparseFeatConfig() {
 
 SparseFeatConfig::~SparseFeatConfig() {}
 
-feaid_t SparseFeatConfig::featMapping(const char * orig_fea_id, size_t str_len) const {
-  feaid_t feat_id = default_id;
-  if (likely(orig_fea_id[0] != 0)) {
+feat_id_t SparseFeatConfig::featMapping(const char * orig_feat_id, size_t str_len) const {
+  feat_id_t feat_id = default_id;
+  if (likely(orig_feat_id[0] != 0)) {
     switch (mapping_type) {
       case mapping_by_dict_int32: {
-        // int i_orig_fea_id = atoi(orig_fea_id);
-        int i_orig_fea_id = int(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
-        feat_id = i32_feat_id_dict.get(i_orig_fea_id);
+        // int i_orig_feat_id = atoi(orig_feat_id);
+        int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        feat_id = i32_feat_id_dict.get(i_orig_feat_id);
       } break;
       case mapping_by_dict_int64: {
-        // long i_orig_fea_id = atol(orig_fea_id);
-        long i_orig_fea_id = long(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
-        feat_id = i64_feat_id_dict.get(i_orig_fea_id);
+        // long i_orig_feat_id = atol(orig_feat_id);
+        long i_orig_feat_id = long(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        feat_id = i64_feat_id_dict.get(i_orig_feat_id);
       } break;
       case mapping_by_dict_str: {
-        feat_id = str_feat_id_dict.get(orig_fea_id);
+        feat_id = str_feat_id_dict.get(orig_feat_id);
       } break;
       case mapping_by_hash_int32: {
-        // int i_orig_fea_id = atoi(orig_fea_id);
-        int i_orig_fea_id = int(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
-        feat_id = MurmurHash3_x86_32((void *)&i_orig_fea_id, sizeof(i_orig_fea_id), hash_seed);
+        // int i_orig_feat_id = atoi(orig_feat_id);
+        int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        feat_id = MurmurHash3_x86_32((void *)&i_orig_feat_id, sizeof(i_orig_feat_id), hash_seed);
         feat_id %= vocab_size;
       } break;
       case mapping_by_hash_int64: {
-        // long i_orig_fea_id = atol(orig_fea_id);
-        long i_orig_fea_id = long(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
-        feat_id = MurmurHash3_x86_32((void *)&i_orig_fea_id, sizeof(i_orig_fea_id), hash_seed);
+        // long i_orig_feat_id = atol(orig_feat_id);
+        long i_orig_feat_id = long(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        feat_id = MurmurHash3_x86_32((void *)&i_orig_feat_id, sizeof(i_orig_feat_id), hash_seed);
         feat_id %= vocab_size;
       } break;
       case mapping_by_hash_str: {
         feat_id =
-            MurmurHash3_x86_32(orig_fea_id, str_len, hash_seed);
+            MurmurHash3_x86_32(orig_feat_id, str_len, hash_seed);
         feat_id %= vocab_size;
       } break;
       default:
-        // int i_orig_fea_id = atoi(orig_fea_id);
-        int i_orig_fea_id = int(std::round(atof(orig_fea_id))); // TODO 为zy搞的特殊版本，兼容float
-        feat_id = (i_orig_fea_id < 0 || i_orig_fea_id > (int)max_id) ? unknown_id : (feaid_t)i_orig_fea_id;
+        // int i_orig_feat_id = atoi(orig_feat_id);
+        int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        feat_id = (i_orig_feat_id < 0 || i_orig_feat_id > (int)max_id) ? unknown_id : (feat_id_t)i_orig_feat_id;
         break;
     }
   }
@@ -114,10 +114,10 @@ bool SparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContaine
   if (!ret) return ret;
 
   // initail mutexes
-  feaid_t mutex_nums = vocab_size;
+  feat_id_t mutex_nums = vocab_size;
   if (mutex_nums > 10000) {
     mutex_nums = std::max(10000, (int)std::pow((float)mutex_nums, 0.8));
-    mutex_nums = std::min(mutex_nums, (feaid_t)1000000);
+    mutex_nums = std::min(mutex_nums, (feat_id_t)1000000);
   }
 
   bool embedding_existed = false;
@@ -139,8 +139,8 @@ bool SparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContaine
   return ret;
 }
 
-  feaid_t max_id;
-  feaid_t ids_num;
+  feat_id_t max_id;
+  feat_id_t ids_num;
 
 void to_json(json &j, const SparseFeatConfig &p) {
   j = json{{"name", p.name},
@@ -244,15 +244,15 @@ int SparseFeatContext::feedSample(const char *feat_str, size_t feat_str_len, FmL
 
   DEBUG_OUT << "feedSample " << cfg_.name << " feat_str " << feat_str << " feat_id " << feat_id << endl;
 
-  FMParamUnit *fea_param = cfg_.param_container->get(feat_id);
+  FMParamUnit *feat_param = cfg_.param_container->get(feat_id);
   Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(feat_id);
 
   param_mutex->lock();
-  fm_node.forward = *fea_param;
+  fm_node.forward = *feat_param;
   param_mutex->unlock();
 
   fm_node.backward_nodes.clear();
-  fm_node.backward_nodes.emplace_back(fea_param, param_mutex, 1.0);
+  fm_node.backward_nodes.emplace_back(feat_param, param_mutex, 1.0);
 
   return 0;
 }

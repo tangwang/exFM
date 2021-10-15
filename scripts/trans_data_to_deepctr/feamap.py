@@ -19,7 +19,7 @@ feamap_dict = {}
 def dump():
     global feamap_dict
     global dump_filename
-    fea_statis = {}
+     feat_statis = {}
     for line in sys.stdin:
         segs = line.rstrip().split('\t')[1:]
         for kv in segs:
@@ -28,20 +28,20 @@ def dump():
                 v = str(int(round(float(v))))
     
             if k in conf.varlenSparseFeaList.keys() or k in conf.sparseFeaList:
-                fea_statis.setdefault(k, {})
+                 feat_statis.setdefault(k, {})
                 for iv in set(v.split(',')):
-                    fea_statis[k].setdefault(iv, 0)
-                    fea_statis[k][iv] += 1
+                     feat_statis[k].setdefault(iv, 0)
+                     feat_statis[k][iv] += 1
             elif k in conf.denseFeaList:
                 v =  float(v)
                 # min max num sum
-                fea_statis.setdefault(k, [])
-                fea_statis[k].append(v)
+                 feat_statis.setdefault(k, [])
+                 feat_statis[k].append(v)
     
     # 保存
     for feaName in conf.sparseFeaList:
-        if not feaName in fea_statis: continue
-        feaStatis = fea_statis[feaName]
+        if not feaName in  feat_statis: continue
+        feaStatis =  feat_statis[feaName]
         value_map_dict = {}
         with open(f'feadump/sparse.{feaName}', 'w') as f:
             print('mappedID', 'origID', 'count', sep='\t', file=f)
@@ -51,11 +51,11 @@ def dump():
                 if mappedID != 1:
                     value_map_dict[k] = mappedID
                 print(mappedID, k, v, sep='\t', file=f)
-        feamap_dict[feaName] = (conf.fea_type_sparce, value_map_dict)
+        feamap_dict[feaName] = (conf.feat_type_sparce, value_map_dict)
     
     for feaName in conf.varlenSparseFeaList.keys():
-        if not feaName in fea_statis: continue
-        feaStatis = fea_statis[feaName]
+        if not feaName in  feat_statis: continue
+        feaStatis =  feat_statis[feaName]
         value_map_dict = {}
         with open(f'feadump/seq.{feaName}', 'w') as f:
             print('mappedID', 'origID', 'count', sep='\t', file=f)
@@ -65,22 +65,22 @@ def dump():
                 if mappedID != 1:
                     value_map_dict[k] = mappedID
                 print(mappedID, k, v, sep='\t', file=f)
-        feamap_dict[feaName] = (conf.fea_type_varlen_sparce, value_map_dict)
+        feamap_dict[feaName] = (conf.feat_type_varlen_sparce, value_map_dict)
     
     
     for feaName in conf.denseFeaList:
-        if not feaName in fea_statis: continue
-        feaStatis = fea_statis[feaName]
+        if not feaName in  feat_statis: continue
+        feaStatis =  feat_statis[feaName]
         with open(f'feadump/dense.{feaName}', 'w') as f:
             print('min, max, num, 10 buckets by freq, 50 buckets for freq',  file=f)
             feaStatis.sort()
             feaStatis = feaStatis[skip_head_tails_of_dense_fea : -skip_head_tails_of_dense_fea]
             # min, max, 10 buckets by freq, 50 buckets for freq
-            #print(feaName, len(feaStatis), len(fea_statis[feaName]))
-            statis_info = (feaStatis[0], feaStatis[-1], len(fea_statis[feaName]), [np.percentile(feaStatis, x) for x in range(0,100,10)],  [np.percentile(feaStatis, x) for x in range(0,100,2)])
+            #print(feaName, len(feaStatis), len(feat_statis[feaName]))
+            statis_info = (feaStatis[0], feaStatis[-1], len(feat_statis[feaName]), [np.percentile(feaStatis, x) for x in range(0,100,10)],  [np.percentile(feaStatis, x) for x in range(0,100,2)])
             print(statis_info,  file=f)
     
-        feamap_dict[feaName] = (conf.fea_type_dense, statis_info)
+        feamap_dict[feaName] = (conf.feat_type_dense, statis_info)
     
     pickle.dump(feamap_dict, open(dump_filename,'wb'), pickle.HIGHEST_PROTOCOL)
 
@@ -98,19 +98,19 @@ def map_fea(k, v):
     if not k in feamap_dict : return ''
 
     
-    (fea_type, fea_map_dict) = feamap_dict[k]
+    (feat_type,  feat_map_dict) = feamap_dict[k]
     # 特殊处理：这些字段，不做映射：
-    if fea_type == conf.fea_type_varlen_sparce or fea_type == conf.fea_type_sparce:
+    if  feat_type == conf.feat_type_varlen_sparce or  feat_type == conf.feat_type_sparce:
         return k + ':' + v
 
-    if fea_type == conf.fea_type_varlen_sparce:
+    if  feat_type == conf.feat_type_varlen_sparce:
         # unknown 为 1， 0留给PAD
-        mapped_list = [str(fea_map_dict.get(x, 1)) for x in v.split(',')]
+        mapped_list = [str(feat_map_dict.get(x, 1)) for x in v.split(',')]
         return k + ':' + ','.join(mapped_list)
-    elif fea_type == conf.fea_type_sparce:
-        return k + ':' + str(fea_map_dict.get(v, 1))
-    elif fea_type == conf.fea_type_dense:
-        (minV, maxV, num, buckets_10, buckets_50) = fea_map_dict
+    elif  feat_type == conf.feat_type_sparce:
+        return k + ':' + str(feat_map_dict.get(v, 1))
+    elif  feat_type == conf.feat_type_dense:
+        (minV, maxV, num, buckets_10, buckets_50) =  feat_map_dict
         if (minV == maxV):
             return ''
         v = float(v)
@@ -137,14 +137,14 @@ def map_line(line):
 def to_np_data(args):
 
     denseFeaMap = {}
-    for fea_name in conf.denseFeaList:
-        denseFeaMap[f' {fea_name}:'] = []
+    for  feat_name in conf.denseFeaList:
+        denseFeaMap[f' {feat_name}:'] = []
     sparseFeaMap = {}
-    for fea_name in conf.sparseFeaList:
-        sparseFeaMap[f' {fea_name}:'] = []
+    for  feat_name in conf.sparseFeaList:
+        sparseFeaMap[f' {feat_name}:'] = []
     seqFeaMap = {}
-    for fea_name, max_len in conf.varlenSparseFeaList.items():
-        seqFeaMap[f' {fea_name}:'] = (max_len, [], [])
+    for  feat_name, max_len in conf.varlenSparseFeaList.items():
+        seqFeaMap[f' {feat_name}:'] = (max_len, [], [])
 
     print(denseFeaMap)
     label_list = []
@@ -154,57 +154,57 @@ def to_np_data(args):
         label = int(line[0])
         label_list.append(label)
 
-        for fea_name, l in denseFeaMap.items():
-            beg = line.find(fea_name)
+        for  feat_name, l in denseFeaMap.items():
+            beg = line.find(feat_name)
             if beg != -1:
-                beg += len(fea_name)
-                fea_v =  line[beg:line.find(' ', beg)]
-                fea_value =  (0.0, 0.0, 0.0, 0.0) if not fea_v else [int(round(float(x))) for x in fea_v.split(',')]
+                beg += len(feat_name)
+                 feat_v =  line[beg:line.find(' ', beg)]
+                 feat_value =  (0.0, 0.0, 0.0, 0.0) if not  feat_v else [int(round(float(x))) for x in  feat_v.split(',')]
             else:
-                fea_value = (0.0, 0.0, 0.0, 0.0)
-            l.append(fea_value)
+                 feat_value = (0.0, 0.0, 0.0, 0.0)
+            l.append(feat_value)
             
-        for fea_name, l in sparseFeaMap.items():
-            beg = line.find(fea_name)
+        for  feat_name, l in sparseFeaMap.items():
+            beg = line.find(feat_name)
             if beg != -1:
-                beg += len(fea_name)
-                fea_v =  line[beg:line.find(' ', beg)]
-                if ',' in fea_v:  # 特殊处理，这里不应该有multihot，特殊兼容一下
-                    fea_v = fea_v[:fea_v.find(',')]
-                fea_value =  0 if not fea_v else int(round(float(fea_v)))
+                beg += len(feat_name)
+                 feat_v =  line[beg:line.find(' ', beg)]
+                if ',' in  feat_v:  # 特殊处理，这里不应该有multihot，特殊兼容一下
+                     feat_v =  feat_v[:feat_v.find(',')]
+                 feat_value =  0 if not  feat_v else int(round(float(feat_v)))
             else:
-                fea_value = 0
-            l.append(fea_value)
+                 feat_value = 0
+            l.append(feat_value)
             
-        for fea_name, (max_len, l_v, l_len) in seqFeaMap.items():
-            beg = line.find(fea_name)
-            fea_value = [0] * max_len
+        for  feat_name, (max_len, l_v, l_len) in seqFeaMap.items():
+            beg = line.find(feat_name)
+             feat_value = [0] * max_len
             seq_len = 0
             if beg != -1:
-                beg += len(fea_name)
-                fea_v =  line[beg:line.find(' ', beg)]
-                if fea_v:
-                    for idx, x in enumerate(fea_v.split(',')[:max_len]):
+                beg += len(feat_name)
+                 feat_v =  line[beg:line.find(' ', beg)]
+                if  feat_v:
+                    for idx, x in enumerate(feat_v.split(',')[:max_len]):
                         seq_len += 1
                         if x:
-                            fea_value[idx] = int(round(float(x)))
+                             feat_value[idx] = int(round(float(x)))
             
-            l_v.append(fea_value)
+            l_v.append(feat_value)
             l_len.append(seq_len)
  
     if True:
-        for fea_name, l in denseFeaMap.items():
-            fea_name = fea_name[1:-1]
-            np.save(f'{args.output}/{fea_name}', np.array(l))
+        for  feat_name, l in denseFeaMap.items():
+             feat_name =  feat_name[1:-1]
+            np.save(f'{args.output}/{feat_name}', np.array(l))
     
-        for fea_name, l in sparseFeaMap.items():
-            fea_name = fea_name[1:-1]
-            np.save(f'{args.output}/{fea_name}', np.array(l))
+        for  feat_name, l in sparseFeaMap.items():
+             feat_name =  feat_name[1:-1]
+            np.save(f'{args.output}/{feat_name}', np.array(l))
     
-        for fea_name, (max_len, l_v, l_len) in seqFeaMap.items():
-            fea_name = fea_name[1:-1]
-            np.save(f'{args.output}/{fea_name}', np.array(l_v))
-            np.save(f'{args.output}/{fea_name}_len', np.array(l_len))
+        for  feat_name, (max_len, l_v, l_len) in seqFeaMap.items():
+             feat_name =  feat_name[1:-1]
+            np.save(f'{args.output}/{feat_name}', np.array(l_v))
+            np.save(f'{args.output}/{feat_name}_len', np.array(l_len))
 
         np.save(f'{args.output}/y', np.array(label_list))
 

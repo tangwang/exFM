@@ -16,14 +16,14 @@ bool FeatManager::loadByFeatureConfig(string config_path) {
   try {
     parsing = "dense";
     dense_feas =
-        cfg_json.at(train_opt.fea_type_dense).get<vector<DenseFeatConfig>>();
+        cfg_json.at(train_opt.feat_type_dense).get<vector<DenseFeatConfig>>();
 
     parsing = "sparse";
     sparse_feas =
-        cfg_json.at(train_opt.fea_type_sparse).get<vector<SparseFeatConfig>>();
+        cfg_json.at(train_opt.feat_type_sparse).get<vector<SparseFeatConfig>>();
 
     parsing = "varlen_sparse";
-    varlen_feas = cfg_json.at(train_opt.fea_type_varlen_sparse)
+    varlen_feas = cfg_json.at(train_opt.feat_type_varlen_sparse)
                       .get<vector<VarlenSparseFeatConfig>>();
     
     ret = true;

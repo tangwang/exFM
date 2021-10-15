@@ -17,25 +17,25 @@ class DenseFeatConfig : public CommonFeatConfig {
 
   // 以下3个vector，长度一致，按位置一一对应
   vector<real_t> all_splits;                        // 分隔值
-  vector<vector<feaid_t>> fea_ids_of_each_buckets;  // 分隔值对应的onehot ID列表
+  vector<vector<feat_id_t>>  feat_ids_of_each_buckets;  // 分隔值对应的onehot ID列表
   vector<vector<FMParamUnit *>>
-      fea_params_of_each_buckets;  // 分隔值对应的onehot ID列表 所对应的参数位置
+       feat_params_of_each_buckets;  // 分隔值对应的onehot ID列表 所对应的参数位置
 
-  const vector<feaid_t> &get_fea_ids(real_t x) const {
+  const vector<feat_id_t> &get_feat_ids(real_t x) const {
     if (x == default_value) {
-      return fea_ids_of_each_buckets[fea_ids_of_each_buckets.size() - 1];
+      return  feat_ids_of_each_buckets[feat_ids_of_each_buckets.size() - 1];
     }
     int bucket_id = lower_bound(all_splits.begin(), all_splits.end(), x) -
                     all_splits.begin();
     // TODO check
     if (bucket_id == (int)all_splits.size()) --bucket_id;
     /* gdb debug
-     p fea_params_of_each_buckets[bucket_id]
+     p  feat_params_of_each_buckets[bucket_id]
      拿到param地址后：
      p (*(FMParamUnit *)0x6c8138)
      p (*(FMParamUnit *)0x6c8138).buff@24
      */
-    return fea_ids_of_each_buckets[bucket_id];
+    return  feat_ids_of_each_buckets[bucket_id];
   }
 
   int getFeaBucketId(real_t x) const {
@@ -56,7 +56,7 @@ class DenseFeatConfig : public CommonFeatConfig {
     out << " sparse_by_splits: " << endl << cfg.sparse_by_splits << endl;
     out << " sparse_by_wide_bins_numbs: " << endl << cfg.sparse_by_wide_bins_numbs << endl;
     out << " all_splits: " << endl << cfg.all_splits << endl;
-    out << " fea_ids_of_each_buckets: " << endl << cfg.fea_ids_of_each_buckets << endl;
+    out << "  feat_ids_of_each_buckets: " << endl << cfg.feat_ids_of_each_buckets << endl;
     out << ">\n min <" << cfg.min << "> max <" << cfg.max << ">" << endl;
     out << " default_value <" << cfg.default_value << ">" << endl;
     return out;
@@ -72,7 +72,7 @@ void from_json(const json &j, DenseFeatConfig &p);
 class DenseFeatContext : public CommonFeatContext {
  public:
   real_t orig_x;
-  const vector<FMParamUnit *> *fea_params;
+  const vector<FMParamUnit *> *feat_params;
 
   const DenseFeatConfig &cfg_;
 

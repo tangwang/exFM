@@ -66,27 +66,27 @@ struct FmLayerNode {
 
 class ParamContainerInterface {
  public:
-  ParamContainerInterface(feaid_t total_fea_num, feaid_t _mutex_nums, size_t _param_size_of_one_fea)
+  ParamContainerInterface(feat_id_t total_feat_num, feat_id_t _mutex_nums, size_t _param_size_of_one_fea)
       : mutexes(_mutex_nums),
         param_size_of_one_fea(_param_size_of_one_fea),
-        fea_num(total_fea_num),
+         feat_num(total_feat_num),
         mutex_nums(_mutex_nums)
   {
-        param_base_addr = (unsigned char *)malloc((fea_num + 1) * param_size_of_one_fea);
+        param_base_addr = (unsigned char *)malloc((feat_num + 1) * param_size_of_one_fea);
   }
 
   virtual ~ParamContainerInterface() {
     free(param_base_addr);
   }
 
-  bool isBadID(feaid_t id) const { return id > fea_num || id < 0; }
-  feaid_t getUNKnownID() const { return fea_num; }
+  bool isBadID(feat_id_t id) const { return id >  feat_num || id < 0; }
+  feat_id_t getUNKnownID() const { return  feat_num; }
 
   FMParamUnit *get() {
     return (FMParamUnit *)param_base_addr;
   }
 
-  FMParamUnit *get(feaid_t id) {
+  FMParamUnit *get(feat_id_t id) {
     if (unlikely(isBadID(id))) {
       id = getUNKnownID();
     }
@@ -98,14 +98,14 @@ class ParamContainerInterface {
   }
 
   int load(string path, string model_fmt) {
-    feaid_t total_fea_num = fea_num + 1;
+    feat_id_t total_feat_num =  feat_num + 1;
     int ret = 0;
     if (model_fmt == "bin") {
       ifstream ifs;
       ifs.open(path, std::ifstream::binary);
       int weight_size = sizeof(FMParamUnit);
-      feaid_t i = 0;
-      for (; i < total_fea_num; i++) {
+      feat_id_t i = 0;
+      for (; i < total_feat_num; i++) {
         FMParamUnit *p = get(i);
         ifs.read((char *)p, weight_size);
         if (!ifs) {
@@ -113,7 +113,7 @@ class ParamContainerInterface {
           return -1;
         }
       }
-      if (i != total_fea_num) {
+      if (i != total_feat_num) {
           std::cerr << "load model faild, size not match: " << path << " feat_id: " << i <<  std::endl;
           return -2;
       }
@@ -121,8 +121,8 @@ class ParamContainerInterface {
       ifstream ifs;
       ifs.open(path);
       string line;
-      feaid_t i = 0;
-      for (; i < total_fea_num; i++) {
+      feat_id_t i = 0;
+      for (; i < total_feat_num; i++) {
         FMParamUnit *p = get(i);
         if (!std::getline(ifs, line)) {
           std::cerr << "load model faild, size not match: " << path << " feat_id: " << i <<  std::endl;
@@ -134,18 +134,18 @@ class ParamContainerInterface {
           return -2;
         }
       }
-      if (i != total_fea_num) {
+      if (i != total_feat_num) {
           std::cerr << "load model faild, size not match: " << path << " feat_id: " << i <<  std::endl;
           return -2;
       }
     }
-    std::cout << "load model ok: " << path <<  " total_fea_num: " << total_fea_num <<  std::endl;
+    std::cout << "load model ok: " << path <<  " total_feat_num: " << total_feat_num <<  std::endl;
     return ret;
   }
 
   int dump(string path, string model_fmt) {
     int ret = 0;
-    feaid_t total_fea_num = fea_num + 1;
+    feat_id_t total_feat_num =  feat_num + 1;
 
     if (model_fmt == "bin") {
       ofstream ofs(path, std::ios::out | std::ios::binary);
@@ -153,7 +153,7 @@ class ParamContainerInterface {
         return -1;
       }
       const int weight_size = sizeof(FMParamUnit);
-      for (feaid_t i = 0; i < total_fea_num; i++) {
+      for (feat_id_t i = 0; i < total_feat_num; i++) {
         const FMParamUnit *p = get(i);
         ofs.write((const char *)p, weight_size);
       }
@@ -163,7 +163,7 @@ class ParamContainerInterface {
       if (!ofs) {
         return -1;
       }
-      for (feaid_t i = 0; i < total_fea_num; i++) {
+      for (feat_id_t i = 0; i < total_feat_num; i++) {
         const FMParamUnit *p = get(i);
         ofs << p->w;
         for (int i = 0; i < DIM; i++) {
@@ -179,11 +179,11 @@ class ParamContainerInterface {
   unsigned char * param_base_addr;
   vector<Mutex_t> mutexes;
   const size_t param_size_of_one_fea;
-  const feaid_t fea_num;
+  const feat_id_t  feat_num;
   const int mutex_nums;
 
   // mutexes
-  Mutex_t* GetMutexByFeaID(feaid_t id) {
+  Mutex_t* GetMutexByFeaID(feat_id_t id) {
     return &mutexes[id % mutex_nums];
   }
 
@@ -196,9 +196,9 @@ class ParamContainerInterface {
 template <class ParamUnit>
 class ParamContainer : public ParamContainerInterface {
  public:
-  ParamContainer(feaid_t total_fea_num, feaid_t mutex_nums)
-      : ParamContainerInterface(total_fea_num, mutex_nums, sizeof(ParamUnit)) {
-    for (feaid_t i = 0; i < fea_num + 1; i++) {
+  ParamContainer(feat_id_t total_feat_num, feat_id_t mutex_nums)
+      : ParamContainerInterface(total_feat_num, mutex_nums, sizeof(ParamUnit)) {
+    for (feat_id_t i = 0; i <  feat_num + 1; i++) {
       ParamUnit *p = (ParamUnit *)get(i);
       new (p) ParamUnit();
     }

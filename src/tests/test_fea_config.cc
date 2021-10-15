@@ -62,14 +62,14 @@ void test_parse_struct() {
 }
 
 void test_dump() {
-  std::ifstream fin("fea_config.json");  // 注意此处是相对路径
+  std::ifstream fin("feat_config.json");  // 注意此处是相对路径
   json j;
   fin >> j;
   fin.close();
 
   // 写入文件
   std::ofstream fout(
-      "test_fea_config.json");  // 注意 object.json 和 config.json
+      "test_feat_config.json");  // 注意 object.json 和 config.json
                                 // 内容一致，但是顺序不同
   fout << std::setw(4) << j << std::endl;
   fout.close();

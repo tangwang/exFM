@@ -66,9 +66,9 @@ class TrainOption {
   char feat_id_dict_seperator;
 
   // params for feature_configs
-  const string fea_type_dense = "dense_features";
-  const string fea_type_sparse = "sparse_features";
-  const string fea_type_varlen_sparse = "varlen_sparse_features";
+  const string  feat_type_dense = "dense_features";
+  const string  feat_type_sparse = "sparse_features";
+  const string  feat_type_varlen_sparse = "varlen_sparse_features";
 
   // param initial
   real_t init_stdev;

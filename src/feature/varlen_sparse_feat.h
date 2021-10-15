@@ -42,9 +42,9 @@ class VarlenSparseFeatContext : public CommonFeatContext {
  public:
   const VarlenSparseFeatConfig& cfg_;
 
-  vector<feaid_t> fea_ids;
+  vector<feat_id_t>  feat_ids;
 
-  bool valid() const { return !fea_ids.empty(); }
+  bool valid() const { return !feat_ids.empty(); }
 
   int feedSample(const char *feat_str, size_t feat_str_len, FmLayerNode & fm_node);
 

@@ -46,7 +46,7 @@ varlenSparseFeaList = {
 }
 
 
-fea_type_dense = 1
-fea_type_sparce = 2
-fea_type_varlen_sparce = 3
+feat_type_dense = 1
+feat_type_sparce = 2
+feat_type_varlen_sparce = 3
 

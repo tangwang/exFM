@@ -11,7 +11,7 @@ VarlenSparseFeatConfig::~VarlenSparseFeatConfig() {}
 VarlenSparseFeatContext::VarlenSparseFeatContext(const VarlenSparseFeatConfig &cfg)
     : cfg_(cfg) {
   feat_cfg = &cfg_;
-  fea_ids.reserve(cfg_.max_len);
+   feat_ids.reserve(cfg_.max_len);
 }
 
 VarlenSparseFeatContext::~VarlenSparseFeatContext() {}
@@ -66,7 +66,7 @@ void from_json(const json &j, VarlenSparseFeatConfig &p) {
 
 int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_len, FmLayerNode & fm_node) {
   // parse feat ids
-  fea_ids.clear();
+   feat_ids.clear();
   const char *featid_beg = feat_str;
   const char *p = feat_str;
   for (; *p; p++) {
@@ -75,19 +75,19 @@ int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_le
       if (item_len > 0) {
         memcpy(feat_id_buff, featid_beg, item_len);
         feat_id_buff[item_len+1] = '\0';
-        feaid_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff, item_len);
-        fea_ids.push_back(mapped_id);
-        if (fea_ids.size() == cfg_.max_len) break;
+        feat_id_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff, item_len);
+         feat_ids.push_back(mapped_id);
+        if (feat_ids.size() == cfg_.max_len) break;
       }
       featid_beg = p + 1;
     }
   }
   int item_len = std::min((int)(p - featid_beg), (int)sizeof(feat_id_buff)-1);
-  if (item_len > 0 && fea_ids.size() != cfg_.max_len) {
+  if (item_len > 0 &&  feat_ids.size() != cfg_.max_len) {
     memcpy(feat_id_buff, featid_beg, item_len);
     feat_id_buff[item_len+1] = '\0';
-    feaid_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff, item_len);
-    fea_ids.push_back(mapped_id);
+    feat_id_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff, item_len);
+     feat_ids.push_back(mapped_id);
   }
 
   fm_node.forward.clear();
@@ -97,22 +97,22 @@ int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_le
     return -1;
   }
 
-  DEBUG_OUT << "feedSample " << cfg_.name << " feat_str " << feat_str << " fea_ids " << fea_ids << endl;
+  DEBUG_OUT << "feedSample " << cfg_.name << " feat_str " << feat_str << "  feat_ids " <<  feat_ids << endl;
 
   real_t grad_from_fm_node = 1.0;
   if (cfg_.pooling_type_id == VarlenSparseFeatConfig::SeqPoolTypeAVG) {
-    grad_from_fm_node = 1.0 / fea_ids.size();
+    grad_from_fm_node = 1.0 /  feat_ids.size();
   }
 
-  for (auto id : fea_ids) {
-    FMParamUnit *fea_param = cfg_.sparse_cfg.param_container->get(id);
+  for (auto id :  feat_ids) {
+    FMParamUnit *feat_param = cfg_.sparse_cfg.param_container->get(id);
     Mutex_t *param_mutex = cfg_.sparse_cfg.param_container->GetMutexByFeaID(id);
 
     param_mutex->lock();
-    fm_node.forward += *fea_param;
+    fm_node.forward += *feat_param;
     param_mutex->unlock();
     
-    fm_node.backward_nodes.emplace_back(fea_param, param_mutex, 1.0, grad_from_fm_node);
+    fm_node.backward_nodes.emplace_back(feat_param, param_mutex, 1.0, grad_from_fm_node);
   }
 
   return 0;
