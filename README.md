@@ -42,7 +42,7 @@
    cat ../data/train.csv | python3 make_feat_config.py -o criteo --cpu_num 6
    ```
 
-6. 这是将产生一套简单的特征处理配置文件，特征配置文件的规范和解释见文档[特征处理配置文件](https://github.com/tangwang/exFM/blob/main/docs/feature_config.md)。这时可以直接到下一步训练模型，也可以对特征处理配置文件进行一些调整，比如：
+6. 这时将产生一套简单的特征处理配置文件，特征配置文件的规范和解释见文档[特征处理配置文件](https://github.com/tangwang/exFM/blob/main/docs/feature_config.md)。这时可以直接到下一步训练模型，也可以对特征处理配置文件进行一些调整，比如：
 
    1. 对于连续特征，为不同的特征指定不同的分桶数。
    2. 对于离散特征或序列特征，调整映射方式（支持 dict / hash / orig_id ）
@@ -54,7 +54,7 @@
 
 2. 配置config/train.conf。根据config/train.conf中的注释进行配置即可，主要要配置的内容有：
 
-   1. 训练数据格式：训练数据格式的配置与上面 [产出特征配置]() 中的配置方法一样。
+   1. 训练数据格式：data_formart 和csv/libsvm相关格式配置的配置方法与上面的一致。
 
    2. 配置训练数据地址。如果不配置，则程序会读取标准输入。
 
@@ -70,9 +70,31 @@
       bin/train solver=adam adam.lr=0.001 batch_size=800 feat_conf=criteo threads=30 train=../data/train.csv valid=../data/valid.csv om=model
       ```
 
-   7. 
+   7. 程序输出：
 
+## examples
 
+1. criteo
+
+   ```
+   git clone xxx
+   cd config
+   # 准备你的训练数据
+   # 根据你的训练数据配置conf.py
+   # 产出特征处理配置
+   cat ../data/train.csv | python3 make_feat_config.py -o criteo --cpu_num 6
+   cd ..
+   
+   # 根据你的训练数据配置config/train.conf
+   # 启动训练
+   bin/train solver=adam batch_size=800 feat_conf=criteo threads=30 train=../data/train.csv valid=../data/valid.csv om=model
+   ```
+
+   
+
+---
+
+草稿：
 
 
 
@@ -82,32 +104,10 @@ https://github.com/ycjuan/libffm
 
 
 
-默认15维，如果指定其他维度，用make DIM=xxx进行编译。
-
-
-
-XXXSolver:  public SolverInterface
-
-paramUnit
-
-paramContainerInterface
-paramContainer<ParamUnitType> : public paramContainerInterface
-
-
-sgdm
-
-adagrad：
-
-adam：
-adamw
-
-
-
 ftrl
 精度方面，优化学习器
 attention：共享embedding，可以指定N个行为序列，每个行为序列与对应的targetField进行attention。
 多目标 
-
 
 batch_size：
 现我们在每一次epoch迭代的时候，都会打乱数据，随机分割数据集。
@@ -117,29 +117,16 @@ batch_size：
 
 cpu向量指令 性能优化
 
-adam需要batchsize，其次是sgdm，FTRL不需要：
+adam较依赖batchsize（Batch Size=1时AUC低不少，收敛的值不好或者难收敛），其次是sgdm，FTRL不需要，并且在Batch Size=1时效果最好。
 
-
-Batch Size=1，梯度变来变去，非常不准确，网络很难收敛，需要较小的学习率以保持稳定性。batch_size为1时，adam学习率0.001很难学好，这是为什么学习率要低两个数量级的原因。(官方推荐lr=0.001，但是不支持batch_size的时候，lr要调到1e-5以下)
-
-3、Batch Size增大，梯度变准确，
-4、Batch Size增大，梯度已经非常准确，再增加Batch Size也没有用
-注意：Batch Size增大了，要到达相同的准确度，必须要增大epoch。
+adam在Batch Size=1时需要较小的学习率以保持稳定性。batch_size为1时，adam学习率0.001很难学好，要调到1e-5以下。Batch Size增大，梯度变准确，可以使用推荐的0.001取得较好效果。
+Batch Size增大了，要到达相同的准确度，必须要增大epoch。
 https://blog.csdn.net/qq_34886403/article/details/82558399
 
-
-支持batch_size之后，lr太大还是学不好：
+sgdm ：支持batch_size之后，lr太大还是学不好：
 sgdm lr=0.01就完全学不动，即使是batch_size=1024，如果lr=0.1，auc一直0.5。 
 adam 也是 lr=0.0001比较好，0.01和0.001学不出来
 
-
-parameter synchronize：
-Mutex_t通过宏定义控制：
-    #ifdef _PREDICT_VER_
-    typedef NullMutex Mutex_t;
-    #else
-    typedef PthreadMutex Mutex_t;
-    #endif
 
 
 shuffle:
