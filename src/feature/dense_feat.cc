@@ -142,7 +142,7 @@ int DenseFeatContext::feedSample(const char *feat_str, size_t feat_str_len, FmLa
   fm_node.backward_nodes.clear();
 
   for (auto  feat_param : *feat_params) {
-    Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeaID(bucket_id);
+    Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeatID(bucket_id);
     fm_node.backward_nodes.emplace_back(feat_param, param_mutex, 1.0, 1.0);
     param_mutex->lock();
     fm_node.forward += *feat_param;

@@ -15,17 +15,20 @@ bool FeatManager::loadByFeatureConfig(string config_path) {
   const char *parsing = NULL;
   try {
     parsing = "dense";
-    dense_feas =
+    if (cfg_json.find(train_opt.feat_type_dense) != cfg_json.end()) {
+      dense_feat_cfgs =
         cfg_json.at(train_opt.feat_type_dense).get<vector<DenseFeatConfig>>();
+    }
 
-    parsing = "sparse";
-    sparse_feas =
+    if (cfg_json.find(train_opt.feat_type_sparse) != cfg_json.end()) {
+      sparse_feat_cfgs =
         cfg_json.at(train_opt.feat_type_sparse).get<vector<SparseFeatConfig>>();
+    }
 
-    parsing = "varlen_sparse";
-    varlen_feas = cfg_json.at(train_opt.feat_type_varlen_sparse)
+    if (cfg_json.find(train_opt.feat_type_varlen_sparse) != cfg_json.end()) {
+      varlen_feat_cfgs = cfg_json.at(train_opt.feat_type_varlen_sparse)
                       .get<vector<VarlenSparseFeatConfig>>();
-    
+    }
     ret = true;
   } catch (const char * err_msg) {
     std::cerr << "exception occured while parse " << parsing
@@ -47,7 +50,7 @@ bool FeatManager::loadByFeatureConfig(string config_path) {
 }
 
 bool FeatManager::initModelParams(bool show_cfg) {
-  for (auto &feat : dense_feas) {
+  for (auto &feat : dense_feat_cfgs) {
     if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
@@ -55,7 +58,7 @@ bool FeatManager::initModelParams(bool show_cfg) {
     cout << "feature config " << feat.name << " init ok" << endl;
     if (show_cfg) cout << feat << endl;
   }
-  for (auto &feat : sparse_feas) {
+  for (auto &feat : sparse_feat_cfgs) {
     if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
@@ -63,7 +66,7 @@ bool FeatManager::initModelParams(bool show_cfg) {
     cout << "feature config " << feat.name << " init ok" << endl;
     if (show_cfg) cout << feat << endl;
   }
-  for (auto &feat : varlen_feas) {
+  for (auto &feat : varlen_feat_cfgs) {
     if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
@@ -75,10 +78,6 @@ bool FeatManager::initModelParams(bool show_cfg) {
 }
 
 bool FeatManager::dumpModel() {
-  // TODO 参数可能要加锁，保证内存序，以保证读取的参数是最新的
-  // 调用dump_model时，所有的worker进程以及结束，只留下一个进程所以不存在内存序的问题导致读取的内存错误，但是
-  // 能否确认缓存都已更新到内存？如果不能确认，这里需要全部加一次锁，或者考虑full
-  // barrier
   bool ret = true;
   if (!train_opt.model_path.empty()) {
     if (0 != access(train_opt.model_path.c_str(), 0)) {
@@ -89,15 +88,15 @@ bool FeatManager::dumpModel() {
       }
     }
     cout << "begin to dump model: " << endl;
-    for (auto &feat : dense_feas) {
+    for (auto &feat : dense_feat_cfgs) {
       if (!ret) break;
       ret = feat.dumpModel();
     }
-    for (auto &feat : sparse_feas) {
+    for (auto &feat : sparse_feat_cfgs) {
       if (!ret) break;
       ret = feat.dumpModel();
     }
-    for (auto &feat : varlen_feas) {
+    for (auto &feat : varlen_feat_cfgs) {
       if (!ret) break;
       ret = feat.dumpModel();
     }

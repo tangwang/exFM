@@ -33,10 +33,10 @@ real_t Sample::forward() {
 
 void Sample::backward() {
   // 计算整体的梯度:
-  // crossEntropyLoss = -log( sigmoid(y * fm_score(x) ) ) ， y = {-1, 1}
-  // partitial(loss) / partitial(fm_score(x)) = -y * sigmoid( - fm_score(x) * y )，y*score
-  real_t exp_y_logit = std::exp(logit * y);
-  grad = -y / (1 + exp_y_logit);
+  // crossEntropyLoss = -log( sigmoid(label.i * fm_score(x) ) ) ， label.i = {-1, 1}
+  // partitial(loss) / partitial(fm_score(x)) = -label.i * sigmoid( - fm_score(x) * label.i )，y*score
+  real_t exp_y_logit = std::exp(logit * label.i);
+  grad = -label.i / (1 + exp_y_logit);
   loss = - std::log(1 - 1/(1+std::max(exp_y_logit, 1e-10)));
   
   FMParamUnit backward;
@@ -61,26 +61,26 @@ void Sample::backward() {
 
 BaseSolver::BaseSolver(const FeatManager &feat_manager)
     : feat_manager_(feat_manager), batch_size(train_opt.batch_size), sample_idx(0), batch_samples(train_opt.batch_size) {
-  for (const auto &iter : feat_manager_.dense_feas) {
-    dense_feas.emplace_back(iter);
+  for (const auto &iter : feat_manager_.dense_feat_cfgs) {
+    dense_feats.emplace_back(iter);
   }
-  for (const auto &iter : feat_manager_.sparse_feas) {
-    sparse_feas.emplace_back(iter);
+  for (const auto &iter : feat_manager_.sparse_feat_cfgs) {
+    sparse_feats.emplace_back(iter);
   }
-  for (const auto &iter : feat_manager_.varlen_feas) {
-    varlen_feas.emplace_back(iter);
+  for (const auto &iter : feat_manager_.varlen_feat_cfgs) {
+    varlen_feats.emplace_back(iter);
   }
   for (auto & sample : batch_samples) {
-    sample.fm_layer_nodes.resize(dense_feas.size() + sparse_feas.size() + varlen_feas.size());
+    sample.fm_layer_nodes.resize(dense_feats.size() + sparse_feats.size() + varlen_feats.size());
   }
 
-  for (auto &iter : dense_feas) {
+  for (auto &iter : dense_feats) {
     feat_map[iter.feat_cfg->name] = &iter;
   }
-  for (auto &iter : sparse_feas) {
+  for (auto &iter : sparse_feats) {
     feat_map[iter.feat_cfg->name] = &iter;
   }
-  for (auto &iter : varlen_feas) {
+  for (auto &iter : varlen_feats) {
     feat_map[iter.feat_cfg->name] = &iter;
   }
   if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
@@ -124,13 +124,13 @@ void BaseSolver::rotateSampleIdx() {
 
 void BaseSolver::batchReduce(FMParamUnit &grad, int count) {
   switch (train_opt.batch_grad_reduce_type) {
-    case TrainOption::BatchGradReduceType_Sum:
-      break;
     case TrainOption::BatchGradReduceType_AvgByOccurrences:
       grad /= count;
       break;
     case TrainOption::BatchGradReduceType_AvgByOccurrencesSqrt:
       grad /= std::sqrt(count);
+      break;
+    case TrainOption::BatchGradReduceType_Sum:
       break;
     default: 
     // BatchGradReduceType_AvgByBatchSize by default
@@ -141,7 +141,7 @@ void BaseSolver::batchReduce(FMParamUnit &grad, int count) {
 
 real_t BaseSolver::feedLine_libSVM(const string & aline) {
   // label统一为1， -1的形式
-  // y = atoi(line) > 0 ? 1 : -1;
+  // label.i = atoi(line) > 0 ? 1 : -1;
   char line[aline.size() + 1];
   memcpy(line, aline.c_str(), aline.size() + 1);
   char * pos = line;
@@ -155,7 +155,7 @@ real_t BaseSolver::feedLine_libSVM(const string & aline) {
   Sample &sample = batch_samples[sample_idx];
 
   // parse label
-  sample.y = pos[0] == '1' ? 1 : -1;
+  sample.label.i = pos[0] == '1' ? 1 : -1;
 
   // parse featrues
   size_t fm_node_idx = 0;
@@ -181,7 +181,7 @@ real_t BaseSolver::feedLine_libSVM(const string & aline) {
 
 real_t BaseSolver::feedLine_CSV(const string & aline) {
   // label统一为1， -1的形式
-  // y = atoi(line) > 0 ? 1 : -1;
+  // label.i = atoi(line) > 0 ? 1 : -1;
   line_split_buff.clear();
   utils::split_string(aline, train_opt.feat_seperator, line_split_buff);
 
@@ -192,7 +192,7 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   Sample &sample = batch_samples[sample_idx];
 
   // parse label
-  sample.y = line_split_buff[0][0] == '1' ? 1 : -1;
+  sample.label.i = line_split_buff[0][0] == '1' ? 1 : -1;
 
   // parse featrues
   size_t fm_node_idx = 0;
@@ -210,7 +210,7 @@ void BaseSolver::train(const string & line, int &y, real_t &logit, real_t & loss
 
   batch_samples[sample_idx].backward();
   
-  y = batch_samples[sample_idx].y;
+  y = batch_samples[sample_idx].label.i;
   logit = batch_samples[sample_idx].logit;
   loss = batch_samples[sample_idx].loss;
   grad = batch_samples[sample_idx].grad;
@@ -223,7 +223,7 @@ void BaseSolver::train(const string & line, int &y, real_t &logit, real_t & loss
 
 void BaseSolver::test(const string & line, int &y, real_t &logit) {
   (this->*lineProcessor)(line);
-  y = batch_samples[sample_idx].y;
+  y = batch_samples[sample_idx].label.i;
   logit = batch_samples[sample_idx].logit;
 }
 
@@ -258,8 +258,6 @@ void BaseSolver::test(const string & line, int &y, real_t &logit) {
   }
 
   virtual void update_by_adam() {
-    // TODO 这里的pow(beta1_pow, t), t是取总步数，该是取该参数更新的次数？
-
     for (auto & param_node : backward_params) {
       real_t grad = param_node.grad;
       real_t xi = param_node.xi;
@@ -312,8 +310,6 @@ void BaseSolver::test(const string & line, int &y, real_t &logit) {
   }
 
   void update_by_adam_raw(real_t grad) {
-    // TODO 这里的pow(beta1_pow, t), t是取总步数，该是取该参数更新的次数？
-
     for (auto & param_node : backward_params) {
       real_t grad = param_node.grad;
       real_t xi = param_node.xi;
@@ -363,8 +359,6 @@ void BaseSolver::test(const string & line, int &y, real_t &logit) {
 
 
   void update_by_ftrl() {
-
-    // TODO FTRL并不需要batchsize，这种通用的处理方法带来很多额外的性能开销。 测试一下，batch_size是否对FTRL的精度有效，没什么作用的话为FTRL专门设计一下Solver
     for (auto & param_node : backward_params) {
       real_t grad = param_node.grad;
       real_t xi = param_node.xi;
@@ -391,6 +385,6 @@ void BaseSolver::test(const string & line, int &y, real_t &logit) {
 
       param_node.mutex->unlock();
     }
-  }  
+  }
 
 #endif

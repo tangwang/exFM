@@ -15,15 +15,15 @@ class PthreadMutexWithCond {
     pthread_cond_init(&cond_, NULL);
   }
 
-  inline void lock() { pthread_mutex_lock(&lock_); }
+  void lock() { pthread_mutex_lock(&lock_); }
 
-  inline void unlock() { pthread_mutex_unlock(&lock_); }
+  void unlock() { pthread_mutex_unlock(&lock_); }
 
-  inline int tryLock() { return pthread_mutex_trylock(&lock_); }
+  int tryLock() { return pthread_mutex_trylock(&lock_); }
 
-  inline void wait() { pthread_cond_wait(&cond_, &lock_); }
+  void wait() { pthread_cond_wait(&cond_, &lock_); }
 
-  inline void notify() { pthread_cond_signal(&cond_); }
+  void notify() { pthread_cond_signal(&cond_); }
   // disable copy
  private:
   PthreadMutexWithCond(const PthreadMutexWithCond &ohter);

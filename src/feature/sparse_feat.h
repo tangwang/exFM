@@ -4,13 +4,13 @@
 #pragma once
 #include "feature/common_feat.h"
 #include "utils/dict.hpp"
+#include "synchronize/mutex_adapter.h"
 
 using utils::Dict;
 
 class SparseFeatConfig : public CommonFeatConfig {
  public:
   feat_id_t max_id;
-  feat_id_t ids_num;
 
   // mapping_type == "orig_id" 时，vocab_size由max_id确定
   // mapping_type == "hash" 时，vocab_size由ids_num确定
@@ -28,6 +28,9 @@ class SparseFeatConfig : public CommonFeatConfig {
     mapping_by_dict_int32,
     mapping_by_dict_int64,
     mapping_by_dict_str,
+    mapping_by_dynamic_dict_int32,
+    mapping_by_dynamic_dict_int64,
+    mapping_by_dynamic_dict_str,
     mapping_by_hash_int32,
     mapping_by_hash_int64,
     mapping_by_hash_str
@@ -42,10 +45,14 @@ class SparseFeatConfig : public CommonFeatConfig {
   string shared_embedding_name;
 
   string mapping_dict_name;
+  string mapping_dict_path;
 
-  Dict<int, feat_id_t> i32_feat_id_dict;
-  Dict<long, feat_id_t> i64_feat_id_dict;
-  Dict<string, feat_id_t> str_feat_id_dict;
+  // feat value to id mapping dicts. 
+  mutable Dict<int, feat_id_t> i32_feat_id_dict;
+  mutable Dict<long, feat_id_t> i64_feat_id_dict;
+  mutable Dict<string, feat_id_t> str_feat_id_dict;
+  mutable feat_id_t max_feat_id_of_mapping_dict;
+  mutable shared_ptr<RW_Mutex_t> mapping_dict_lock;
 
   bool initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
@@ -56,7 +63,6 @@ class SparseFeatConfig : public CommonFeatConfig {
     out << " i64_feat_id_dict size <" << cfg.i64_feat_id_dict.size() << ">" << endl;
     out << " str_feat_id_dict size <" << cfg.str_feat_id_dict.size() << ">" << endl;
     out << " max_id <" << cfg.max_id << ">" << endl;
-    out << " ids_num <" << cfg.ids_num << ">" << endl;
     out << " vocab_size <" << cfg.vocab_size << ">" << endl;
     out << " default_id <" << cfg.default_id << ">" << endl;
     out << " unknown_id <" << cfg.unknown_id << ">" << endl;

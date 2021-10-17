@@ -94,7 +94,10 @@
 
 ---
 
-草稿：
+TODO 
+mapping_type增加lru_dict，需配置max_size，考虑id新老更替问题，考虑简易使用、简易上手的问题（不需先跑出词典）；hash后加dict
+工程化：定时dump模型；dump模型同时dump更新后的dict？
+支持mse损失
 
 
 

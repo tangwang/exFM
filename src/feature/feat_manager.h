@@ -21,9 +21,9 @@ class FeatManager {
 
   bool dumpModel();
   
-  vector<DenseFeatConfig> dense_feas;
-  vector<SparseFeatConfig> sparse_feas;
-  vector<VarlenSparseFeatConfig> varlen_feas;
+  vector<DenseFeatConfig> dense_feat_cfgs;
+  vector<SparseFeatConfig> sparse_feat_cfgs;
+  vector<VarlenSparseFeatConfig> varlen_feat_cfgs;
 
   // key: 如果有shared_embedding_name则用shared_embedding_name，否则用特征的名称. 用于共享embedding
   unordered_map<string, shared_ptr<ParamContainerInterface>> shared_param_container_map;

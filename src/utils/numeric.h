@@ -104,7 +104,7 @@ inline float sign_a_multiply_b(float a, float b) {
 // 4
 //  grep valid log_adagrad_0926__reduce_grad_by_batch_size___init_as_1e-7/* | grep AUC=0.793  | wc -l
 // 0
- 
+
 inline double uniform()
 {
     return rand()/((double)RAND_MAX + 1.0);

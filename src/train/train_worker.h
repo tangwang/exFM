@@ -31,7 +31,6 @@ class TrainWorker {
     solver = _solver;
   }
 
-  ////////////////
   // thread
   void StartTrainLoop() {
     thread_handler = std::thread(&TrainWorker::task_process_thread_loop, this);
@@ -107,7 +106,7 @@ class TrainWorker {
       input_stream.clear();
       input_stream.seekg(0);
     } while (!stop_flag);
-    // 训练完成后再最后跑一遍测试集
+    // do validation after tranning finished
     while (std::getline(input_stream, line_buff)) {
       // solver->train_fm_flattern(true);
       real_t logit;

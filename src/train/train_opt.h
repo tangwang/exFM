@@ -49,7 +49,7 @@ class TrainOption {
 
   int threads_num;
   int time_interval_of_validation;
-  static constexpr long n_sample_per_output = 100000;
+  static constexpr long n_sample_per_output = 1000000;
   static constexpr int task_queue_size = 5000;
   // constexpr int shulf_window_size = 10007;
   // constexpr bool shuffle = false;

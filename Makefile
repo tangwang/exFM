@@ -25,14 +25,14 @@ DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 OBJS = ${patsubst %.cc, %.o, ${SRC}}
 DEBUG_OBJS = ${patsubst %.cc, %.debugO, ${SRC}}
 
-all : bin/train bin/train_debug
-#all : bin/train 
+# all : bin/train bin/train_debug
+all : bin/train 
 
 CC = g++
 LIB= -lpthread
 INC = -I./third_party  -I./src
-DEBUG_CCFLAGS = -g -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs
-CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs  -march=native 
+DEBUG_CCFLAGS = -g -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes
+CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes -march=native 
 
 bin/train: ${OBJS} 
 	-mkdir -p bin

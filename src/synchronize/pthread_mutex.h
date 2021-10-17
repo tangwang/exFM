@@ -12,15 +12,15 @@ class PthreadMutex {
   PthreadMutex() { pthread_mutex_init(&lock_, (pthread_mutexattr_t *)NULL); }
   ~PthreadMutex() { pthread_mutex_destroy(&lock_); }
 
-  inline void lock() { pthread_mutex_lock(&lock_); }
+  void lock() { pthread_mutex_lock(&lock_); }
 
-  inline void unlock() { pthread_mutex_unlock(&lock_); }
+  void unlock() { pthread_mutex_unlock(&lock_); }
 
-  inline int tryLock() { return pthread_mutex_trylock(&lock_); }
+  int tryLock() { return pthread_mutex_trylock(&lock_); }
 
-  inline void wait() {}
+  void wait() {}
 
-  inline void notify() {}
+  void notify() {}
 
   // disable copy
  private:

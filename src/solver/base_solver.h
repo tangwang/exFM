@@ -24,7 +24,10 @@ class Sample {
   real_t grad;
   real_t sum[DIM];
   real_t sum_sqr[DIM];
-  int y;
+  union {
+    int i;    // for classification
+    real_t f; // for regression
+  } label;
 };
 
 class BaseSolver {
@@ -49,9 +52,9 @@ protected:
 
 protected:
   const FeatManager &feat_manager_;
-  vector<DenseFeatContext> dense_feas;
-  vector<SparseFeatContext> sparse_feas;
-  vector<VarlenSparseFeatContext> varlen_feas;
+  vector<DenseFeatContext> dense_feats;
+  vector<SparseFeatContext> sparse_feats;
+  vector<VarlenSparseFeatContext> varlen_feats;
   std::unordered_map<string, CommonFeatContext *> feat_map; // libsvm格式数据的特征索引
   vector<pair<size_t, CommonFeatContext *>> feat_entries;                 // csv格式数据的特征索引
   vector<string> line_split_buff;   // csv格式数据的解析中间变量

@@ -13,6 +13,9 @@ import multiprocessing
 
 from conf import *
 
+max_hash_buckets = 10000000
+min_hash_buckets = 200
+
 def proc_line__csv(job_queue, process_id, dict_feat_name_to_id,
     a_dense_feat_dict,
     a_sparse_id_feat_dict,
@@ -327,11 +330,17 @@ if __name__ == '__main__':
         max_id = int(np.max(v))
         num = len(v)
         ids_num = len(set(v))
+        vocab_size = min(ids_num + 5000, 10 * (ids_num+10))
+        if (vocab_size < min_hash_buckets):
+            vocab_size = min_hash_buckets
+        if (vocab_size > max_hash_buckets):
+            vocab_size = max_hash_buckets
         print(f' sparse_feat : {k} ')
         print('min_id', min_id)
         print('max_id', max_id)
         print('num', num)
         print('ids_num', ids_num)
+        print('vocab_size', vocab_size)
 
         mapping_dict_name = f'{k}.dict'
         mapping_dict_path = os.path.join(id_map_dict_path, mapping_dict_name)
@@ -342,12 +351,11 @@ if __name__ == '__main__':
         sparse_features.append( {'name' : k, 
                 'max_id' : max_id,
                 'ids_num' : ids_num,
+                'vocab_size' : vocab_size,
                 'value_type' : 'int64',
                 "mapping_type" : "dict",
                 'mapping_dict_name' : mapping_dict_name,
-                 'shared_embedding_name' : '',
-                 'default_id' : default_id_of_sparse_feat,
-                 'unknown_id' : unknown_id_of_sparse_feat
+                 'shared_embedding_name' : ''
                 } )
         
     for k, v in varlen_sparse_id_feat_dict.items():
@@ -363,6 +371,11 @@ if __name__ == '__main__':
         max_len = int(np.max(len_list))
         num = len(len_list)
         ids_num = len(set(v))
+        vocab_size = min(ids_num + 5000, 10 * (ids_num+10))
+        if (vocab_size < min_hash_buckets):
+            vocab_size = min_hash_buckets
+        if (vocab_size > max_hash_buckets):
+            vocab_size = max_hash_buckets
         print(f' varlen_sparse_feat : {k} ')
         print('min_id', min_id)
         print('max_id', max_id)
@@ -370,6 +383,7 @@ if __name__ == '__main__':
         print('max_len', max_len)
         print('num', num)
         print('ids_num', ids_num)
+        print('vocab_size', vocab_size)
 
         mapping_dict_name = f'{k}.dict'
         mapping_dict_path = os.path.join(id_map_dict_path, mapping_dict_name)
@@ -380,10 +394,9 @@ if __name__ == '__main__':
         varlen_sparse_features.append( {'name' : k,
                 'max_id' : max_id,
                 'ids_num' : ids_num,
+                'vocab_size' : vocab_size,
                 'value_type' : 'int64',
                 "mapping_type" : "dict",
-                 'default_id' : default_id_of_sparse_feat,
-                 'unknown_id' : unknown_id_of_sparse_feat,
                  'max_len' : max_len,
                 'pooling_type' : seq_feat_pooling_type,
                  'mapping_dict_name' : mapping_dict_name,
@@ -397,9 +410,15 @@ if __name__ == '__main__':
             continue
         num = len(v)
         ids_num = len(set(v))
+        vocab_size = min(ids_num + 5000, 10 * (ids_num+10))
+        if (vocab_size < min_hash_buckets):
+            vocab_size = min_hash_buckets
+        if (vocab_size > max_hash_buckets):
+            vocab_size = max_hash_buckets
         print(f' sparse_str_feat : {k} ')
         print('num', num)
         print('ids_num', ids_num)
+        print('vocab_size', vocab_size)
 
         mapping_dict_name = f'{k}.dict'
         mapping_dict_path = os.path.join(id_map_dict_path, mapping_dict_name)
@@ -411,10 +430,9 @@ if __name__ == '__main__':
                 'value_type' : 'str',
                  "mapping_type" : "dict",
                 'ids_num' : ids_num,
+                'vocab_size' : vocab_size,
                 'mapping_dict_name' : mapping_dict_name,
-                 'shared_embedding_name' : '',
-                 'default_id' : default_id_of_sparse_feat,
-                 'unknown_id' : unknown_id_of_sparse_feat
+                 'shared_embedding_name' : ''
                 } )
         
     for k, v in varlen_sparse_str_feat_dict.items():
@@ -427,11 +445,17 @@ if __name__ == '__main__':
         max_len = int(np.max(len_list))
         num = len(len_list)
         ids_num = len(set(v))
+        vocab_size = min(ids_num + 5000, 10 * (ids_num+10))
+        if (vocab_size < min_hash_buckets):
+            vocab_size = min_hash_buckets
+        if (vocab_size > max_hash_buckets):
+            vocab_size = max_hash_buckets
         print(f' varlen_str_sparse_feat : {k} ')
         print('mean_len', mean_len)
         print('max_len', max_len)
         print('num', num)
         print('ids_num', ids_num)
+        print('vocab_size', vocab_size)
 
         mapping_dict_name = f'{k}.dict'
         mapping_dict_path = os.path.join(id_map_dict_path, mapping_dict_name)
@@ -443,11 +467,10 @@ if __name__ == '__main__':
         varlen_sparse_features.append( {'name' : k,
                 'value_type' : 'str',
                 'ids_num' : ids_num,
+                'vocab_size' : vocab_size,
                 "mapping_type" : "dict",
                 'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : '',
-                 'default_id' : default_id_of_sparse_feat,
-                 'unknown_id' : unknown_id_of_sparse_feat,
                  'max_len' : max_len,
                 'pooling_type' : seq_feat_pooling_type
                 } )

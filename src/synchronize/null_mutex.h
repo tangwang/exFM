@@ -5,14 +5,14 @@
 
 class NullMutex {
  public:
-  inline void lock() {}
+  void lock() {}
 
-  inline void unlock() {}
+  void unlock() {}
 
-  inline int tryLock() { return 0; }
+  int tryLock() { return 0; }
   
-  inline void wait() {}
+  void wait() {}
 
-  inline void notify() {}
+  void notify() {}
 };
 

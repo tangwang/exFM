@@ -20,9 +20,9 @@ public:
     void unlock() {
         m_lock.clear(std::memory_order_release);
     }
-    inline void wait() {}
+    void wait() {}
 
-    inline void notify() {}
+    void notify() {}
 private:
     std::atomic_flag m_lock;
   // disable copy
@@ -41,20 +41,20 @@ class AtomicSpinLockWithoutMemOder {
  public:
   AtomicSpinLockWithoutMemOder() :lock_(ATOMIC_FLAG_INIT) {}
 
-  inline void lock() {
+  void lock() {
     while (lock_.test_and_set())
       ;
   }
-  inline int tryLock() {
+  int tryLock() {
     lock();
     return 1;
   }
 
-  inline void unlock() { lock_.clear(); }
+  void unlock() { lock_.clear(); }
 
-  inline void wait() {}
+  void wait() {}
 
-  inline void notify() {}
+  void notify() {}
   // disable copy
   private:
   AtomicSpinLockWithoutMemOder(const AtomicSpinLockWithoutMemOder &ohter);

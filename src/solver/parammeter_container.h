@@ -6,6 +6,7 @@
 #include "utils/base.h"
 #include "utils/utils.h"
 #include "synchronize/mutex_adapter.h"
+#include "utils/stopwatch.h"
 
 
 // 通用参数的头部结构
@@ -103,11 +104,11 @@ class ParamContainerInterface {
     if (model_fmt == "bin") {
       ifstream ifs;
       ifs.open(path, std::ifstream::binary);
-      int weight_size = sizeof(FMParamUnit);
       feat_id_t i = 0;
       for (; i < total_feat_num; i++) {
+        // load params befor solver threads created, so donnot need to lock. if solver workers is created, must lock for each params
         FMParamUnit *p = get(i);
-        ifs.read((char *)p, weight_size);
+        ifs.read((char *)p, sizeof(FMParamUnit));
         if (!ifs) {
           std::cerr << "load model faild, size not match: " << path << " feat_id: " << i <<  std::endl;
           return -1;
@@ -146,18 +147,28 @@ class ParamContainerInterface {
   int dump(string path, string model_fmt) {
     int ret = 0;
     feat_id_t total_feat_num =  feat_num + 1;
-
     if (model_fmt == "bin") {
       ofstream ofs(path, std::ios::out | std::ios::binary);
       if (!ofs) {
         return -1;
       }
-      const int weight_size = sizeof(FMParamUnit);
+
+      utils::Stopwatch stopwatch;
+      stopwatch.start();
+
       for (feat_id_t i = 0; i < total_feat_num; i++) {
         const FMParamUnit *p = get(i);
-        ofs.write((const char *)p, weight_size);
+        Mutex_t *param_mutex = GetMutexByFeatID(i);
+        param_mutex->lock();
+        ofs.write((const char *)p, sizeof(FMParamUnit));
+        param_mutex->unlock();
       }
       ofs.close();
+
+      int tm = stopwatch.get_elapsed_by_ms();
+      cout << " dump model : feat_num " << total_feat_num <<  " feat_size " << sizeof(FMParamUnit) << " cost " << tm
+           << " ms " << endl;
+
     } else {
       ofstream ofs(path);
       if (!ofs) {
@@ -165,10 +176,13 @@ class ParamContainerInterface {
       }
       for (feat_id_t i = 0; i < total_feat_num; i++) {
         const FMParamUnit *p = get(i);
+        Mutex_t *param_mutex = GetMutexByFeatID(i);
+        param_mutex->lock();
         ofs << p->w;
         for (int i = 0; i < DIM; i++) {
           ofs << " " << p->V[i];
         }
+        param_mutex->unlock();
         ofs << std::endl;
       }
       ofs.close();
@@ -183,7 +197,7 @@ class ParamContainerInterface {
   const int mutex_nums;
 
   // mutexes
-  Mutex_t* GetMutexByFeaID(feat_id_t id) {
+  Mutex_t* GetMutexByFeatID(feat_id_t id) {
     return &mutexes[id % mutex_nums];
   }
 

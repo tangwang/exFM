@@ -6,7 +6,37 @@
 
 ## dense_features
 
-注：当某个dense特征配置了以下多个操作属性时，操作顺序按照这里特征属性排列的顺序依次理。
+连续特征将会被离散化。
+
+这里支持几种典型的离散化方式。
+
+1. 等宽离散化。这时候需要配置特征的最大值、最小值、等宽分桶的桶数。
+
+   ```
+   
+   ```
+
+2. 等频离散化。需要统计分割点，可以基于特征配置生成工具make_feat_config.py来自动生成等频离散化的分割点。
+
+   ```
+   
+   ```
+
+3. 对数映射，然后按等宽分桶。 通常适用于点击UV等特征。
+
+   ```
+   
+   ```
+
+4. 指数映射
+
+   ```
+   
+   ```
+
+   
+
+以下是详细的特征配置说明。注：当某个dense特征配置了以下多个操作属性时，操作顺序按照这里特征属性排列的顺序依次理。
 
 | 特征属性名称     | 值类型        | 是否必须 | 说明                                                         | 示例                                                         |
 | ---------------- | ------------- | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -24,17 +54,27 @@
 
 ## sparse_features
 
+离散特征都将被映射到一个整形ID，作为参数词典的下标。
+
+default_id为0。当取不到特征时，直接映射为default_id，并忽略下面的特征操作。
+
+unknown_id都为vocab_size-1（即最大有效ID+1）
+
+mapping_type=="orig_id"时：小于0或者大于max_id的特征值将被映射为unknown_id。 
+
+mapping_type=="dict"时：匹配不到特征ID词典的特征值将被映射为unknown_id。
+
+mapping_type=="dynamic_dict" 时： 新ID都将被加入词典，所以不需要unknown_id。<br />mapping_type=="hash"时：所有的特征值都将被映射为合法的ID，所以不需要unknown_id。
+
 | 特征属性名称          | 值类型 | 是否必须 | 说明                                                         | 示例                 |
 | --------------------- | ------ | -------- | ------------------------------------------------------------ | -------------------- |
 | name                  | string | Y        | 特征名称                                                     | "bid"                |
 | value_type            | string | Y        | 原始值类型，取值有： "int32" "int64" "str"                   | str                  |
-| default_id            | uint32 | Y        | 当取不到特征时，直接映射为default_id，并忽略下面的hash、词典映射等操作。 | 0                    |
-| mapping_type          | string | Y        | 4个取值：<br />"orig_id" : 对原始值直接转无符号整形，如果原始值是字符串且不是合法的数字，则取default_id <br /> "hash" : 进行hash映射，hash方式统一采用MurmurHash3。<br />"dict" : 按词典进行映射，需要通过mapping_dict_name配置词典名称。<br />"lru_dict" : 边训练边构建词典，需要通过lru_dict_max_size配置最大的词典个数。<br /><br />对于类别、渠道等不经常变动的离散特征，可以配置dict方式，按事先统计的映射表进行映射。<br />对于uid之类的大规模离散特征，可以配置hash以控制参数量。<br />对于待排序的itemID，通常不希望hash冲突，而且也有新老的更替，所以按hash或者dict进行映射可能都不理想，可以使用lru_dict，模型将一直维护最新的N个ID的参数。 | "dict"               |
+| mapping_type          | string | Y        | 4个取值：<br />"orig_id" : 对原始值直接转无符号整形，如果原始值是字符串且不是合法的数字，则取default_id <br /> "hash" : 进行hash映射，hash方式统一采用MurmurHash3。<br />"dict" : 按词典进行映射，需要通过mapping_dict_name配置词典名称。<br />"dynamic_dict" : 边训练边构建词典，如果有配置mapping_dict_name则以其为初始化的词典。<br /><br />对于类别、渠道等不经常变动的离散特征，可以配置dict方式，按事先统计的映射表进行映射。<br />对于uid之类的大规模离散特征，可以配置hash以控制参数量。<br />对于待排序的itemID，通常不希望hash冲突，而且也有新老的更替，所以按hash或者dict进行映射可能都不理想，可以使用lru_dict，模型将一直维护最新的N个ID的参数。 | "dict"               |
 | mapping_dict_name     | string | N        | 词典名称，通过该词典对原始值进行映射。 映射词典的key类型必须与x的值类型（value_type配置项）一致。value类型一律为32位无符号整形。 | "tagname2tagid.dict" |
-| unknown_id            | int    | N        | mapping_type=="orig_id"时，小于0或者大于max_id的特征值将被映射为unknown_id。<br />mapping_type=="dict"时，匹配不到特征ID词典的特征值将被映射为unknown_id。<br />mapping_type=="hash"时，所有的特征值都将被映射为合法的ID，所以不需要该参数。 | 1                    |
-| max_id                | int    | N        | mapping_type=="orig_id"时需填写。将根据该参数确定特征ID总数。 | 8888                 |
-| ids_num               | int    | N        | mapping_type=="hash"时需填写。将根据该参数确定hash桶个数。<br /> | 8888                 |
-| shared_embedding_name | string | N        | 暂未支持                                                     |                      |
+| max_id                | int    | N        | mapping_type=="orig_id"时需填写。                            | 8888                 |
+| vocab_size            | int    | N        | mapping_type=="dynamic_dict" 或者 mapping_type=="hash"时：确定参数的总个数，mapping_type为其他情况不需要。 |                      |
+| shared_embedding_name | string | N        | 目前参数共享的实现还有问题。                                 |                      |
 
 
 ## varlen_sparse_features

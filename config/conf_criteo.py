@@ -28,9 +28,6 @@ dense_feat_freq_splits = [10, 25]
 
 default_value_of_dense_feat = 0
 
-# sparse特征ID词典，ID从2开始编号，0和1预留给default_id和unknown_id，分别代表没有值和不在词典中的值
-default_id_of_sparse_feat = 0
-unknown_id_of_sparse_feat = 1
 min_freq_for_sparse_feat_dict = 0 # 特征出现大于该值时，才加入特征ID映射词典
 
 seq_feat_pooling_type = "sum" # 暂时只支持sum和avg

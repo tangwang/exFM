@@ -26,7 +26,6 @@ bool VarlenSparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamCo
 
 void to_json(json &j, const VarlenSparseFeatConfig &p) {
   j = json{{"name", p.name},
-           {"ids_num", p.sparse_cfg.ids_num},
            {"max_id", p.sparse_cfg.max_id},
            {"mapping_dict_name", p.sparse_cfg.mapping_dict_name},
            {"default_id", p.sparse_cfg.default_id},
@@ -106,7 +105,7 @@ int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_le
 
   for (auto id :  feat_ids) {
     FMParamUnit *feat_param = cfg_.sparse_cfg.param_container->get(id);
-    Mutex_t *param_mutex = cfg_.sparse_cfg.param_container->GetMutexByFeaID(id);
+    Mutex_t *param_mutex = cfg_.sparse_cfg.param_container->GetMutexByFeatID(id);
 
     param_mutex->lock();
     fm_node.forward += *feat_param;
