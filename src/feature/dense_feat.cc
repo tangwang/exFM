@@ -6,6 +6,11 @@
 
 DenseFeatConfig::DenseFeatConfig() {
   default_value = 0.0;
+  add = 0.0;
+  multiply = 0.0;
+  pow = 0.0;
+  log_base = 0.0;
+  log_divisor = 0.0;
 }
 
 DenseFeatConfig::~DenseFeatConfig() {}
@@ -93,6 +98,10 @@ void to_json(json &j, const DenseFeatConfig &p) {
   j = json{{"name", p.name},
            {"min_clip", p.min},
            {"max_clip", p.max},
+           {"max_clip", p.max},
+           {"max_clip", p.max},
+           {"max_clip", p.max},
+           {"max_clip", p.max},
            {"default_value", p.default_value},
            {"sparse_by_wide_bins_numbs", p.sparse_by_wide_bins_numbs},
            {"sparse_by_splits", p.sparse_by_splits}};
@@ -107,13 +116,21 @@ void from_json(const json &j, DenseFeatConfig &p) {
   if (j.find("min_clip") == j.end()) {
     throw "feature config err : no attr \"min_clip\" in dense feature.";
   }
+  j.at("min_clip").get_to(p.min);
 
-  j.at("max_clip").get_to(p.min);
   if (j.find("max_clip") == j.end()) {
     throw "feature config err : no attr \"max_clip\" in dense feature.";
   }
-
   j.at("max_clip").get_to(p.max);
+
+  if (j.find("add") != j.end()) j.at("add").get_to(p.add);
+  if (j.find("multiply") != j.end()) j.at("multiply").get_to(p.multiply);
+  if (j.find("pow") != j.end()) j.at("pow").get_to(p.pow);
+  if (j.find("log") != j.end()) {
+    j.at("log").get_to(p.log_base);
+    p.log_divisor = std::log(p.log_base);
+  }
+
   if (j.find("default_value") != j.end())      j.at("default_value").get_to(p.default_value);
   if (j.find("sparse_by_wide_bins_numbs") != j.end())     j.at("sparse_by_wide_bins_numbs").get_to(p.sparse_by_wide_bins_numbs);
   if (j.find("sparse_by_splits") != j.end())   j.at("sparse_by_splits").get_to(p.sparse_by_splits);

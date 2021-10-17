@@ -8,6 +8,12 @@ class DenseFeatConfig : public CommonFeatConfig {
  public:
   real_t min;
   real_t max;
+  real_t add;
+  real_t multiply;
+  real_t pow;
+  real_t log_base;
+  real_t log_divisor;
+  
   real_t default_value;
 
   // 配置的等频分桶桶宽
@@ -25,6 +31,17 @@ class DenseFeatConfig : public CommonFeatConfig {
     if (x == default_value) {
       return  feat_ids_of_each_buckets[feat_ids_of_each_buckets.size() - 1];
     }
+    x += add;
+    if (multiply != 0.0) {
+      x *= multiply;
+    }
+    if (pow != 0.0) {
+      x = std::pow(x, pow);
+    }
+    if (log_divisor != 0.0) {
+      x = std::log(x) / log_divisor;
+    }
+
     int bucket_id = lower_bound(all_splits.begin(), all_splits.end(), x) -
                     all_splits.begin();
     // TODO check
