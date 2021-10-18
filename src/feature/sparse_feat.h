@@ -13,13 +13,11 @@ class SparseFeatConfig : public CommonFeatConfig {
   feat_id_t max_id;
 
   // mapping_type == "orig_id" 时，vocab_size由max_id确定
-  // mapping_type == "hash" 时，vocab_size由ids_num确定
+  // mapping_type == "hash" 时，vocab_size从配置文件读取
   // mapping_type == "dict" 时，vocab_size由配置词典大小确定
   feat_id_t vocab_size;
-
-  // mapping_type == "orig_id" 时，default_id设为max_id, unknown_id设为max_id+1
-  // mapping_type == "hash" 时，default_id设为0, unknown_id设为1
-  // mapping_type == "dict" 时，default_id设为0, unknown_id设为1
+  // default_id 约定永远为0
+  // unknown_id 约定永远为vocab_size-1
   feat_id_t default_id;
   feat_id_t unknown_id;
   
@@ -53,6 +51,53 @@ class SparseFeatConfig : public CommonFeatConfig {
   mutable Dict<string, feat_id_t> str_feat_id_dict;
   mutable feat_id_t max_feat_id_of_mapping_dict;
   mutable shared_ptr<RW_Mutex_t> mapping_dict_lock;
+
+  template <typename DictKeyType>
+  bool loadFeatIdDict(const string& mapping_dict_path,
+                      Dict<DictKeyType, feat_id_t>& feat_value2id_dict) const {
+    bool ret = false;
+    feat_value2id_dict.setNullValue(unknown_id);
+    if (feat_value2id_dict.create(mapping_dict_path,
+                                  train_opt.feat_id_dict_seperator)) {
+      std::cout << "load dict <" << mapping_dict_path << "> ok, size <"
+                << feat_value2id_dict.size() << ">" << std::endl;
+      for (auto iter = feat_value2id_dict.begin();
+           iter != feat_value2id_dict.end(); iter++) {
+        if (max_feat_id_of_mapping_dict < iter->second)
+          max_feat_id_of_mapping_dict = iter->second;
+      }
+      ret = true;
+    } else {
+      std::cerr << "load dict <" << mapping_dict_path << "> failed!"
+                << std::endl;
+    }
+    return ret;
+  }
+
+  template <typename DictKeyType>
+  feat_id_t getAndSetFeatID(const DictKeyType& orig_feat_value,
+                            Dict<DictKeyType, feat_id_t>& feat_value2id_dict) const {
+    mapping_dict_lock->readLock();
+    int temp_max_feat_id_of_mapping_dict = max_feat_id_of_mapping_dict;
+    feat_id_t feat_id = feat_value2id_dict.get(orig_feat_value);
+    bool is_new_feat_id = (feat_id == unknown_id &&
+                           temp_max_feat_id_of_mapping_dict < unknown_id - 1);
+    mapping_dict_lock->unlock();
+    if (is_new_feat_id) {
+      mapping_dict_lock->writeLock();
+      // need get again when dict changed (check dict size change or max_feat_id change)
+      if (max_feat_id_of_mapping_dict != temp_max_feat_id_of_mapping_dict) {
+        feat_id = feat_value2id_dict.get(orig_feat_value);
+      }
+      if (feat_id == unknown_id &&
+          max_feat_id_of_mapping_dict < unknown_id - 1) {
+        feat_value2id_dict.set(orig_feat_value, ++max_feat_id_of_mapping_dict);
+        feat_id = max_feat_id_of_mapping_dict;
+      }
+      mapping_dict_lock->unlock();
+    }
+    return feat_id;
+  }
 
   bool initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 

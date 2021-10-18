@@ -30,36 +30,19 @@ feat_id_t SparseFeatConfig::featMapping(const char * orig_feat_id, size_t str_le
         feat_id = str_feat_id_dict.get(orig_feat_id);
       } break;
 
-#define GET_AND_SET_FEAT_ID(orig_feat_value, feat_value2id_dict)                                           \
-        do {                                                                                               \
-          bool is_new_feat_id;                                                                             \
-          mapping_dict_lock->readLock();                                                                    \
-          feat_id = feat_value2id_dict.get(orig_feat_value);                                               \
-          is_new_feat_id = (feat_id == unknown_id && max_feat_id_of_mapping_dict < unknown_id - 1);        \
-          mapping_dict_lock->unlock();                                                                      \
-          if (is_new_feat_id) {                                                                            \
-            mapping_dict_lock->writeLock();                                                                 \
-            feat_id = feat_value2id_dict.get(orig_feat_value);                                             \
-            if (feat_id == unknown_id && max_feat_id_of_mapping_dict < unknown_id - 1) {                   \
-              feat_value2id_dict.set(orig_feat_value, ++max_feat_id_of_mapping_dict);                      \
-              feat_id = max_feat_id_of_mapping_dict;                                                       \
-            }                                                                                              \
-            mapping_dict_lock->unlock();                                                                    \
-          }                                                                                                \
-        } while (0)
 
       case mapping_by_dynamic_dict_int32: {
         // int i_orig_feat_id = atoi(orig_feat_id);
         int i_orig_feat_id = int(std::round(atof(orig_feat_id)));  // TODO 为zy搞的特殊版本，兼容float
-        GET_AND_SET_FEAT_ID(i_orig_feat_id, i32_feat_id_dict);
+        feat_id = getAndSetFeatID(i_orig_feat_id, i32_feat_id_dict);
       } break;
       case mapping_by_dynamic_dict_int64: {
         // long i_orig_feat_id = atol(orig_feat_id);
         long i_orig_feat_id = long(std::round(atof(orig_feat_id)));  // TODO 为zy搞的特殊版本，兼容float
-        GET_AND_SET_FEAT_ID(i_orig_feat_id, i64_feat_id_dict);
+        feat_id = getAndSetFeatID(i_orig_feat_id, i64_feat_id_dict);
       } break;
       case mapping_by_dynamic_dict_str: {
-        GET_AND_SET_FEAT_ID(orig_feat_id, str_feat_id_dict);
+        feat_id = getAndSetFeatID(string(orig_feat_id), str_feat_id_dict);
       } break;
       case mapping_by_hash_int32: {
         // int i_orig_feat_id = atoi(orig_feat_id);
@@ -93,52 +76,41 @@ bool SparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContaine
 
   bool ret = true;
 
-#define LOAD_FEAT_ID_DICT(dict)                                             \
-  do {                                                                      \
-    dict.setNullValue(unknown_id);                                          \
-    if (dict.create(mapping_dict_path, train_opt.feat_id_dict_seperator)) { \
-      std::cout << "load dict <" << mapping_dict_path << "> ok, size <"     \
-                << dict.size() << ">" << std::endl;                         \
-      for (auto iter = dict.begin(); iter != dict.end(); iter++) {          \
-        if (max_feat_id_of_mapping_dict < iter->second)                     \
-          max_feat_id_of_mapping_dict = iter->second;                       \
-      }                                                                     \
-    } else {                                                                \
-      ret = false;                                                          \
-      std::cerr << "load dict <" << mapping_dict_path << "> failed!!!"      \
-                << std::endl;                                               \
-    }                                                                       \
-  } while (0)
-
   // 加载词典， 确定vocab_size，default_id, unknown_id
   switch (mapping_type) {
     case mapping_by_dict_int32:
-      LOAD_FEAT_ID_DICT(i32_feat_id_dict);
+      ret = loadFeatIdDict(mapping_dict_path, (i32_feat_id_dict));
       vocab_size = std::max(vocab_size, max_feat_id_of_mapping_dict + 2);
       break;
 
     case mapping_by_dict_int64:
-      LOAD_FEAT_ID_DICT(i64_feat_id_dict);
+      ret = loadFeatIdDict(mapping_dict_path, (i64_feat_id_dict));
       vocab_size = std::max(vocab_size, max_feat_id_of_mapping_dict + 2);
       break;
 
     case mapping_by_dict_str:
-      LOAD_FEAT_ID_DICT(str_feat_id_dict);
+      ret = loadFeatIdDict(mapping_dict_path, (str_feat_id_dict));
       vocab_size = std::max(vocab_size, max_feat_id_of_mapping_dict + 2);
       break;
 
     case mapping_by_dynamic_dict_int32:
-      if (!mapping_dict_path.empty()) LOAD_FEAT_ID_DICT(i32_feat_id_dict);
+      if (!mapping_dict_path.empty()) {
+        ret = loadFeatIdDict(mapping_dict_path, (i32_feat_id_dict));
+      }
       mapping_dict_lock = std::make_shared<RW_Mutex_t>();
       break;
 
     case mapping_by_dynamic_dict_int64:
-      if (!mapping_dict_path.empty()) LOAD_FEAT_ID_DICT(i64_feat_id_dict);
+      if (!mapping_dict_path.empty()) {
+        ret = loadFeatIdDict(mapping_dict_path, (i64_feat_id_dict));
+      }
       mapping_dict_lock = std::make_shared<RW_Mutex_t>();
       break;
 
     case mapping_by_dynamic_dict_str:
-      if (!mapping_dict_path.empty()) LOAD_FEAT_ID_DICT(str_feat_id_dict);
+      if (!mapping_dict_path.empty()) {
+        ret = loadFeatIdDict(mapping_dict_path, (str_feat_id_dict));
+      }
       mapping_dict_lock = std::make_shared<RW_Mutex_t>();
       break;
 
