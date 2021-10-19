@@ -27,5 +27,7 @@ class PthreadRWLock {
  private:
   PthreadRWLock(const PthreadRWLock &ohter);
   PthreadRWLock &operator=(const PthreadRWLock &that);
+  PthreadRWLock(PthreadRWLock &ohter);
+  PthreadRWLock &operator=(PthreadRWLock &that);
 };
 

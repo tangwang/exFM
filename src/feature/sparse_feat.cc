@@ -166,16 +166,16 @@ void to_json(json &j, const SparseFeatConfig &p) {
 }
 
 void from_json(const json &j, SparseFeatConfig &p) {
-  if (j.find("name") == j.end()) {
+  if (!j.contains("name")) {
     throw "feature config err : no attr \"name\" in dense feature.";
   }
   j.at("name").get_to(p.name);
 
-  if (j.find("mapping_type") == j.end()) {
+  if (!j.contains("mapping_type")) {
     throw "feature config err : no attr \"mapping_type\" in dense feature.";
     return;
   }
-  if (j.find("value_type") == j.end()) {
+  if (!j.contains("value_type")) {
     throw "feature config err : no attr \"value_type\" in dense feature.";
     return;
   }
@@ -187,7 +187,7 @@ void from_json(const json &j, SparseFeatConfig &p) {
 
   // mapping_type=="orig_id"时需填写max_id。将根据max_id确定特征ID总数。
   if (str_mapping_type == "orig_id") {
-    if (j.find("max_id") == j.end()) {
+    if (!j.contains("max_id")) {
       throw "feature config err : no attr \"max_id\" in dense feature.";
       return;
     }
@@ -195,7 +195,7 @@ void from_json(const json &j, SparseFeatConfig &p) {
   }
   // mapping_type=="hash"时需填写ids_num。将根据ids_num确定hash桶个数。
   if (str_mapping_type == "hash") {
-    if (j.find("vocab_size") == j.end()) {
+    if (!j.contains("vocab_size")) {
       throw "feature config err : no attr \"vocab_size\" in dense feature.";
       return;
     }
@@ -238,11 +238,11 @@ void from_json(const json &j, SparseFeatConfig &p) {
     p.mapping_type = SparseFeatConfig::mapping_by_orig_id;
   }
 
-  if (j.find("mapping_dict_name") != j.end())       j.at("mapping_dict_name").get_to(p.mapping_dict_name);
+  if (j.contains("mapping_dict_name"))       j.at("mapping_dict_name").get_to(p.mapping_dict_name);
 
   p.mapping_dict_path = train_opt.mapping_dict_path + p.mapping_dict_name;
 
-  if (j.find("shared_embedding_name") != j.end())   j.at("shared_embedding_name").get_to(p.shared_embedding_name);
+  if (j.contains("shared_embedding_name"))   j.at("shared_embedding_name").get_to(p.shared_embedding_name);
 }
 
 SparseFeatContext::SparseFeatContext(const SparseFeatConfig &cfg) : cfg_(cfg) {

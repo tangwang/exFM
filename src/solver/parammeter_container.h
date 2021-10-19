@@ -205,6 +205,8 @@ class ParamContainerInterface {
   // disable copy
   ParamContainerInterface(const ParamContainerInterface &ohter);
   ParamContainerInterface &operator=(const ParamContainerInterface &that);
+  ParamContainerInterface(ParamContainerInterface &ohter);
+  ParamContainerInterface &operator=(ParamContainerInterface &that);
 };
 
 template <class ParamUnit>

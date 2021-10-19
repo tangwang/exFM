@@ -29,6 +29,8 @@ private:
   private:
   AtomicflagSpinLock(const AtomicflagSpinLock &ohter);
   AtomicflagSpinLock &operator=(const AtomicflagSpinLock &that);
+  AtomicflagSpinLock(AtomicflagSpinLock &ohter);
+  AtomicflagSpinLock &operator=(AtomicflagSpinLock &that);
 };
 
 

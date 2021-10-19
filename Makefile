@@ -31,8 +31,8 @@ all : bin/train
 CC = g++
 LIB= -lpthread
 INC = -I./third_party  -I./src
-DEBUG_CCFLAGS = -g -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes
-CCFLAGS = -g -O3 -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes -march=native 
+DEBUG_CCFLAGS = -g -O0 -fno-inline -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes
+CCFLAGS = -g -O3 -funroll-loops -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes -march=native 
 
 bin/train: ${OBJS} 
 	-mkdir -p bin

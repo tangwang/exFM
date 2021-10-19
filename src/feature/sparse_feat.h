@@ -75,14 +75,65 @@ class SparseFeatConfig : public CommonFeatConfig {
   }
 
   template <typename DictKeyType>
+  bool dumpFeatIdDict(const string& output_dict_path,
+                      const Dict<DictKeyType, feat_id_t>& feat_value2id_dict) const {
+    ofstream ofs(output_dict_path);
+    if (!ofs) {
+      cerr << "cannot open " << output_dict_path << " for write " << endl;
+      return false;
+    }
+
+    vector<pair<DictKeyType, feat_id_t>> dict_items;
+
+    mapping_dict_lock->readLock();
+    for (auto iter = feat_value2id_dict.begin();
+         iter != feat_value2id_dict.end(); iter++) {
+      dict_items.push_back(*iter);
+    }
+    mapping_dict_lock->unlock();
+
+    sort(dict_items.begin(), dict_items.end(),
+         utils::judgeByPairSecond<DictKeyType, feat_id_t>);
+
+    for (const auto& v : dict_items) {
+      ofs << v.first << train_opt.feat_id_dict_seperator << v.second
+          << std::endl;
+    }
+
+    return true;
+  }
+
+  bool dumpFeatIdDict(const string & path) const {
+
+    string feat_id_dict_path = path + "/" + name;
+
+    switch (mapping_type) {
+      case mapping_by_dynamic_dict_int32: {
+        return dumpFeatIdDict(feat_id_dict_path, i32_feat_id_dict);
+      } break;
+      case mapping_by_dynamic_dict_int64: {
+        return dumpFeatIdDict(feat_id_dict_path, i64_feat_id_dict);
+      } break;
+      case mapping_by_dynamic_dict_str: {
+        return dumpFeatIdDict(feat_id_dict_path, str_feat_id_dict);
+      } break;
+      default:
+        break;
+    }
+    return true;
+  }
+
+  template <typename DictKeyType>
   feat_id_t getAndSetFeatID(const DictKeyType& orig_feat_value,
                             Dict<DictKeyType, feat_id_t>& feat_value2id_dict) const {
+
     mapping_dict_lock->readLock();
-    int temp_max_feat_id_of_mapping_dict = max_feat_id_of_mapping_dict;
+    feat_id_t temp_max_feat_id_of_mapping_dict = max_feat_id_of_mapping_dict;
     feat_id_t feat_id = feat_value2id_dict.get(orig_feat_value);
     bool is_new_feat_id = (feat_id == unknown_id &&
                            temp_max_feat_id_of_mapping_dict < unknown_id - 1);
     mapping_dict_lock->unlock();
+    
     if (is_new_feat_id) {
       mapping_dict_lock->writeLock();
       // need get again when dict changed (check dict size change or max_feat_id change)

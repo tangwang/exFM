@@ -28,4 +28,6 @@ class PthreadMutexWithCond {
  private:
   PthreadMutexWithCond(const PthreadMutexWithCond &ohter);
   PthreadMutexWithCond &operator=(const PthreadMutexWithCond &that);
+  PthreadMutexWithCond(PthreadMutexWithCond &ohter);
+  PthreadMutexWithCond &operator=(PthreadMutexWithCond &that);
 };

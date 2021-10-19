@@ -26,5 +26,7 @@ class PthreadMutex {
  private:
   PthreadMutex(const PthreadMutex &ohter);
   PthreadMutex &operator=(const PthreadMutex &that);
+  PthreadMutex(PthreadMutex &ohter);
+  PthreadMutex &operator=(PthreadMutex &that);
 };
 

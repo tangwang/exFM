@@ -23,6 +23,10 @@ class VarlenSparseFeatConfig : public CommonFeatConfig {
 
   bool initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
+  bool dumpFeatIdDict(const string & path) const {
+    return sparse_cfg.dumpFeatIdDict(path);
+  }
+
   friend ostream & operator << (ostream &out, const VarlenSparseFeatConfig & cfg) {
     out << " VarlenSparseFeatConfig name <" << cfg.name << ">" << endl;
     out << " max_len <" << cfg.max_len << ">" << endl;
@@ -39,7 +43,7 @@ void to_json(json& j, const VarlenSparseFeatConfig& p);
 void from_json(const json& j, VarlenSparseFeatConfig& p);
 
 class VarlenSparseFeatContext : public CommonFeatContext {
- public:
+ public: 
   const VarlenSparseFeatConfig& cfg_;
 
   vector<feat_id_t>  feat_ids;

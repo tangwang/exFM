@@ -61,27 +61,27 @@ void Sample::backward() {
 
 BaseSolver::BaseSolver(const FeatManager &feat_manager)
     : feat_manager_(feat_manager), batch_size(train_opt.batch_size), sample_idx(0), batch_samples(train_opt.batch_size) {
-  for (const auto &iter : feat_manager_.dense_feat_cfgs) {
-    dense_feats.emplace_back(iter);
+  for (const auto &v : feat_manager_.dense_feat_cfgs) {
+    dense_feats.emplace_back(v);
   }
-  for (const auto &iter : feat_manager_.sparse_feat_cfgs) {
-    sparse_feats.emplace_back(iter);
+  for (const auto &v : feat_manager_.sparse_feat_cfgs) {
+    sparse_feats.emplace_back(v);
   }
-  for (const auto &iter : feat_manager_.varlen_feat_cfgs) {
-    varlen_feats.emplace_back(iter);
+  for (const auto &v : feat_manager_.varlen_feat_cfgs) {
+    varlen_feats.emplace_back(v);
   }
   for (auto & sample : batch_samples) {
     sample.fm_layer_nodes.resize(dense_feats.size() + sparse_feats.size() + varlen_feats.size());
   }
 
-  for (auto &iter : dense_feats) {
-    feat_map[iter.feat_cfg->name] = &iter;
+  for (auto &v : dense_feats) {
+    feat_map[v.feat_cfg->name] = &v;
   }
-  for (auto &iter : sparse_feats) {
-    feat_map[iter.feat_cfg->name] = &iter;
+  for (auto &v : sparse_feats) {
+    feat_map[v.feat_cfg->name] = &v;
   }
-  for (auto &iter : varlen_feats) {
-    feat_map[iter.feat_cfg->name] = &iter;
+  for (auto &v : varlen_feats) {
+    feat_map[v.feat_cfg->name] = &v;
   }
   if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
     for (size_t i = 0; i < train_opt.csv_columns.size(); i++) {

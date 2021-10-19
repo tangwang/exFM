@@ -83,10 +83,20 @@ bool FeatManager::dumpModel() {
     if (0 != access(train_opt.model_path.c_str(), 0)) {
       int mkdir_ok = mkdir(train_opt.model_path.c_str(), 0755);
       if (mkdir_ok != 0) {
-        std::cerr << "mkdir for save model faild !! << " << train_opt.model_path << std::endl;
+        std::cerr << "mkdir faild: " << train_opt.model_path << std::endl;
         return false;
       }
     }
+
+    string feat_id_dict_path = train_opt.model_path + "/feat_id_mapping";
+    if (0 != access(feat_id_dict_path.c_str(), 0)) {
+      int mkdir_ok = mkdir(feat_id_dict_path.c_str(), 0755);
+      if (mkdir_ok != 0) {
+        std::cerr << "mkdir faild: " << feat_id_dict_path << std::endl;
+        return false;
+      }
+    }
+
     cout << "begin to dump model: " << endl;
     for (auto &feat : dense_feat_cfgs) {
       if (!ret) break;
@@ -94,11 +104,11 @@ bool FeatManager::dumpModel() {
     }
     for (auto &feat : sparse_feat_cfgs) {
       if (!ret) break;
-      ret = feat.dumpModel();
+      ret = feat.dumpModel() && feat.dumpFeatIdDict(feat_id_dict_path);
     }
     for (auto &feat : varlen_feat_cfgs) {
       if (!ret) break;
-      ret = feat.dumpModel();
+      ret = feat.dumpModel() && feat.dumpFeatIdDict(feat_id_dict_path);
     }
     if (ret) {
         cout << "dump model all finished" << endl;

@@ -37,17 +37,17 @@ void to_json(json &j, const VarlenSparseFeatConfig &p) {
 }
 
 void from_json(const json &j, VarlenSparseFeatConfig &p) {
-  if (j.find("name") == j.end()) {
+  if (!j.contains("name")) {
     throw "feature config err : no attr \"name\" in varlen_sparse feature.";
   }
-  if (j.find("max_len") == j.end()) {
+  if (!j.contains("max_len")) {
     throw "feature config err : no attr \"max_len\" in varlen_sparse feature.";
   }
   j.at("name").get_to(p.name);
   j.at("max_len").get_to(p.max_len);
 
   string pooling_type = "sum";
-  if (j.find("pooling_type") != j.end()) {
+  if (j.contains("pooling_type")) {
     j.at("pooling_type").get_to(pooling_type);
   }
   if (pooling_type == "sum") {
