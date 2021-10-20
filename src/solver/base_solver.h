@@ -44,7 +44,7 @@ protected:
   real_t feedLine_CSV(const string & aline);
   real_t (BaseSolver::*lineProcessor)(const string & aline);
   
-  virtual void update() = 0;
+  virtual void update() {}
 
   void rotateSampleIdx();
 

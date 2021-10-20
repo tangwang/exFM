@@ -7,10 +7,11 @@
 #include "synchronize/null_rwmutex.h"
 
 #ifdef _PREDICT_VER_
-typedef NullMutex Mutex_t;
+typedef NullMutex ParamMutex_t;
 #else
-// typedef AtomicflagSpinLock Mutex_t;
-typedef PthreadMutex Mutex_t;
+// typedef AtomicflagSpinLock ParamMutex_t;
+// typedef PthreadMutex ParamMutex_t;
+typedef PthreadRWLock ParamMutex_t;
 #endif
 
 typedef PthreadRWLock RW_Mutex_t;

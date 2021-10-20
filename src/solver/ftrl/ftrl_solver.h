@@ -21,7 +21,7 @@ class FtrlSolver : public BaseSolver {
       batchReduce(grad, param_node.count);
 
       FtrlParamUnit *backward_param = (FtrlParamUnit *)param_node.param;
-      param_node.mutex->lock();
+      param_node.mutex->writeLock();
       real_t w_sigama =
           1 / train_opt.ftrl.w_alpha *
           (std::sqrt(backward_param->n.w + grad.w * grad.w) - std::sqrt(backward_param->n.w));

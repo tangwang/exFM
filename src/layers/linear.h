@@ -35,7 +35,7 @@ public:
 
 
 private:
-    Mutex_t mutex;
+    ParamMutex_t mutex;
 
     real_t mat[dim_in][dim_out];
 };

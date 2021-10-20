@@ -20,6 +20,8 @@ shared_ptr<ParamContainerInterface> creatParamContainer(feat_id_t  feat_num, fea
     return std::make_shared<ParamContainer<RmspropParamUnit>>(feat_num, mutex_nums);
   } else if (0 == strcasecmp(train_opt.solver.c_str(), "adam")) {
     return std::make_shared<ParamContainer<AdamParamUnit>>(feat_num, mutex_nums);
+  } else if (0 == strcasecmp(train_opt.solver.c_str(), "pred")) {
+    return std::make_shared<ParamContainer<FMParamUnit>>(feat_num, mutex_nums);
   } else {
     cerr << "unknown solver, use adam by default." << endl;
     return std::make_shared<ParamContainer<AdamParamUnit>>(feat_num, mutex_nums);

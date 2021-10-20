@@ -73,9 +73,10 @@ int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_le
       int item_len = std::min((int)(p - featid_beg), (int)sizeof(feat_id_buff)-1);
       if (item_len > 0) {
         memcpy(feat_id_buff, featid_beg, item_len);
-        feat_id_buff[item_len+1] = '\0';
+        feat_id_buff[item_len] = '\0';
         feat_id_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff, item_len);
-         feat_ids.push_back(mapped_id);
+        if (likely(mapped_id != cfg_.sparse_cfg.default_id))
+          feat_ids.push_back(mapped_id);
         if (feat_ids.size() == cfg_.max_len) break;
       }
       featid_beg = p + 1;
@@ -84,9 +85,10 @@ int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_le
   int item_len = std::min((int)(p - featid_beg), (int)sizeof(feat_id_buff)-1);
   if (item_len > 0 &&  feat_ids.size() != cfg_.max_len) {
     memcpy(feat_id_buff, featid_beg, item_len);
-    feat_id_buff[item_len+1] = '\0';
+    feat_id_buff[item_len] = '\0';
     feat_id_t mapped_id = cfg_.sparse_cfg.featMapping(feat_id_buff, item_len);
-     feat_ids.push_back(mapped_id);
+    if (likely(mapped_id != cfg_.sparse_cfg.default_id))
+      feat_ids.push_back(mapped_id);
   }
 
   fm_node.forward.clear();
@@ -105,9 +107,9 @@ int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_le
 
   for (auto id :  feat_ids) {
     FMParamUnit *feat_param = cfg_.sparse_cfg.param_container->get(id);
-    Mutex_t *param_mutex = cfg_.sparse_cfg.param_container->GetMutexByFeatID(id);
+    ParamMutex_t *param_mutex = cfg_.sparse_cfg.param_container->GetMutexByFeatID(id);
 
-    param_mutex->lock();
+    param_mutex->readLock();
     fm_node.forward += *feat_param;
     param_mutex->unlock();
     

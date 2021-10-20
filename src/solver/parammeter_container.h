@@ -47,12 +47,12 @@ struct FMParamUnit {
 };
 
 struct ParamNode {
-  ParamNode(FMParamUnit *_param = NULL, Mutex_t *_mutex = NULL,
+  ParamNode(FMParamUnit *_param = NULL, ParamMutex_t *_mutex = NULL,
                real_t _x = 1.0, real_t grad = 1.0)
       : param(_param), mutex(_mutex), grad_from_fm_node(grad), x(_x), count(1) {}
 
   FMParamUnit *param;
-  Mutex_t *mutex;
+  ParamMutex_t *mutex;
   FMParamUnit fm_grad;
   real_t grad_from_fm_node;
   real_t x;
@@ -158,8 +158,8 @@ class ParamContainerInterface {
 
       for (feat_id_t i = 0; i < total_feat_num; i++) {
         const FMParamUnit *p = get(i);
-        Mutex_t *param_mutex = GetMutexByFeatID(i);
-        param_mutex->lock();
+        ParamMutex_t *param_mutex = GetMutexByFeatID(i);
+        param_mutex->readLock();
         ofs.write((const char *)p, sizeof(FMParamUnit));
         param_mutex->unlock();
       }
@@ -176,8 +176,8 @@ class ParamContainerInterface {
       }
       for (feat_id_t i = 0; i < total_feat_num; i++) {
         const FMParamUnit *p = get(i);
-        Mutex_t *param_mutex = GetMutexByFeatID(i);
-        param_mutex->lock();
+        ParamMutex_t *param_mutex = GetMutexByFeatID(i);
+        param_mutex->readLock();
         ofs << p->w;
         for (int i = 0; i < DIM; i++) {
           ofs << " " << p->V[i];
@@ -191,13 +191,13 @@ class ParamContainerInterface {
   }
 
   unsigned char * param_base_addr;
-  vector<Mutex_t> mutexes;
+  vector<ParamMutex_t> mutexes;
   const size_t param_size_of_one_fea;
   const feat_id_t  feat_num;
   const int mutex_nums;
 
   // mutexes
-  Mutex_t* GetMutexByFeatID(feat_id_t id) {
+  ParamMutex_t* GetMutexByFeatID(feat_id_t id) {
     return &mutexes[id % mutex_nums];
   }
 

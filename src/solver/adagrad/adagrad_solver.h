@@ -26,7 +26,7 @@ class AdagradSolver : public BaseSolver {
       batchReduce(grad, param_node.count);
 
       AdagradParamUnit *backward_param = (AdagradParamUnit *)param_node.param;
-      param_node.mutex->lock();
+      param_node.mutex->writeLock();
 
       // update w
       real_t &w = backward_param->fm_param.w;

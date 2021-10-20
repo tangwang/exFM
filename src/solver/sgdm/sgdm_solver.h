@@ -28,7 +28,7 @@ class SgdmSolver : public BaseSolver {
       batchReduce(grad, param_node.count);
 
       SgdmParamUnit *backward_param = (SgdmParamUnit *)param_node.param;
-      param_node.mutex->lock();
+      param_node.mutex->writeLock();
 
       real_t & w = backward_param->fm_param.w;
       real_t & wm = backward_param->momentum.w;

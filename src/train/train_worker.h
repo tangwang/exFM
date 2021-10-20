@@ -11,13 +11,12 @@
 
 class TrainWorker {
  public:
-  TrainWorker(const char *task_name, int task_id)
-      : task_id_(task_id),
+  TrainWorker(const string & task_name, int task_id)
+      : task_name_(task_name),
+        task_id_(task_id),
         solver(NULL),
         task_queue(train_opt.task_queue_size),
-        stop_flag(false) {
-    task_name_ = string(task_name) + string("_") + std::to_string(task_id);
-  }
+        stop_flag(false) {}
   ~TrainWorker() {
     if (solver) {
       delete solver;

@@ -264,9 +264,9 @@ int SparseFeatContext::feedSample(const char *feat_str, size_t feat_str_len, FmL
   DEBUG_OUT << "feedSample " << cfg_.name << " feat_str " << feat_str << " feat_id " << feat_id << endl;
 
   FMParamUnit *feat_param = cfg_.param_container->get(feat_id);
-  Mutex_t *param_mutex = cfg_.param_container->GetMutexByFeatID(feat_id);
+  ParamMutex_t *param_mutex = cfg_.param_container->GetMutexByFeatID(feat_id);
 
-  param_mutex->lock();
+  param_mutex->readLock();
   fm_node.forward = *feat_param;
   param_mutex->unlock();
 

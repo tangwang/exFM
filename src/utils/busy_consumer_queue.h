@@ -11,7 +11,7 @@ namespace utils {
 template <typename T>
 class BusyConsumerQueue {
  public:
-  BusyConsumerQueue(size_t full_size = 4000) : full_size_(full_size) {}
+  BusyConsumerQueue(size_t full_size = 8000) : full_size_(full_size) {}
   ~BusyConsumerQueue() {}
 
   bool TryPush(T new_value) {

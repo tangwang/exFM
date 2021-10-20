@@ -28,7 +28,7 @@ class AdamSolver : public BaseSolver {
       batchReduce(grad, param_node.count);
 
       AdamParamUnit *backward_param = (AdamParamUnit *)param_node.param;
-      param_node.mutex->lock();
+      param_node.mutex->writeLock();
       // correction learning rate
       backward_param->beta1power_t *= beta1;
       backward_param->beta2power_t *= beta2;

@@ -155,31 +155,66 @@ value_type * split_string(const string &line, char delimiter, value_type * r) {
   return r;
 }
 
-template <class Iter>
-Iter split_string(const std::string &s, const std::string &delim, Iter out) {
-  size_t a = 0, b = s.find(delim);
-  for (; b != std::string::npos; a = b + delim.length(), b = s.find(delim, a)) {
-    *out++ = std::move(s.substr(a, b - a));
-  }
-  *out++ = std::move(s.substr(a, s.length() - a));
-  return out;
-}
+// template <class Iter>
+// Iter split_string(const std::string &s, const std::string &delim, Iter out) {
+//   size_t a = 0, b = s.find(delim);
+//   for (; b != std::string::npos; a = b + delim.length(), b = s.find(delim, a)) {
+//     *out++ = std::move(s.substr(a, b - a));
+//   }
+//   *out++ = std::move(s.substr(a, s.length() - a));
+//   return out;
+// }
 
 template <typename value_type>
 void split_string(const char *beg, char delimiter, char end_char,
                   vector<value_type> &vec) {
-  const char *feaid_beg = beg;
+  const char *begin = beg;
   const char *p = beg;
   for (; *p && *p != end_char; p++) {
     if (*p == delimiter) {
-      if (feaid_beg < p) {
-        vec.emplace_back(cast_type<const char *, value_type>(feaid_beg));
+      if (begin < p) {
+        vec.emplace_back(cast_type<const char *, value_type>(begin));
       }
-      feaid_beg = p + 1;
+      begin = p + 1;
     }
   }
-  if (feaid_beg < p) {
-    vec.emplace_back(cast_type<const char *, value_type>(feaid_beg));
+  if (begin < p) {
+    vec.emplace_back(cast_type<const char *, value_type>(begin));
+  }
+}
+
+template <>
+inline void split_string(const char *beg, char delimiter, char end_char,
+                  vector<string> &vec) {
+  const char *begin = beg;
+  const char *p = beg;
+  for (; *p && *p != end_char; p++) {
+    if (*p == delimiter) {
+      if (begin < p) {
+        vec.emplace_back(string(begin, p - begin));
+      }
+      begin = p + 1;
+    }
+  }
+  if (begin < p) {
+    vec.emplace_back(string(begin, p - begin));
+  }
+}
+
+inline void split_string(const char *beg, char delimiter,
+                  vector<string> &vec) {
+  const char *begin = beg;
+  const char *p = beg;
+  for (; *p; p++) {
+    if (*p == delimiter) {
+      if (begin < p) {
+        vec.emplace_back(string(begin, p - begin));
+      }
+      begin = p + 1;
+    }
+  }
+  if (begin < p) {
+    vec.emplace_back(string(begin, p - begin));
   }
 }
 

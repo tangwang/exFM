@@ -24,6 +24,15 @@ class PthreadMutexWithCond {
   void wait() { pthread_cond_wait(&cond_, &lock_); }
 
   void notify() { pthread_cond_signal(&cond_); }
+
+  void readLock() { lock(); }
+
+  int tryReadlock() { return tryLock();}
+
+  void writeLock() { lock(); }
+
+  int tryWritelock() { return tryLock(); }
+
   // disable copy
  private:
   PthreadMutexWithCond(const PthreadMutexWithCond &ohter);

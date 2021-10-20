@@ -94,7 +94,8 @@ int main(int argc, char *argv[]) {
   vector<TrainWorker *> workers;
   for (int thread_id = 0; thread_id < train_opt.threads_num; thread_id++) {
     std::cout << "start train thread " << thread_id << "..." << endl;
-    TrainWorker *p = new TrainWorker("train", thread_id);
+    string task_name = "train_" + std::to_string(thread_id);
+    TrainWorker *p = new TrainWorker(task_name, thread_id);
     p->RegisteSolver(creatSolver(feat_manager));
     p->StartTrainLoop();
     workers.push_back(p);

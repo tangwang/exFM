@@ -3,85 +3,65 @@
  */
 #include "feature/feat_manager.h"
 #include "train/train_worker.h"
-#include "solver/ftrl/ftrl_param.h"
-#include "train/train_opt.h"
-#include "train/evalution.h"
+#include "train/shulffer.h"
+#include "solver/ftrl/ftrl_solver.h"
+#include "solver/solver_factory.h"
+#include "solver/ftrl/ftrl_solver.h"
+#include "solver/adam/adam_solver.h"
+#include "solver/sgdm/sgdm_solver.h"
+#include "solver/adagrad/adagrad_solver.h"
+#include "solver/rmsprop/rmsprop_solver.h"
 
 
 int main(int argc, char *argv[]) {
   srand(time(NULL));
 
-  if (!train_opt.parse_args(argc, argv)) {
+  if (!train_opt.parse_cfg_and_cmdlines(argc, argv)) {
     cerr << "parse args faild, exit" << endl;
-    return -1;
+    return -1; 
   }
-
-  CommonFeatConfig::static_init(&train_opt);
-
-  FeatManager feat_manager;
-  assert(access(train_opt.feature_config_path, F_OK) != -1);
-  feat_manager.loadByFeatureConfig(train_opt.feature_config_path);
-
-  Solver * trainer = Solver::Create(feat_manager, train_opt);
-
-  const int MAX_LINE_BUFF = 10240;
-  char line[MAX_LINE_BUFF];
-  size_t line_num = 0;
-
-  const size_t time_interval_of_validation = 100000;
-  Evalution train_eval;
-  Evalution evaldata_eval;
-  int processed_samples = 0;
-
+  // init train input stream
   std::istream *input_stream = NULL;
   std::istream *input_file_stream = NULL;
   if (!train_opt.train_path.empty()) {
-    input_file_stream = new ifstream(train_opt.train_path, std::ios::in);
+    input_file_stream = new ifstream(train_opt.train_path);
     input_stream = input_file_stream;
+    if (!(*input_file_stream)) {
+      cerr << "train file open filed " << endl;
+      delete input_file_stream;
+      return -1;
+    }
   } else {
     cin.sync_with_stdio(false);
     input_stream = &std::cin;
   }
 
-  std::ifstream valid_stream;
-  if (!train_opt.valid_path.empty()) {
-    valid_stream.open(train_opt.valid_path);
-    if (!valid_stream) {
-      cerr << "eval file open filed " << endl;
-      return -1;
-    }
+// 如果是csv格式，解析头行
+  if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
+    string csv_header;
+    std::getline(*input_stream, csv_header);
+    utils::split_string(csv_header, train_opt.feat_seperator, train_opt.csv_columns);
   }
 
-  while (input_stream->getline(line, sizeof(line))) {
-    line_num++;
-
-    ++processed_samples;
-
-    trainer->feedSample(line);
-    trainer->train(*train_context);
-    train_eval.add(trainer->y, train_context->logit);
-
-    if (train_eval.size() == train_opt.n_sample_per_output) {
-      train_eval.output("train");
-    }
-    if (valid_stream && (processed_samples % time_interval_of_validation == 0)) {
-      valid_stream.clear();
-      valid_stream.seekg(0);
-      while (valid_stream.getline(line, sizeof(line))) {
-        trainer->feedSample(line);
-        trainer->train(true);
-        evaldata_eval.add(trainer->y, trainer->logit);
-      }
-      evaldata_eval.output("eval");
-    }
+  // init trainning workers
+  FeatManager feat_manager;
+  assert(!train_opt.feature_config_path.empty());
+  assert(access(train_opt.feature_config_path.c_str(), F_OK) != -1);
+  if (!feat_manager.loadByFeatureConfig(train_opt.feature_config_path)) {
+    cerr << "init feature manager faild, check config file " << train_opt.feature_config_path << ". exit" << endl;
+    return -1;
   }
 
-  if (input_file_stream != NULL) {
-    delete input_file_stream;
+  train_opt.solver = "pred";
+  BaseSolver solver(feat_manager);
+
+  int y;
+  real_t score;
+  string line;
+  while (std::getline(*input_stream, line)) {
+    solver.test(line, y, score);
+    cout << y << " " << score << " " << line << endl;
   }
-  if (valid_stream != NULL) {
-    delete valid_stream;
-  }
-  Solver::Destroy(trainer);
+
   return 0;
 }

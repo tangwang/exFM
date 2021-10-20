@@ -18,6 +18,14 @@ class PthreadMutex {
 
   int tryLock() { return pthread_mutex_trylock(&lock_); }
 
+  void readLock() { lock(); }
+
+  int tryReadlock() { lock(); return true;}
+
+  void writeLock() { lock(); }
+
+  int tryWritelock() { lock(); return true; }
+
   void wait() {}
 
   void notify() {}
