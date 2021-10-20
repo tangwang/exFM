@@ -16,7 +16,7 @@
 
 #if defined(_MSC_VER)
 
-// #define FORCE_INLINE	__forceinline
+#define FORCE_INLINE	__forceinline
 
 #include <stdlib.h>
 
@@ -29,7 +29,7 @@
 
 #else	// defined(_MSC_VER)
 
-#define	FORCE_INLINE __attribute__((always_inline))
+// #define	FORCE_INLINE __attribute__((always_inline))
 // __forceinline在编译动态库时会失败：inlining failed in call to always_inline ‘uint32_t getblock(const uint32_t*, int)’: function body can be overwritten at link time
 #define FORCE_INLINE	inline __attribute__((always_inline))
 
