@@ -36,6 +36,10 @@ int fm_model_init() {
   return 0;
 }
 
+int fm_model_release() {
+  if (solver) delete solver;
+}
+
 real_t pred(const string& line) {
   int y;
   real_t score;

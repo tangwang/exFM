@@ -13,7 +13,7 @@ SRC = src/feature/dense_feat.cc \
 
 SRC_TRAIN = $(SRC) src/train/train.cc 
 
-SRC_PRED = $(SRC) src/train/inference.cc 
+SRC_PRED = $(SRC) src/train/predict.cc 
 
 SRC_PRED_LIB = $(SRC) src/train/lib_fm_pred.cc 
 

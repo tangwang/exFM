@@ -206,15 +206,16 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
 }
 
 void BaseSolver::train(const string & line, int &y, real_t &logit, real_t & loss, real_t & grad) {
+  // feedLine and forward (calc score , loss)
   (this->*lineProcessor)(line);
-
+  // backward ( calc the grad layer by layer to each param )
   batch_samples[sample_idx].backward();
   
   y = batch_samples[sample_idx].label.i;
   logit = batch_samples[sample_idx].logit;
   loss = batch_samples[sample_idx].loss;
   grad = batch_samples[sample_idx].grad;
-
+  // batchReduce (reduce the grad of each param), and trigger param update (by solver) when batch finished
   rotateSampleIdx();
 
   DEBUG_OUT << "BaseSolver::train "
