@@ -62,7 +62,7 @@ int fm_pred(char* input_str, char* output_str, int output_len) {
     return 0;
   }
   size_t write_offset = 0;
-  write_offset += snprintf(output_str, "%4f", output_len, scores[0]);
+  write_offset += snprintf(output_str, output_len, "%4f", scores[0]);
   for (size_t i = 1; i < out_num; i++) {
     size_t rest_len = (size_t)output_len - write_offset;
     if (rest_len < 5) {
