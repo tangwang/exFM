@@ -94,53 +94,6 @@ inline float sign_a_multiply_b(float a, float b) {
   #endif
 }
 
-#if 1 
-// 目前测试该版本的初始化比下面基于std::normal_distribution的初始化效果优一点。待检查
-//  grep valid log_0930_use_gaussian_alphafm/* | grep AUC=0.792  | wc -l
-// 71
-//  grep valid log_adagrad_0926__reduce_grad_by_batch_size___init_as_1e-7/* | grep AUC=0.792  | wc -l
-// 6
-//  grep valid log_0930_use_gaussian_alphafm/* | grep AUC=0.793  | wc -l
-// 4
-//  grep valid log_adagrad_0926__reduce_grad_by_batch_size___init_as_1e-7/* | grep AUC=0.793  | wc -l
-// 0
-
-inline double uniform()
-{
-    return rand()/((double)RAND_MAX + 1.0);
-}
-
-inline double gaussian()
-{
-    double u,v, x, y, Q;
-    do
-    {
-        do 
-        {
-            u = uniform();
-        } while (u == 0.0); 
-
-        v = 1.7156 * (uniform() - 0.5);
-        x = u - 0.449871;
-        y = fabs(v) + 0.386595;
-        Q = x * x + y * (0.19600 * y - 0.25472 * x);
-    } while (Q >= 0.27597 && (Q > 0.27846 || v * v > -4.0 * u * u * log(u)));
-    return v / u;
-}
-
-inline double gaussian(double mean, double stdev)
-{
-    if(0.0 == stdev)
-    {
-        return mean;
-    }
-    else
-    {
-        return mean + stdev * gaussian();
-    }
-}
-
-#else
 inline real_t uniform() { return rand() / static_cast<real_t>(RAND_MAX); }
 
 inline real_t gaussian(real_t mean, real_t stdev) {
@@ -155,7 +108,6 @@ inline real_t gaussian(real_t mean, real_t stdev) {
 }
 
 inline real_t gaussian() { return gaussian(0.0, 1.0); }
-#endif
 
 // template <typename value_type>
 // void print2dArray(const vector<vector<value_type>> &arrays) {

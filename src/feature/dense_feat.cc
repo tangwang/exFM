@@ -30,7 +30,6 @@ bool DenseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainer
   for (int bucket_num : sparse_by_wide_bins_numbs) {
     vector<feat_id_t> onehot_values(onehot_feat_dimension);
     real_t wide = (max - min) / bucket_num;
-    // TODO check边界
     for (int bucket_id = 0; bucket_id < bucket_num; bucket_id++) {
       onehot_values[onehot_dimension] = onehot_id++;
       all_split_position_and_mapping_ids.push_back(

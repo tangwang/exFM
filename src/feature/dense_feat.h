@@ -44,7 +44,7 @@ class DenseFeatConfig : public CommonFeatConfig {
 
     int bucket_id = lower_bound(all_splits.begin(), all_splits.end(), x) -
                     all_splits.begin();
-    // TODO check
+
     if (bucket_id == (int)all_splits.size()) --bucket_id;
     /* gdb debug
      p  feat_params_of_each_buckets[bucket_id]
@@ -60,7 +60,6 @@ class DenseFeatConfig : public CommonFeatConfig {
     int bucket_id = lower_bound(all_splits.begin(), all_splits.end(), x) -
                     all_splits.begin();
 
-    // TODO是否要加这个
     if (bucket_id == (int)all_splits.size()) --bucket_id;
 
     return bucket_id;
@@ -96,7 +95,7 @@ class DenseFeatContext : public CommonFeatContext {
   int feedSample(const char *feat_str, size_t feat_str_len, FmLayerNode & fm_node);
 
   bool valid() const {
-    // TODO 暂时只支持离散特征
+    // 暂时只支持离散特征
     return orig_x != cfg_.default_value && !cfg_.all_splits.empty();
   }
 

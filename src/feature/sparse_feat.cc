@@ -258,8 +258,7 @@ int SparseFeatContext::feedSample(const char *feat_str, size_t feat_str_len, FmL
   if (!valid()) {
     fm_node.forward.clear();
     fm_node.backward_nodes.clear();
-    return -1;  // TODO 0929 这里要去掉。
-                // 之前默认值是-1，现在默认值改成了0，采用默认值的ID
+    return -1;  // TODO 这里可以要去掉。之前默认值是-1，现在默认值改成了0，采用默认值的ID
   }
 
   DEBUG_OUT << "feedSample " << cfg_.name << " feat_str " << feat_str << " feat_id " << feat_id << endl;

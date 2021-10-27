@@ -14,7 +14,6 @@ class FtrlSolver : public BaseSolver {
 
   virtual void update() {
 
-    // TODO FTRL并不需要batchsize，这种通用的处理方法带来很多额外的性能开销。 测试一下，batch_size是否对FTRL的精度有效，没什么作用的话为FTRL专门设计一下Solver
     for (auto & kv : batch_params) {
       ParamNode & param_node = kv.second;
       FMParamUnit & grad = param_node.fm_grad;

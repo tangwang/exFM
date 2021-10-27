@@ -12,7 +12,6 @@
 // 通用参数的头部结构
 struct FMParamUnit {
   FMParamUnit() {
-    // clear(); // TODO 有时候不需初始化
   }
   real_t w;
   real_t V[DIM];
