@@ -69,16 +69,18 @@
       但是FTRL不需要batchsize，所以batchSize不能过高（设为1或者10以下）。adam和adagrad的batchSize不能过小（否则需要极低的学习率，较难调参），可以设置为500~2000。所以选择adam/adagrad的话参数更新频次更低，训练速度比使用FTRL快很多。
       sgdm没有精心优化和调试，试了一些数据集都比FTRL/adam/adagrad效果有明显差距。
 
-   6. 启动程序进行训练。以上所有的配置，都可以放在命令行中，命令行中的参数将覆盖配置文件中的参数。比如：
+   6. 配置threads参数指定训练的线程数。
 
+   7. 启动程序进行训练。以上所有的配置，都可以放在命令行中，命令行中的参数将覆盖配置文件中的参数。比如：
+   
       ```
       bin/train solver=adam adam.lr=0.001 batch_size=800 feat_conf=criteo threads=30 train=../data/train.csv valid=../data/valid.csv om=model
       ```
 
-   7. 程序输出：模型输出路径通过om指定，支持按文本和二进制格式输出（通过mf=txt / om=bin指定）。
+   8. 程序输出：模型输出路径通过om指定，支持按文本和二进制格式输出（通过mf=txt / om=bin指定）。
 
       如果sparse特征指定的映射方式为dynamc_dict，则会将特征ID映射词典一并输出。
-
+   
       
 
 ## examples
