@@ -2,7 +2,7 @@
 
 ## 产出特征配置
 
-根据你的训练数据，产出一个简单的特征处理的配置文件，该配置文件将定义好你所需要的每个连续特征、离散特征、序列特征的处理方式。
+特征方面支持连续特征（denseFeat）、稀疏特征（sparseFeat 支持ID型和字符串类型）、变长特征（varlenSparseFeat），内置了一套工业界比较标准、实用的特征处理的方法，你可以用以下工具产出一个特征处理的配置文件，该配置文件将定义好你所需要的每个连续特征、离散特征、序列特征的处理方式。
 
 参照示例conf_csv.py和conf_criteo.py。以下是配置内容的解释。你可以配置好第1和2项，后续的都可以采用默认的配置，依次来生成一个默认的模型训练特征配置。
 
@@ -64,13 +64,22 @@
 
    5. 配置优化器： 比如 solver  = adam （目前支持adam / adagrad / rmpprop / ftrl / sgdm )各优化器的超参数都可以在该配置文件进行调整。
 
+      建议使用ftrl/adam优化器。
+      FM模型的参数较适合于用FTRL进行更新，笔者试了几个数据集都在ftrl上取得最优，adam和adagrad的效果通常非常接近于FTRL，或者持平，少数数据集上adam/adagrad取得最优。
+      但是FTRL不需要batchsize，所以batchSize不能过高（设为1或者10以下）。adam和adagrad的batchSize不能过小（否则需要极低的学习率，较难调参），可以设置为500~2000。所以选择adam/adagrad的话参数更新频次更低，训练速度比使用FTRL快很多。
+      sgdm没有精心优化和调试，试了一些数据集都比FTRL/adam/adagrad效果有明显差距。
+
    6. 启动程序进行训练。以上所有的配置，都可以放在命令行中，命令行中的参数将覆盖配置文件中的参数。比如：
 
       ```
       bin/train solver=adam adam.lr=0.001 batch_size=800 feat_conf=criteo threads=30 train=../data/train.csv valid=../data/valid.csv om=model
       ```
 
-   7. 程序输出：
+   7. 程序输出：模型输出路径通过om指定，支持按文本和二进制格式输出（通过mf=txt / om=bin指定）。
+
+      如果sparse特征指定的映射方式为dynamc_dict，则会将特征ID映射词典一并输出。
+
+      
 
 ## examples
 
@@ -92,41 +101,7 @@
 
 ---
 
-编译：
-make dim=32
-特征的embedding维数在编译期指定（make dim=xxx），不支持配置。
 
-调参：
-建议使用ftrl/adam优化器。
-FM模型的参数较适合于用FTRL进行更新，笔者试了几个数据集都在ftrl上取得最优，adam和adagrad的效果通常非常接近于FTRL，或者持平，少数数据集上adam/adagrad取得最优。
-但是FTRL不需要batchsize，所以batchSize不能过高（设为1或者10以下）。adam和adagrad的batchSize不能过小（否则需要极低的学习率，较难调参），可以设置为500~2000。所以选择adam/adagrad的话参数更新频次更低，训练速度比使用FTRL快很多。
-sgdm没有精心优化和调试，试了一些数据集都比FTRL/adam/adagrad效果有明显差距。
-选择各个优化器时，都可以使用配置文件中默认的超参，特殊情况下使用者可以自行调整超参。
-
-
-特征工程：
-集成了一套比较实用的特征工程，所以输入数据可以直接支持特征工程之前的原始数据。
-支持libsvm/csv格式。特征方面支持原始的连续特征（denseFeat）、稀疏特征（sparseFeat 支持ID型和字符串类型）、变长特征（varlenSparseFeat），内置了一套工业界比较标准、实用的特征处理的方法，详见特征配置文档。
-
-shuffle：
-通常对于深度模型都要做样本的shuffle，因为深度模型的拟合能力强，如果不乱序的话，同一个组合的batch反复出现，模型有可能会“记住”这些样本的次序，从而影响泛化能力。
-这里从性能和模型上综合考虑，做了小范围的shuffle。
-
-训练：
-配置threads参数为你希望使用的核数支持多线程训练。
-支持从标准输入读取训练数据，配置为FTRL优化器的话可以用于流式训练。
-
-
-cityhash 的优化选项：
-./configure
-make all check CXXFLAGS="-g -O3"
-sudo make install
-
-Or, if your system has the CRC32 instruction, and you want to build everything:
-
-./configure --enable-sse4.2
-make all check CXXFLAGS="-g -O3 -msse4.2"
-sudo make install
 
 公开数据集：
 https://github.com/ycjuan/kaggle-2014-criteo
