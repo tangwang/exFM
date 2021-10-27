@@ -36,7 +36,7 @@ int fm_model_init() {
   return 0;
 }
 
-int fm_model_release() {
+void fm_model_release() {
   if (solver) delete solver;
 }
 

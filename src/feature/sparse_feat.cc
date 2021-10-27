@@ -6,6 +6,8 @@
 #include "murmur_hash3/MurmurHash3.h"
 
 SparseFeatConfig::SparseFeatConfig() {
+  vocab_size = 0;
+  max_id = 0;
   default_id = 0;
   max_feat_id_of_mapping_dict = 0;
 }
@@ -48,7 +50,6 @@ feat_id_t SparseFeatConfig::featMapping(const char * orig_feat_id, size_t str_le
         // int i_orig_feat_id = atoi(orig_feat_id);
         int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
         feat_id = MurmurHash3_x86_32((void *)&i_orig_feat_id, sizeof(i_orig_feat_id), hash_seed);
-        mapping_dict_lock->unlock();
         feat_id %= vocab_size;
       } break;
       case mapping_by_hash_int64: {

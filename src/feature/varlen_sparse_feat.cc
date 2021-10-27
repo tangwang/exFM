@@ -103,7 +103,7 @@ int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_le
   real_t grad_from_fm_node = 1.0;
   if (cfg_.pooling_type_id == VarlenSparseFeatConfig::SeqPoolTypeAVG) {
     grad_from_fm_node = 1.0 /  feat_ids.size();
-  }
+ }
 
   for (auto id :  feat_ids) {
     FMParamUnit *feat_param = cfg_.sparse_cfg.param_container->get(id);
@@ -115,6 +115,10 @@ int VarlenSparseFeatContext::feedSample(const char *feat_str, size_t feat_str_le
     
     fm_node.backward_nodes.emplace_back(feat_param, param_mutex, 1.0, grad_from_fm_node);
   }
+
+  if (cfg_.pooling_type_id == VarlenSparseFeatConfig::SeqPoolTypeAVG) {
+    fm_node.forward *= grad_from_fm_node;
+ }
 
   return 0;
 }

@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
        如果不取余，则冲突概率差异明显：
          Murmurhash3 hash到32位冲突概率极低（100w次hash无冲突）
         Murmurhash3 hash到64位然后取低32位：冲突较高（1.16%）
-        Thomas Wang hash（redis用的） hash到32位 冲突较高（1.16%）和Murmurhash3 hash到64位然后取低32位基本一致，可能用法有问题。
+        Thomas Wang hash（redis用的） hash到64位 100w次无冲突；没有到32位的hash方法，hash到64位然后取低32位 和Murmurhash3 hash到64位然后取低32位冲突概率一致（1.16%）。
         Paul Hsieh's hash hash到32位，有冲突，冲突概率0.105%
         
     3）hash桶数（200w）为插入个数（100w）的2倍时，冲突概率为21.3%左右

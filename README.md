@@ -90,52 +90,31 @@
    bin/train solver=adam batch_size=800 feat_conf=criteo threads=30 train=../data/train.csv valid=../data/valid.csv om=model
    ```
 
-   
-
 ---
 
-TODO 
-mapping_type增加lru_dict，需配置max_size，考虑id新老更替问题，考虑简易使用、简易上手的问题（不需先跑出词典）；hash后加dict
-工程化：定时dump模型；dump模型同时dump更新后的dict？
-支持mse损失
+编译：
+make dim=32
+特征的embedding维数在编译期指定（make dim=xxx），不支持配置。
+
+调参：
+建议使用ftrl/adam优化器。
+FM模型的参数较适合于用FTRL进行更新，笔者试了几个数据集都在ftrl上取得最优，adam和adagrad的效果通常非常接近于FTRL，或者持平，少数数据集上adam/adagrad取得最优。
+但是FTRL不需要batchsize，所以batchSize不能过高（设为1或者10以下）。adam和adagrad的batchSize不能过小（否则需要极低的学习率，较难调参），可以设置为500~2000。所以选择adam/adagrad的话参数更新频次更低，训练速度比使用FTRL快很多。
+sgdm没有精心优化和调试，试了一些数据集都比FTRL/adam/adagrad效果有明显差距。
+选择各个优化器时，都可以使用配置文件中默认的超参，特殊情况下使用者可以自行调整超参。
 
 
+特征工程：
+集成了一套比较实用的特征工程，所以输入数据可以直接支持特征工程之前的原始数据。
+支持libsvm/csv格式。特征方面支持原始的连续特征（denseFeat）、稀疏特征（sparseFeat 支持ID型和字符串类型）、变长特征（varlenSparseFeat），内置了一套工业界比较标准、实用的特征处理的方法，详见特征配置文档。
 
-公开数据集：
-https://github.com/ycjuan/kaggle-2014-criteo
-https://github.com/ycjuan/libffm
+shuffle：
+通常对于深度模型都要做样本的shuffle，因为深度模型的拟合能力强，如果不乱序的话，同一个组合的batch反复出现，模型有可能会“记住”这些样本的次序，从而影响泛化能力。
+这里从性能和模型上综合考虑，做了小范围的shuffle。
 
-
-
-ftrl
-精度方面，优化学习器
-attention：共享embedding，可以指定N个行为序列，每个行为序列与对应的targetField进行attention。
-多目标 
-
-batch_size：
-现我们在每一次epoch迭代的时候，都会打乱数据，随机分割数据集。
-这是因为神经网络参数多，学习能力强，如果不乱序的话，同一个组合的batch反复出现，模型有可能会“记住”这些样本的次序，从而影响泛化能力。
-要做shuf和batch
-
-
-cpu向量指令 性能优化
-
-adam较依赖batchsize（Batch Size=1时AUC低不少，收敛的值不好或者难收敛），其次是sgdm，FTRL不需要，并且在Batch Size=1时效果最好。
-
-adam在Batch Size=1时需要较小的学习率以保持稳定性。batch_size为1时，adam学习率0.001很难学好，要调到1e-5以下。Batch Size增大，梯度变准确，可以使用推荐的0.001取得较好效果。
-Batch Size增大了，要到达相同的准确度，必须要增大epoch。
-https://blog.csdn.net/qq_34886403/article/details/82558399
-
-sgdm ：支持batch_size之后，lr太大还是学不好：
-sgdm lr=0.01就完全学不动，即使是batch_size=1024，如果lr=0.1，auc一直0.5。 
-adam 也是 lr=0.0001比较好，0.01和0.001学不出来
-
-
-
-shuffle:
-exFM的shuffle只是小范围shufle，具体的讲是给多个worker线程分发的时候不是采用轮训分发而是随机分发，只能避免多个epoch内每个batch组合不变的情况。
-在使用自适应学习率算法(adagrad, adam)的时候，可以考虑对训练集进行整体的打散，可以避免某些特征集中出现，而导致的有时学习过度、有时学习不足，使得下降方向出现偏差的问题
-
+训练：
+配置threads参数为你希望使用的核数支持多线程训练。
+支持从标准输入读取训练数据，配置为FTRL优化器的话可以用于流式训练。
 
 
 cityhash 的优化选项：
@@ -148,3 +127,7 @@ Or, if your system has the CRC32 instruction, and you want to build everything:
 ./configure --enable-sse4.2
 make all check CXXFLAGS="-g -O3 -msse4.2"
 sudo make install
+
+公开数据集：
+https://github.com/ycjuan/kaggle-2014-criteo
+https://github.com/ycjuan/libffm

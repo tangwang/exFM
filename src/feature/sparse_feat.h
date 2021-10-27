@@ -153,7 +153,8 @@ class SparseFeatConfig : public CommonFeatConfig {
   bool initParams(unordered_map<string, shared_ptr<ParamContainerInterface>> & shared_param_container_map);
 
   friend ostream & operator << (ostream &out, const SparseFeatConfig & cfg) {
-    out << " SparseFeatConfig name " << cfg.name << ">" << endl;
+    out << " SparseFeatConfig name <" << cfg.name << ">" << endl;
+    out << " mapping_type <" << cfg.mapping_type << ">" << endl;
     out << " mapping_dict_name <" << cfg.mapping_dict_name << ">" << endl;
     out << " i32_feat_id_dict size <" << cfg.i32_feat_id_dict.size() << ">" << endl;
     out << " i64_feat_id_dict size <" << cfg.i64_feat_id_dict.size() << ">" << endl;

@@ -397,10 +397,10 @@ if __name__ == '__main__':
                 'vocab_size' : vocab_size,
                 'value_type' : 'int64',
                 "mapping_type" : "dict",
-                 'max_len' : max_len,
+                'max_len' : min(seq_feat_max_len, max_len),
                 'pooling_type' : seq_feat_pooling_type,
-                 'mapping_dict_name' : mapping_dict_name,
-                 'shared_embedding_name' : ''
+                'mapping_dict_name' : mapping_dict_name,
+                'shared_embedding_name' : ''
                 } )
 
     for k, v in sparse_str_feat_dict.items():
@@ -470,8 +470,8 @@ if __name__ == '__main__':
                 'vocab_size' : vocab_size,
                 "mapping_type" : "dict",
                 'mapping_dict_name' : mapping_dict_name,
-                 'shared_embedding_name' : '',
-                 'max_len' : max_len,
+                'shared_embedding_name' : '',
+                'max_len' : min(seq_feat_max_len, max_len),
                 'pooling_type' : seq_feat_pooling_type
                 } )
 
