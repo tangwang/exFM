@@ -42,7 +42,7 @@ cd -
 # 根据你的训练数据配置config/train.conf
 # 启动训练
 bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=4 verbose=0 epoch=20 solver=adam batch_size=1000 mf=txt om=model6
-# dim=15时，test AUC 0.7764，在我的4核（至强E-2224G CPU）机器上训练速度为26万样本/S。
+# dim=15时，test AUC 0.7764，在我的4核（至强E-2224G CPU）机器上训练速度为25万样本/S。
 
 bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=4 verbose=0 epoch=30 solver=ftrl batch_size=10
 # 使用FTRL batch_size=10，test AUC 0.7783
@@ -54,9 +54,9 @@ bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_
 
 特征方面支持连续特征（denseFeat）、稀疏特征（sparseFeat 支持ID型和字符串类型）、变长特征（varlenSparseFeat），内置了一套工业界比较标准、实用的特征处理的方法，你可以用以下工具产出一个特征处理的配置文件，该配置文件将定义好你所需要的每个连续特征、离散特征、序列特征的处理方式。
 
-示例：
+1. #### 准备数据
 
-如果你的数据是这样
+如果你的数据是这样，数据路径为data/train.csv：
 
 ```
 label,item_id,chanel,item_tags,item_clicks,item_price,user_click_list,user_age
@@ -65,7 +65,7 @@ label,item_id,chanel,item_tags,item_clicks,item_price,user_click_list,user_age
 0,332,,,342,1.2,14|3343|452|36|8,33
 ```
 
-可以这样配置（将以下内容写入config/conf.py）：
+2. #### 根据你的数据配置config/conf.py
 
 ```
 # 训练数据格式，支持csv和libsvm，如果是csv格式必须确保第一行为表头（各列列名）,并且第一列为label(0/1, 或者-1/1)。
@@ -98,23 +98,22 @@ sparse_feat_mapping_type = "dict"
 
  如果数据是libsvm格式，只需要将data_formart配置为"libsvm"，参考[conf_libsvm.py](https://github.com/tangwang/deepFM/blob/main/config/conf_libsvm.py)
 
+3. #### 产出你的特征转换配置
 
-
-1. 此时你可以运行make_feat_config.py，来生成一个特征处理配置文件：
+   此时你可以运行make_feat_config.py，来生成一个特征处理配置文件：
 
    ```
    cd config
    # 按上面的方式配置conf.py中的内容
-   cat ../data/train.csv | python3 make_feat_conf.py -o criteo --cpu_num 6
-   # 此时将生成目录criteo，里面有一个训练使用的特征配置文件，和离散特征的ID映射词典。 训练的使用通过 feat_cfg=criteo 来使用该特征配置。
+   cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 6
+   # 此时将生成目录simple_feat_conf，里面有一个训练使用的特征配置文件，和离散特征的ID映射词典。 训练的使用通过 feat_cfg=simple_feat_conf 来使用该特征配置。
    ```
 
-6. 这时将在criteo目录下产生一套简单的特征处理配置文件，特征配置文件的规范和解释见文档[特征处理配置文件](https://github.com/tangwang/exFM/blob/main/docs/feature_config.md)。这时可以直接到下一步训练模型，也可以对特征处理配置文件进行一些调整，比如：
-
-   1. 对于连续特征，为不同的特征指定不同的离散化分桶数。
-   2. 对于连续特征，根据各自数值分布做不同的处理，比如对于点击频次做log处理然后等宽分桶，对item的上架天数做0.5次方然后做等宽分桶。
-   3. 对于离散特征或序列特征，调整映射方式（支持 dict / dynamic_dict / hash / orig_id ）。
-   4. 对于序列特征，调整长度限定max_len。
+   1. 这时将在simple_feat_conf目录下产生一套简单的特征处理配置文件，特征配置文件的规范和解释见文档[特征处理配置文件](https://github.com/tangwang/exFM/blob/main/docs/feature_config.md)。这时可以直接到下一步训练模型，也可以对特征处理配置文件进行一些调整，比如：
+      1. 对于连续特征，为不同的特征指定不同的离散化分桶数。
+      2. 对于连续特征，根据各自数值分布做不同的处理，比如对于点击频次做log处理然后等宽分桶，对item的上架天数做0.5次方然后做等宽分桶。
+      3. 对于离散特征或序列特征，调整映射方式（支持 dict / dynamic_dict / hash / orig_id ）。
+      4. 对于序列特征，调整长度限定max_len。
 
 ### 训练模型
 
@@ -128,23 +127,25 @@ sparse_feat_mapping_type = "dict"
 
    3. 配置validation数据地址（可选）
 
-   4. 特征处理配置配置文件路径：配上make_feat_config.py输出的文件夹名称就行，比如 feat_cfg = criteo （criteo是在config目录下用make_feat_config.py产出的特征配置）
+   4. 特征处理配置配置文件路径：配上make_feat_config.py输出的文件夹名称就行，比如 feat_cfg=simple_feat_conf
 
-   5. 配置优化器： 比如 solver  = adam （目前支持adam / adagrad / rmpprop / ftrl / sgdm )各优化器的超参数都可以在该配置文件进行调整。
+   5. 配置优化器： 比如 solver  = adam （目前支持adam / adagrad / rmpprop / ftrl / sgdm )。
 
       建议使用ftrl/adam优化器。
-      FM模型适用于大规模稀疏特征，参数较适合于用FTRL进行更新，所以通常能在ftrl上取得最优效果，但是基于adam和adagrad+mini_batch也能基本上与FTRL的效果持平。因为FTRL不需要batch_size，batch_size需要设置为1或者10以下，adam和adagrad的batch_size不能过小（否则需要极低的学习率，较难调参），可以设置为500~2000，所以采用adam/adagrad的话参数更新频次更低，训练速度比FTRL快一些。
+      FM模型适用于大规模稀疏特征，参数较适合于用FTRL进行更新，所以通常能在ftrl上取得最优效果，但是基于adam和adagrad+mini_batch也能基本上与FTRL的效果持平。FTRL不需要batch_size，batch_size可设为1或者10左右，adam和adagrad的batch_size不能过小（否则需要极低的学习率，较难调参），可以设置为1000左右。
       sgdm没有精心优化和调试，试了一些数据集都比FTRL/adam/adagrad效果有明显差距。
+      
+      各优化器的超参数都可以在配置文件中修改，通常情况下采用默认的即可。
       
    6. 配置threads参数指定训练的线程数。
    
    7. 启动程序进行训练。以上所有的配置，都可以放在命令行中，命令行中的参数将覆盖配置文件中的参数。比如：
    
       ```
-      bin/train solver=adam adam.lr=0.001 batch_size=800 feat_conf=criteo threads=30 train=../data/train.csv valid=../data/valid.csv om=model_20211028
+      bin/train solver=adam adam.lr=0.001 batch_size=800 feat_conf=simple_feat_conf threads=30 train=../data/train.csv valid=../data/valid.csv om=model_20211028
       ```
    
-   8. 程序输出：模型输出路径通过om指定，支持按文本和二进制格式输出（通过mf=txt / om=bin指定）。
+   8. 程序输出：模型输出路径通过om指定，支持按文本和二进制格式输出（通过mf=txt 或者 mf=bin指定）。
    
       如果sparse特征指定的映射方式为dynamc_dict，则会将特征ID映射词典一并输出。
    

@@ -31,8 +31,6 @@ feat_id_t SparseFeatConfig::featMapping(const char * orig_feat_id, size_t str_le
       case mapping_by_dict_str: {
         feat_id = str_feat_id_dict.get(orig_feat_id);
       } break;
-
-
       case mapping_by_dynamic_dict_int32: {
         int i_orig_feat_id = atoi(orig_feat_id);
         // int i_orig_feat_id = int(std::round(atof(orig_feat_id)));  // 兼容float
