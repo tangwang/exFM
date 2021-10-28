@@ -53,12 +53,6 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
                    "feat_seperator in line of sample. ");
   feat_seperator = parse_seperator_chars(temp_split_param);
 
-  arg_parser.parse_arg(
-      "feat_kv_sep", temp_split_param, ":",
-      "specify one character (or str \"blank\",\"tab\", \"eqaul\"(for \"=\"))  "
-      "for feat_kv_seperator in line of sample. ");
-  feat_kv_seperator = parse_seperator_chars(temp_split_param);
-
   arg_parser.parse_arg("feat_values_sep", temp_split_param, ",",
                    "specify one character(or str \"blank\",\"tab\")  for "
                    "feat_value_list_seperator in line of sample. ");

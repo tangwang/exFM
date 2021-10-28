@@ -13,10 +13,9 @@ real_t Sample::forward() {
 
   for (size_t i = 0; i < fm_layer_nodes_size; i++) {
     const auto & node = fm_layer_nodes[i];
-    real_t x = 1.0;
-    logit += node.forward.w * x;
+    logit += node.forward.w;
     for (int f = 0; f < DIM; ++f) {
-      real_t d = node.forward.V[f] * x;
+      real_t d = node.forward.V[f];
       sum[f] += d;
       sum_sqr[f] += d * d;
     }
@@ -43,12 +42,11 @@ void Sample::backward() {
   for (size_t i = 0; i < fm_layer_nodes_size; i++) {
     auto & node = fm_layer_nodes[i];
     //  partitial(fm_score(x)) / partitial(fm_node)
-    real_t xi = 1.0;
-    real_t grad_i = grad * xi;
+    real_t grad_i = grad;
     backward.w = grad_i;
     for (int f = 0; f < DIM; ++f) {
       real_t &vf = node.forward.V[f];
-      real_t vgf = grad_i * (sum[f] - vf * xi);
+      real_t vgf = grad_i * (sum[f] - vf);
       backward.V[f] = vgf;
     }
     // 计算每个fmParamUnit的梯度： partitial(fm_score(x)) / partitial(\theta),  theata = {w_i, V_i1, Vi2, ... Vif} for i in {0, 1, ... N }
@@ -91,9 +89,6 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
         feat_entries.push_back(make_pair(i, got->second));
      }
     }
-    lineProcessor = &BaseSolver::feedLine_CSV;
-  } else {
-    lineProcessor = &BaseSolver::feedLine_libSVM;
   }
 }
 
@@ -207,7 +202,11 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
 
 void BaseSolver::train(const string & line, int &y, real_t &logit, real_t & loss, real_t & grad) {
   // feedLine and forward (calc score , loss)
-  (this->*lineProcessor)(line);
+  if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
+    feedLine_CSV(line);
+  } else {
+    feedLine_libSVM(line);
+  }
   // backward ( calc the grad layer by layer to each param )
   batch_samples[sample_idx].backward();
   
@@ -223,7 +222,11 @@ void BaseSolver::train(const string & line, int &y, real_t &logit, real_t & loss
 }
 
 void BaseSolver::test(const string & line, int &y, real_t &logit) {
-  (this->*lineProcessor)(line);
+  if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
+    feedLine_CSV(line);
+  } else {
+    feedLine_libSVM(line);
+  }
   y = batch_samples[sample_idx].label.i;
   logit = batch_samples[sample_idx].logit;
 }

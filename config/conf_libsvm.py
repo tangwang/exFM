@@ -1,12 +1,9 @@
 
-# data_formart 训练数据格式，支持libsvm和csv两种格式
-# 如果为libcsv格式，通过feat_sep, feat_kv_sep, feat_values_sep配置特征之间的分隔符、特征key和value之间的分隔符、varlen_sparse_feature中多个值的分隔符
-# 如果为csv格式，通过feat_sep, feat_values_sep列之间的分隔符、varlen_sparse_feature中多个值的分隔符。将读取第一行作为表头，通过表头各列的名称与特征配置文件中的特征名关联。
-# 分隔符如果需要配置为制表符、空格、等于号，分别用blank, tab, equal代替
+# 训练数据格式，支持csv和libsvm，如果是csv格式必须确保第一行为表头（各列列名）并且第一列为label。label取值为0/1或者-1/1
 data_formart     =  "libsvm"
 
+# 对于csv和libsvm都需要配置域分隔符和序列特征中多个值的分隔符
 feat_sep = '\t'
-feat_kv_sep = ':'
 feat_values_sep = ','
 
 
@@ -76,3 +73,6 @@ min_freq_for_sparse_feat_dict = 0 # 特征出现次数大于该值时，才加�
 
 seq_feat_max_len = 30
 seq_feat_pooling_type = "sum" # 暂时只支持sum和avg
+
+# 配置离散特征的ID映射方式，支持dict/dynamic_dict/hash/orig_id
+sparse_feat_mapping_type = "dynamic_dict"

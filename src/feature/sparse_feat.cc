@@ -20,12 +20,12 @@ feat_id_t SparseFeatConfig::featMapping(const char * orig_feat_id, size_t str_le
     switch (mapping_type) {
       case mapping_by_dict_int32: {
         // int i_orig_feat_id = atoi(orig_feat_id);
-        int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // 兼容float
         feat_id = i32_feat_id_dict.get(i_orig_feat_id);
       } break;
       case mapping_by_dict_int64: {
         // long i_orig_feat_id = atol(orig_feat_id);
-        long i_orig_feat_id = long(std::round(atof(orig_feat_id)));  // TODO 为zy搞的特殊版本，兼容float
+        long i_orig_feat_id = long(std::round(atof(orig_feat_id)));  // 兼容float
         feat_id = i64_feat_id_dict.get(i_orig_feat_id);
       } break;
       case mapping_by_dict_str: {
@@ -34,27 +34,27 @@ feat_id_t SparseFeatConfig::featMapping(const char * orig_feat_id, size_t str_le
 
 
       case mapping_by_dynamic_dict_int32: {
-        // int i_orig_feat_id = atoi(orig_feat_id);
-        int i_orig_feat_id = int(std::round(atof(orig_feat_id)));  // TODO 为zy搞的特殊版本，兼容float
+        int i_orig_feat_id = atoi(orig_feat_id);
+        // int i_orig_feat_id = int(std::round(atof(orig_feat_id)));  // 兼容float
         feat_id = getAndSetFeatID(i_orig_feat_id, i32_feat_id_dict);
       } break;
       case mapping_by_dynamic_dict_int64: {
-        // long i_orig_feat_id = atol(orig_feat_id);
-        long i_orig_feat_id = long(std::round(atof(orig_feat_id)));  // TODO 为zy搞的特殊版本，兼容float
+        long i_orig_feat_id = atol(orig_feat_id);
+        // long i_orig_feat_id = long(std::round(atof(orig_feat_id)));  // 兼容float
         feat_id = getAndSetFeatID(i_orig_feat_id, i64_feat_id_dict);
       } break;
       case mapping_by_dynamic_dict_str: {
         feat_id = getAndSetFeatID(string(orig_feat_id), str_feat_id_dict);
       } break;
       case mapping_by_hash_int32: {
-        // int i_orig_feat_id = atoi(orig_feat_id);
-        int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        int i_orig_feat_id = atoi(orig_feat_id);
+        // int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // 兼容float
         feat_id = MurmurHash3_x86_32((void *)&i_orig_feat_id, sizeof(i_orig_feat_id), hash_seed);
         feat_id %= vocab_size;
       } break;
       case mapping_by_hash_int64: {
-        // long i_orig_feat_id = atol(orig_feat_id);
-        long i_orig_feat_id = long(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        long i_orig_feat_id = atol(orig_feat_id);
+        // long i_orig_feat_id = long(std::round(atof(orig_feat_id))); // 兼容float
         feat_id = MurmurHash3_x86_32((void *)&i_orig_feat_id, sizeof(i_orig_feat_id), hash_seed);
         feat_id %= vocab_size;
       } break;
@@ -64,8 +64,8 @@ feat_id_t SparseFeatConfig::featMapping(const char * orig_feat_id, size_t str_le
         feat_id %= vocab_size;
       } break;
       default:
-        // int i_orig_feat_id = atoi(orig_feat_id);
-        int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // TODO 为zy搞的特殊版本，兼容float
+        int i_orig_feat_id = atoi(orig_feat_id);
+        // int i_orig_feat_id = int(std::round(atof(orig_feat_id))); // 兼容float
         feat_id = (i_orig_feat_id < 0 || i_orig_feat_id > (int)max_id) ? unknown_id : (feat_id_t)i_orig_feat_id;
         break;
     }
@@ -168,16 +168,16 @@ void to_json(json &j, const SparseFeatConfig &p) {
 
 void from_json(const json &j, SparseFeatConfig &p) {
   if (!j.contains("name")) {
-    throw "feature config err : no attr \"name\" in dense feature.";
+    throw "feature config err : no attr \"name\" in sparse feature.";
   }
   j.at("name").get_to(p.name);
 
   if (!j.contains("mapping_type")) {
-    throw "feature config err : no attr \"mapping_type\" in dense feature.";
+    throw "feature config err : no attr \"mapping_type\" in sparse feature.";
     return;
   }
   if (!j.contains("value_type")) {
-    throw "feature config err : no attr \"value_type\" in dense feature.";
+    throw "feature config err : no attr \"value_type\" in sparse feature.";
     return;
   }
 
@@ -189,7 +189,7 @@ void from_json(const json &j, SparseFeatConfig &p) {
   // mapping_type=="orig_id"时需填写max_id。将根据max_id确定特征ID总数。
   if (str_mapping_type == "orig_id") {
     if (!j.contains("max_id")) {
-      throw "feature config err : no attr \"max_id\" in dense feature.";
+      throw "feature config err : no attr \"max_id\" in sparse feature.";
       return;
     }
     j.at("max_id").get_to(p.max_id);
@@ -197,7 +197,7 @@ void from_json(const json &j, SparseFeatConfig &p) {
   // mapping_type=="hash"时需填写ids_num。将根据ids_num确定hash桶个数。
   if (str_mapping_type == "hash") {
     if (!j.contains("vocab_size")) {
-      throw "feature config err : no attr \"vocab_size\" in dense feature.";
+      throw "feature config err : no attr \"vocab_size\" in sparse feature.";
       return;
     }
     j.at("vocab_size").get_to(p.vocab_size);
@@ -239,9 +239,12 @@ void from_json(const json &j, SparseFeatConfig &p) {
     p.mapping_type = SparseFeatConfig::mapping_by_orig_id;
   }
 
-  if (j.contains("mapping_dict_name"))       j.at("mapping_dict_name").get_to(p.mapping_dict_name);
-
-  p.mapping_dict_path = train_opt.mapping_dict_path + p.mapping_dict_name;
+  if (j.contains("mapping_dict_name")) {
+    j.at("mapping_dict_name").get_to(p.mapping_dict_name);
+    if (!p.mapping_dict_name.empty()) {
+      p.mapping_dict_path = train_opt.mapping_dict_path + p.mapping_dict_name;
+    }
+  }
 
   if (j.contains("shared_embedding_name"))   j.at("shared_embedding_name").get_to(p.shared_embedding_name);
 }

@@ -42,7 +42,6 @@ class BaseSolver {
 protected:
   real_t feedLine_libSVM(const string & aline);
   real_t feedLine_CSV(const string & aline);
-  real_t (BaseSolver::*lineProcessor)(const string & aline);
   
   virtual void update() {}
 

@@ -61,7 +61,7 @@ class TrainOption {
 
   // train data format
   char feat_seperator;
-  char feat_kv_seperator;
+  static constexpr char feat_kv_seperator = '=';
   char feat_value_list_seperator;
   char feat_id_dict_seperator;
 

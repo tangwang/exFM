@@ -15,6 +15,7 @@ from conf import *
 
 max_hash_buckets = 10000000
 min_hash_buckets = 200
+feat_kv_sep = ':'
 
 def proc_line__csv(job_queue, process_id, dict_feat_name_to_id,
     a_dense_feat_dict,
@@ -219,10 +220,10 @@ if __name__ == '__main__':
     pool = multiprocessing.Pool(cpu_num + 1)
 
     workers = []
-    for i in range(cpu_num):
-        if data_formart == 'csv':
-            column_names = sys.stdin.readline().strip('\n').split(feat_sep)
-            dict_feat_name_to_id = dict((v, i) for i,v in enumerate(column_names))
+    if data_formart == 'csv':
+        column_names = sys.stdin.readline().rstrip('\n').split(feat_sep)
+        dict_feat_name_to_id = dict((v, j) for j,v in enumerate(column_names))
+        for i in range(cpu_num):
             worker = pool.apply_async(proc_line__csv, (job_queues[i], i, dict_feat_name_to_id, 
                 list_of__dense_feat_dict                [i],
                 list_of__sparse_id_feat_dict            [i],
@@ -233,7 +234,8 @@ if __name__ == '__main__':
                 list_of__varlen_sparse_str_feat_len_dict[i],
             ))
             workers.append(worker)
-        elif data_formart == 'libsvm':
+    elif data_formart == 'libsvm':
+        for i in range(cpu_num):
             worker = pool.apply_async(proc_line__libsvm, (job_queues[i], i, 
                 list_of__dense_feat_dict                [i],
                 list_of__sparse_id_feat_dict            [i],
@@ -244,9 +246,9 @@ if __name__ == '__main__':
                 list_of__varlen_sparse_str_feat_len_dict[i],
             ))
             workers.append(worker)
-        else:
-            print('data_formart must be libsvm / csv. exit..')
-            exit(1)
+    else:
+        print('data_formart must be libsvm / csv. exit..')
+        exit(1)
 
     idx = 0
     for line in sys.stdin:
@@ -353,7 +355,7 @@ if __name__ == '__main__':
                 'ids_num' : ids_num,
                 'vocab_size' : vocab_size,
                 'value_type' : 'int64',
-                "mapping_type" : "dict",
+                "mapping_type" : sparse_feat_mapping_type,
                 'mapping_dict_name' : mapping_dict_name,
                  'shared_embedding_name' : ''
                 } )
@@ -396,7 +398,7 @@ if __name__ == '__main__':
                 'ids_num' : ids_num,
                 'vocab_size' : vocab_size,
                 'value_type' : 'int64',
-                "mapping_type" : "dict",
+                "mapping_type" : sparse_feat_mapping_type,
                 'max_len' : min(seq_feat_max_len, max_len),
                 'pooling_type' : seq_feat_pooling_type,
                 'mapping_dict_name' : mapping_dict_name,
@@ -428,7 +430,7 @@ if __name__ == '__main__':
 
         sparse_features.append( {'name' : k, 
                 'value_type' : 'str',
-                 "mapping_type" : "dict",
+                 "mapping_type" : sparse_feat_mapping_type,
                 'ids_num' : ids_num,
                 'vocab_size' : vocab_size,
                 'mapping_dict_name' : mapping_dict_name,
@@ -468,7 +470,7 @@ if __name__ == '__main__':
                 'value_type' : 'str',
                 'ids_num' : ids_num,
                 'vocab_size' : vocab_size,
-                "mapping_type" : "dict",
+                "mapping_type" : sparse_feat_mapping_type,
                 'mapping_dict_name' : mapping_dict_name,
                 'shared_embedding_name' : '',
                 'max_len' : min(seq_feat_max_len, max_len),

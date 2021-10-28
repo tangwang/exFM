@@ -41,4 +41,3 @@ log/
 config/feature_config*
 config/feat_id_dict
 
-data/*
