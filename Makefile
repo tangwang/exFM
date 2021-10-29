@@ -13,9 +13,11 @@ SRC = src/feature/dense_feat.cc \
 
 SRC_TRAIN = $(SRC) src/train/train.cc 
 
-SRC_PRED = $(SRC) src/train/predict.cc 
+SRC_PRED = $(SRC) src/predict/predict.cc 
 
-SRC_PRED_LIB = $(SRC) src/train/lib_fm_pred.cc 
+SRC_LIB_HEADER = src/predict/lib_fm_pred.cc 
+INCLUDE_LIB_HEADER = src/predict/lib_fm_pred.h
+SRC_PRED_LIB = $(SRC) $(SRC_LIB_HEADER)
 
 DEPEND_INCLUDES =  ${wildcard  src/feature/*.h} \
 	  ${wildcard  src/solver/*.h} \
@@ -32,8 +34,8 @@ OBJS_PRED = ${patsubst %.cc, %.o, ${SRC_PRED}}
 OBJS_PRED_LIB = ${patsubst %.cc, %.sharedO, ${SRC_PRED_LIB}}
 DEBUG_OBJS_TRAIN = ${patsubst %.cc, %.debugO, ${SRC_TRAIN}}
 
-# all : bin/train bin/train_debug lib/fm_pred.so bin/pred
-all : bin/train  
+# all : bin/train bin/train_debug lib/fm_pred.so bin/predict
+all : bin/train bin/predict lib/fm_pred.so
 
 CC = g++
 LIB= -lpthread
@@ -43,7 +45,8 @@ LIB_CCFLAGS =  -fPIC -shared -O3 -funroll-loops -std=c++11 -Wall -fmax-errors=4 
 CCFLAGS = -g -O3 -funroll-loops -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes -march=native 
 
 lib/fm_pred.so: ${OBJS_PRED_LIB} 
-	-mkdir -p lib
+	-mkdir -p lib/include
+	cp $(INCLUDE_LIB_HEADER) lib/include/
 	${CC} -fPIC -shared ${LIB} ${OBJS_PRED_LIB} -o $@
 
 bin/train: ${OBJS_TRAIN} 
@@ -51,7 +54,7 @@ bin/train: ${OBJS_TRAIN}
 	${CC} ${LIB} ${OBJS_TRAIN} -o $@
 	@echo "Compile done."
 
-bin/pred: ${OBJS_PRED} 
+bin/predict: ${OBJS_PRED} 
 	-mkdir -p bin
 	${CC} ${LIB} ${OBJS_PRED} -o $@
 	@echo "Compile done."
@@ -78,6 +81,8 @@ $(OBJS_PRED):%.o:%.cc ${DEPEND_INCLUDES}
 	${CC} ${CCFLAGS} ${INC} -c $< -o $@
 
 clean:
+	@rm -f bin/*
+	@rm -rf lib/*
 	@rm -f ${OBJS_TRAIN}
 	@rm -f ${DEBUG_OBJS_TRAIN}
 	@rm -f ${OBJS_PRED}

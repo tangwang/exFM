@@ -75,11 +75,9 @@ int main(int argc, char *argv[]) {
     input_stream = &std::cin;
   }
 
-// 如果是csv格式，解析头行
+  // 如果是csv格式，解析头行
   if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
-    string csv_header;
-    std::getline(*input_stream, csv_header);
-    utils::split_string(csv_header, train_opt.feat_seperator, train_opt.csv_columns);
+    std::getline(*input_stream, train_opt.csv_columns);
   }
 
   // init trainning workers

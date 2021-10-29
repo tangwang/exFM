@@ -44,8 +44,8 @@ class TrainOption {
     DataFormart_libSVM
   };
   DataFormart data_formart = DataFormart_libSVM;
-  vector<string> csv_columns;
 
+  string csv_columns;
 
   int threads_num;
   int time_interval_of_validation;

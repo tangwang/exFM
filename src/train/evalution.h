@@ -67,7 +67,7 @@ class Evalution {
     size_t total_samples = tn + fp + fn + tp;
 
     if (for_validation) {
-      cout << std::fixed << std::setprecision(4) << name << " accumulated="
+      cout << std::fixed << std::setprecision(4) << name << " total="
           << total_samples_processed << " ("
           << (size_t)(total_samples_processed / cost_time)
           << "/seconds), AUC=" << auc
@@ -79,7 +79,7 @@ class Evalution {
           << " f1=" << f1
           << endl;          
     } else {
-      cout << std::fixed << std::setprecision(4) << name << " accumulated="
+      cout << std::fixed << std::setprecision(4) << name << " total="
           << total_samples_processed << " ("
           << (size_t)(total_samples_processed / cost_time)
           << "/seconds), LOSS=" << sum_loss / total_samples

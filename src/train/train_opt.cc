@@ -16,6 +16,10 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   string feat_cfg;
   arg_parser.parse_arg("feat_cfg", feat_cfg, string(),
                    "feature config name(dir) under config dir", true);
+  
+  // csv_columns 约定通过csv header line读取，否则容易引起混乱
+  // arg_parser.parse_arg("csv_columns", csv_columns, string(),
+  //                  "set csv_columns when your data_format is csv , and you csv file had no header line", false);
 
   feature_config_path = string("config/") + feat_cfg + "/feature_config.json";
   mapping_dict_path = string("config/") + feat_cfg + "/feat_id_dict/";

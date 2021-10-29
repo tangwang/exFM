@@ -61,6 +61,7 @@ protected:
   size_t sample_idx;
   vector<Sample> batch_samples;
 
+  vector<string> csv_columns;
 
   std::unordered_map<FMParamUnit *, ParamNode> batch_params;
 };

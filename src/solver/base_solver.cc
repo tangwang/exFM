@@ -82,13 +82,22 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
     feat_map[v.feat_cfg->name] = &v;
   }
   if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
-    for (size_t i = 0; i < train_opt.csv_columns.size(); i++) {
-      const string &column = train_opt.csv_columns[i];
+    utils::split_string(train_opt.csv_columns, train_opt.feat_seperator, csv_columns);
+    cout << "csv_columns size: " << csv_columns.size() << endl;
+    cout << "csv_columns : " << csv_columns << endl;
+    assert(!csv_columns.empty());
+    
+    for (size_t i = 0; i < csv_columns.size(); i++) {
+      const string &column = csv_columns[i];
       auto got = feat_map.find(column);
       if (got != feat_map.end()) {
         feat_entries.push_back(make_pair(i, got->second));
      }
     }
+    if (feat_entries.size() != feat_map.size()) {
+        cerr << "some feature_name not found in csv header, check your feature_config or your csv header line." << endl;
+        std::abort();
+     }
   }
 }
 
@@ -180,7 +189,7 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   line_split_buff.clear();
   utils::split_string(aline, train_opt.feat_seperator, line_split_buff);
 
-  if (unlikely(line_split_buff.size() < train_opt.csv_columns.size() || line_split_buff[0].empty())) {
+  if (unlikely(line_split_buff.size() < csv_columns.size() || line_split_buff[0].empty())) {
     return -1;
   }
   
@@ -193,7 +202,8 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   size_t fm_node_idx = 0;
   for (const auto &feat_entrie : feat_entries) {
     const string & feat_str = line_split_buff[feat_entrie.first];
-        feat_entrie.second->feedSample(feat_str.c_str(), feat_str.size(), sample.fm_layer_nodes[fm_node_idx++]);
+    feat_entrie.second->feedSample(feat_str.c_str(), feat_str.size(),
+                                   sample.fm_layer_nodes[fm_node_idx++]);
   }
   sample.fm_layer_nodes_size = fm_node_idx;
 
@@ -230,165 +240,3 @@ void BaseSolver::test(const string & line, int &y, real_t &logit) {
   y = batch_samples[sample_idx].label.i;
   logit = batch_samples[sample_idx].logit;
 }
-
-#if 0 // 单个样本的sgdm, adam, ftrl参数更新
-
-  void update_by_sgdm() {
-    for (auto & param_node : backward_params) {
-      real_t grad = param_node.grad;
-      real_t xi = param_node.xi;
-
-      SgdmParamUnit *backward_param = (SgdmParamUnit *)param_node.param;
-      param_node.mutex->lock();
-
-      real_t & w = backward_param->fm_param.w;
-      real_t & wm = backward_param->momentum.w;
-
-      wm = beta1 * wm + (1-beta1) * grad;
-      w -= lr * (wm  + w * l2_reg_w);
-
-      for (int f = 0; f < DIM; ++f) {
-        real_t &vf = backward_param->fm_param.V[f];
-        real_t & vmf = backward_param->momentum.V[f];
-
-        real_t vgf = grad * (sum[f]  - vf * xi );
-
-        vmf = beta1 * vmf + (1-beta1) * vgf;
-
-        vf -= lr * (vmf + vf * l2_reg_V);
-      }
-      param_node.mutex->unlock();
-    }
-  }
-
-  virtual void update_by_adam() {
-    for (auto & param_node : backward_params) {
-      real_t grad = param_node.grad;
-      real_t xi = param_node.xi;
-
-      AdamParamUnit *backward_param = (AdamParamUnit *)param_node.param;
-      param_node.mutex->lock();
-      // calc fixed_lr
-      backward_param->beta1power_t *= beta1;
-      backward_param->beta2power_t *= beta2;
-      real_t bias_correction1 = (1 - backward_param->beta1power_t);
-      real_t bias_correction2 = (1 - backward_param->beta2power_t);
-      real_t fixed_lr = lr * std::sqrt(bias_correction2) / bias_correction1;
-
-      // update w
-      real_t & w = backward_param->fm_param.w;
-      real_t & wm = backward_param->momentum.w;
-      real_t & wv = backward_param->avg_squared.w;
-
-      wm = beta1 * wm + (1-beta1)*grad;
-      wv = beta2 * wv + (1-beta2)*grad*grad;
-
-      DEBUG_OUT << "adam_solver: grad:" << grad << " w:" << w << " fixed_lr: " << fixed_lr
-                << " wm:" << wm << " wv:" << wv << " update:"
-                << fixed_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w) << endl
-                << "fm_param: " << backward_param->fm_param.w << "," << backward_param->fm_param.V[0] << "," << backward_param->fm_param.V[1] << endl
-                << "momentum: " << backward_param->momentum.w << "," << backward_param->momentum.V[0] << "," << backward_param->momentum.V[1] << endl
-                << "avg_squared: " << backward_param->avg_squared.w << "," << backward_param->avg_squared.V[0] << "," << backward_param->avg_squared.V[1] << endl
-                << "sum_0_1 " << sum[0] <<"," << sum[1] << endl
-                << "fm_param.V_0_1 " << backward_param->fm_param.V[0] <<"," << backward_param->fm_param.V[1] << endl
-                << "vgf_0 " << grad * (sum[0]  - backward_param->fm_param.V[0] * xi ) << endl
-                << "vgf_1 " << grad * (sum[1]  - backward_param->fm_param.V[1] * xi ) << endl;
-
-      w -= fixed_lr * (wm / (std::sqrt(wv) + eps) + weight_decay_w * w);
-
-      // update V
-      for (int f = 0; f < DIM; ++f) {
-
-        real_t &vf = backward_param->fm_param.V[f];
-        real_t &vmf = backward_param->momentum.V[f];
-        real_t &vvf = backward_param->avg_squared.V[f];
-
-        real_t vgf = grad * (sum[f]  - vf * xi );
-
-        vmf = beta1 * vmf + (1 - beta1) * vgf;
-        vvf = beta2 * vvf + (1 - beta2) * vgf * vgf;
-        vf -= fixed_lr * (vmf / (std::sqrt(vvf) + eps) + weight_decay_V * vf);
-      }
-      param_node.mutex->unlock();
-    }
-  }
-
-  void update_by_adam_raw(real_t grad) {
-    for (auto & param_node : backward_params) {
-      real_t grad = param_node.grad;
-      real_t xi = param_node.xi;
-
-      AdamParamUnit *backward_param = (AdamParamUnit *)param_node.param;
-      param_node.mutex->lock();
-
-      real_t & w = backward_param->fm_param.w;
-      real_t & wm = backward_param->momentum.w;
-      real_t & wv = backward_param->avg_squared.w;
-
-      wm = beta1 * wm + (1-beta1)*grad;
-      wv = beta2 * wv + (1-beta2)*grad*grad;
-
-      real_t corrected_wm = wm;
-      real_t corrected_wv = wv;
-      if (bias_correct) {
-        backward_param->beta1power_t *= beta1;
-        backward_param->beta2power_t *= beta2;
-        wm /= (1-backward_param->beta1power_t);
-        wv /= (1-backward_param->beta2power_t);
-      }
-      
-      w -= lr * (corrected_wm / (std::sqrt(corrected_wv) + eps) + weight_decay_w * w);
-
-      for (int f = 0; f < DIM; ++f) {
-
-        real_t &vf = backward_param->fm_param.V[f];
-        real_t &vmf = backward_param->momentum.V[f];
-        real_t &vvf = backward_param->avg_squared.V[f];
-
-        real_t vgf = grad * (sum[f]  - vf * xi );
-
-        vmf = beta1 * vmf + (1 - beta1) * vgf;
-        vvf = beta2 * vvf + (1 - beta2) * vgf * vgf;
-
-        real_t corrected_vmf = bias_correct ? vmf : (vmf / (1 - beta1_pow));
-        real_t corrected_vvf = bias_correct ? vvf : (vvf / (1 - beta2_pow));
-
-        vf -= lr * (corrected_vmf /
-               (std::sqrt(corrected_vvf) + eps)  + weight_decay_V * vf);
-      }
-
-      param_node.mutex->unlock();
-    }
-  }
-
-
-  void update_by_ftrl() {
-    for (auto & param_node : backward_params) {
-      real_t grad = param_node.grad;
-      real_t xi = param_node.xi;
-
-      FtrlParamUnit *backward_param = (FtrlParamUnit *)param_node.param;
-      param_node.mutex->lock();
-      real_t w_sigama =
-          1 / train_opt.ftrl.w_alpha *
-          (std::sqrt(backward_param->n.w + grad * grad) - std::sqrt(backward_param->n.w));
-
-      backward_param->z.w += grad - w_sigama * backward_param->fm_param.w;
-      backward_param->n.w += grad * grad;
-
-      for (int f = 0; f < DIM; ++f) {
-        real_t vgf = grad * (sum[f]  - backward_param->fm_param.V[f] * xi);
-        real_t v_sigma_f =
-            1 / train_opt.ftrl.v_alpha * (std::sqrt(backward_param->n.V[f] + vgf * vgf) - std::sqrt(backward_param->n.V[f]));
-
-        backward_param->z.V[f] += vgf - v_sigma_f * backward_param->fm_param.V[f];
-        backward_param->n.V[f] += vgf * vgf;
-      }
-
-      backward_param->calcFmWeights();
-
-      param_node.mutex->unlock();
-    }
-  }
-
-#endif

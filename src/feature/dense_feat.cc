@@ -78,7 +78,7 @@ bool DenseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContainer
   }
 
   param_container = creatParamContainer(onehot_feat_dimension, (feat_id_t)feat_ids_of_each_buckets.size());
-  loadModel();
+  if (!loadModel()) return false;
 
   // 提前取出参数位置
    feat_params_of_each_buckets.resize(feat_ids_of_each_buckets.size());

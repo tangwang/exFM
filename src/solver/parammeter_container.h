@@ -103,6 +103,10 @@ class ParamContainerInterface {
     if (model_fmt == "bin") {
       ifstream ifs;
       ifs.open(path, std::ifstream::binary);
+      if (!ifs) {
+          std::cerr << "model file not exist or open faild: " << path <<  std::endl;
+          return -1;
+      }
       feat_id_t i = 0;
       for (; i < total_feat_num; i++) {
         // load params befor solver threads created, so donnot need to lock. if solver workers is created, must lock for each params
@@ -120,6 +124,10 @@ class ParamContainerInterface {
     } else {
       ifstream ifs;
       ifs.open(path);
+      if (!ifs) {
+          std::cerr << "model file not exist or open faild: " << path <<  std::endl;
+          return -1;
+      }
       string line;
       feat_id_t i = 0;
       for (; i < total_feat_num; i++) {
@@ -149,6 +157,7 @@ class ParamContainerInterface {
     if (model_fmt == "bin") {
       ofstream ofs(path, std::ios::out | std::ios::binary);
       if (!ofs) {
+        std::cerr << "open model file for write faild: " << path <<  std::endl;
         return -1;
       }
 
@@ -171,7 +180,8 @@ class ParamContainerInterface {
     } else {
       ofstream ofs(path);
       if (!ofs) {
-        return -1;
+        std::cerr << "open model file for write faild: " << path <<  std::endl;
+       return -1;
       }
       for (feat_id_t i = 0; i < total_feat_num; i++) {
         const FMParamUnit *p = get(i);
