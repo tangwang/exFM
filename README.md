@@ -8,7 +8,7 @@
 
 支持序列特征（sum_pooling/avg_pooling）。
 
-定义了一套工业界比较标准的特征处理方式，可以自己手动配置或者基于make_feat_config.py自动产出该特征处理配置文件。
+定义了一套工业界比较标准的特征处理方式，可以自己手动配置或者基于make_feat_conf.py自动产出该特征处理配置文件。
 
 支持ftrl / adam / adagrad等优化器，支持mini_batch训练。
 
@@ -60,11 +60,11 @@ cat data/for_predict.csv | bin/predict data_formart=csv feat_sep=, feat_cfg=crit
 
 ### 产出特征配置
 
-特征方面支持连续特征（denseFeat）、稀疏特征（sparseFeat 支持ID型和字符串类型）、变长特征（varlenSparseFeat），内置了一套工业界比较标准、实用的特征处理的方法，你可以用以下工具产出一个特征处理的配置文件，该配置文件将定义好你所需要的每个连续特征、离散特征、序列特征的处理方式。
+特征方面支持连续特征（denseFeat）、稀疏特征（sparseFeat 支持ID型和字符串类型）、变长特征（varlenSparseFeat），内置了一套工业界比较标准、实用的特征处理的方法，你可以用make_feat_conf.py工具产出一个特征处理的配置文件，该配置文件将定义好你所需要的每个连续特征、离散特征、序列特征的处理方式。
 
-1. #### 准备数据
+make_feat_conf.py的使用方式：
 
-如果你的数据是这样，数据路径为data/train.csv：
+1. 准备你的训练数据，这里以csv格式的数据为例：
 
 ```
 label,item_id,chanel,item_tags,item_clicks,item_price,user_click_list,user_age
@@ -73,10 +73,11 @@ label,item_id,chanel,item_tags,item_clicks,item_price,user_click_list,user_age
 0,332,,,342,1.2,14|3343|452|36|8,33
 ```
 
-2. #### 根据你的数据配置config/conf.py
+2. 可以这样配置你的config/conf.py：
 
 ```
-# 训练数据格式，支持csv和libsvm，如果是csv格式必须确保第一行为表头（各列列名）,并且第一列为label(0/1, 或者-1/1)。
+# 训练数据格式，支持csv和libsvm，如果是csv格式必须确保第一行为表头（各列列名）,并且第一列为label
+# label为0/1  或者-1/1，特征取值支持连续特征(float), 离散特征(int / string), 序列特征(list of int / string)
 data_formart =  "csv"
 
 # 对于csv和libsvm都需要配置域分隔符和序列特征中多个值的分隔符
@@ -104,24 +105,21 @@ seq_feat_pooling_type = "sum" # 暂时只支持sum和avg
 sparse_feat_mapping_type = "dict"
 ```
 
- 如果数据是libsvm格式，只需要将data_formart配置为"libsvm"，参考[conf_libsvm.py](https://github.com/tangwang/deepFM/blob/main/config/conf_libsvm.py)
+​	 如果数据是libsvm格式，将data_formart配置为"libsvm"，参考[conf_libsvm.py](https://github.com/tangwang/deepFM/blob/main/config/conf_libsvm.py)
 
-3. #### 产出你的特征转换配置
+3. 运行make_feat_conf.py来生成一个特征处理配置文件：
 
-   此时你可以运行make_feat_config.py，来生成一个特征处理配置文件：
+```
+cd config
+# 按上面的方式配置conf.py中的内容
+cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 6
+# 此时将生成目录simple_feat_conf，里面有一个训练使用的特征配置文件，和离散特征的ID映射词典。 训练的使用通过 feat_cfg=simple_feat_conf 来使用该特征配置。
+```
 
-   ```
-   cd config
-   # 按上面的方式配置conf.py中的内容
-   cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 6
-   # 此时将生成目录simple_feat_conf，里面有一个训练使用的特征配置文件，和离散特征的ID映射词典。 训练的使用通过 feat_cfg=simple_feat_conf 来使用该特征配置。
-   ```
-
-   1. 这时将在simple_feat_conf目录下产生一套简单的特征处理配置文件，特征配置文件的规范和解释见文档[特征处理配置文件](https://github.com/tangwang/exFM/blob/main/docs/feature_config.md)。这时可以直接到下一步训练模型，也可以对特征处理配置文件进行一些调整，比如：
-      1. 对于连续特征，为不同的特征指定不同的离散化分桶数。
-      2. 对于连续特征，根据各自数值分布做不同的处理，比如对于点击频次做log处理然后等宽分桶，对item的上架天数做0.5次方然后做等宽分桶。
-      3. 对于离散特征或序列特征，调整映射方式（支持 dict / dynamic_dict / hash / orig_id ）。
-      4. 对于序列特征，调整长度限定max_len。
+这时将在simple_feat_conf目录下产生一套简单的特征处理配置文件，特征配置文件的规范和解释见文档[特征处理配置文件](https://github.com/tangwang/exFM/blob/main/docs/feature_config.md)。这时可以直接到下一步训练模型，也可以对特征处理配置文件进行一些调整，比如：
+1. 对于连续特征，都自动配上了2种等宽分桶+2种等频分桶的离散化方式，你可以对某些特征做细化的调整，或者根据各自的取值分布做不同的处理，典型的，比如对于点击频次做log处理然后等宽分桶，对item的上架天数做0.5次方然后做等宽分桶，等。
+3. 对于离散特征或序列特征，调整映射方式（支持 dict / dynamic_dict / hash / orig_id ）。
+4. 对于序列特征，调整长度限定max_len。
 
 ### train
 
@@ -135,7 +133,7 @@ sparse_feat_mapping_type = "dict"
 
    3. 配置validation数据地址（可选）
 
-   4. 特征处理配置配置文件路径：配上make_feat_config.py输出的文件夹名称就行，比如 feat_cfg=simple_feat_conf
+   4. 特征处理配置配置文件路径：配上make_feat_conf.py输出的文件夹名称就行，比如 feat_cfg=simple_feat_conf
 
    5. 配置优化器： 比如 solver  = adam （目前支持adam (adamW) / adagrad / rmpprop / ftrl / sgdm )。
 
@@ -167,18 +165,16 @@ sparse_feat_mapping_type = "dict"
 
    ​	特征配置 feat_cfg=xxx
 
-   ​	输入模型 im=xxx
+   ​	加载模型 im=xxx
 
    ​	如果数据为csv格式，确保header line为列名称，确保feat_cfg配置目录下的特征配置json的特征名称都能在csv的header line列名中找到。
 
    ```
-   # 因为附带criteo_sampled_data.csv.test没有header line，补充一下
+   # 因为项目中附带的criteo_sampled_data.csv.test没有header line，补充一下
    head -1 data/criteo_sampled_data.csv.train > data/for_predict.csv
    cat data/criteo_sampled_data.csv.test >> data/for_predict.csv
    cat data/for_predict.csv | bin/predict data_formart=csv feat_sep=, feat_cfg=criteo  verbose=0 mf=txt im=model_1029_txt verbose=0 
    ```
-
-   
 
 2. #### 在线预估
 
