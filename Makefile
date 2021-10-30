@@ -1,3 +1,6 @@
+ifdef DIM
+dim=$(DIM)
+endif
 ifndef dim
 dim=15
 endif 

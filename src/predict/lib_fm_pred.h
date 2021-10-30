@@ -27,7 +27,7 @@ if (0 != model_init_ret) {
 }
 
 // 每个线程可以创建自己的instance
-FmPredictInstance* fm_instance = fm_model.getFmPredictInstance();
+FmPredictInstance* fm_instance = fm_model.createFmPredictInstance();
 
 // 调用预估
 const char* intput_str =
@@ -60,13 +60,14 @@ class FmModel {
 
   ~FmModel();
 
-  FmPredictInstance* getFmPredictInstance();
+  FmPredictInstance* createFmPredictInstance();
 
  private:
   std::shared_ptr<FeatManager> feat_manager;
 };
 
 
+// 每个线程/进程创建自己的用于predict的instance
 class FmPredictInstance {
  public:
   FmPredictInstance(FeatManager& feat_manager);
@@ -76,7 +77,7 @@ class FmPredictInstance {
 
   /*
   @param input_str : support csv / libsvm formart
-  @param output_str : output memory allocated by caller
+@param output_str : output memory allocated by caller, will fill with scorelist joind by ','
   @param output_len : memory size of output_str
   @return: 0 : success;  other : faild
   */
@@ -91,3 +92,26 @@ class FmPredictInstance {
 
 };
 
+// 为java或者c项目提供的调用方式
+extern "C" {
+
+//创建模型
+FmModel* fmModelCreate(const char* config_path,
+                       const char* input_columns); // 如果用于predict的数据为csv格式需要通过input_columns指定列名
+void fmModelRelease(FmModel* fm_model);
+
+
+// 每个线程创建自己的用于predict的instance
+FmPredictInstance * fmPredictInstanceCreate(FmModel* fm_model);
+void fmPredictInstanceRelease(FmPredictInstance* fm_instance);
+
+//调用预估
+/*
+@param input_str : support csv / libsvm formart
+@param output_str : output memory allocated by caller, will fill with scorelist joind by ','
+@param output_len : memory size of output_str
+@return: 0 : success;  other : faild
+*/
+int fmPredict(FmPredictInstance * fm_instance, char* input_str, char* output_str, int output_len);
+
+}

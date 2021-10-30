@@ -42,7 +42,7 @@ int FmModel::init(const char * config_path, const char* input_columns) {
 
 FmModel::~FmModel() {}
 
-FmPredictInstance* FmModel::getFmPredictInstance() {
+FmPredictInstance* FmModel::createFmPredictInstance() {
   return new FmPredictInstance(*feat_manager);
 }
 
@@ -90,4 +90,46 @@ double FmPredictInstance::predict_line(const string& line) {
   real_t score;
   solver->test(line, y, score);
   return score;
+}
+
+
+// 为java或者c项目提供的调用方式
+extern "C" {
+
+// @param config_path 配置文件地址
+// @param input_columns:  如果数据为csv格式，在这里指定csv的表头内容
+FmModel* fmModelCreate(const char* config_path,
+                       const char* input_columns) {
+  FmModel* fm_model = new FmModel;
+  int ret = fm_model->init(config_path, input_columns);
+  if (ret != 0) {
+    delete fm_model;
+    return NULL;
+  }
+  return fm_model;
+}
+
+void fmModelRelease(FmModel* fm_model) {
+  if (fm_model) delete fm_model;
+}
+
+FmPredictInstance * fmPredictInstanceCreate(FmModel* fm_model) {
+  return fm_model->createFmPredictInstance();
+}
+
+void fmPredictInstanceRelease(FmPredictInstance* fm_instance) {
+  if (fm_instance) delete fm_instance;
+}
+
+/*
+@param input_str : support csv / libsvm formart
+@param output_str : output memory allocated by caller
+@param output_len : memory size of output_str
+@return: 0 : success;  other : faild
+*/
+int fmPredict(FmPredictInstance * fm_instance, char* input_str, char* output_str, int output_len) {
+  assert(fm_instance != NULL);
+  return fm_instance->fm_pred(input_str, output_str, output_len);
+}
+
 }

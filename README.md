@@ -2,21 +2,19 @@
 
 ## features
 
-支持对连续型特征的离散化，包括等频和等宽分桶，也可以基于对特征的理解配置非线性映射（取对数、指数）后进行等宽分桶。
+定义了一套工业界比较标准的特征处理方式，可以自己手动配置或者基于make_feat_conf.py自动产出该特征处理配置文件，包括：
 
-支持对离散特征自动的进行ID映射，映射方式支持dict（事先统计好映射词典）、dynamic_dict（边训练变更新映射词典）、hash、orig_id（直接使用原始值）。原始值支持数值、字符串。
+1. 支持对连续型特征的离散化，包括等频和等宽分桶，也可以基于对特征的理解配置非线性映射（取对数、指数）后进行等宽分桶。
 
-支持序列特征（sum_pooling/avg_pooling）。
+2. 支持对离散特征自动的进行ID映射，映射方式支持dict（事先统计好映射词典）、dynamic_dict（边训练变更新映射词典）、hash、orig_id（直接使用原始值）。原始值支持数值、字符串。
 
-定义了一套工业界比较标准的特征处理方式，可以自己手动配置或者基于make_feat_conf.py自动产出该特征处理配置文件。
+3. 支持序列特征（sum_pooling/avg_pooling）。
 
-支持ftrl / adam / adagrad等优化器，支持mini_batch训练。
+支持ftrl / adam / adagrad等优化器，支持batch训练。
 
 支持通过模型保存和初始化实现增量训练。
 
-高性能：使用cpu训练的情况下，性能相比TensorFlow和pytorch实现的FM、difacto、alphaFM都要高很多。
-
-支持多个特征共享embedding：itemID、tagID通常会出现在多个field（出现在item侧、user侧），如果ID特别稀疏配置为共享参数会有好处，但是该特性需要配合deep网络结构使用，见我的另一个项目[deepFM](https://github.com/tangwang/deepFM)。
+高性能：使用cpu训练的情况下，性能比TensorFlow/pytorch实现的FM高很多。
 
 ### examples
 
@@ -40,9 +38,10 @@ cp conf_criteo.py conf.py
 cat ../data/criteo_sampled_data.csv.train ../data/criteo_sampled_data.csv.test  | python3 make_feat_conf.py -o criteo --cpu_num 4
 cd -
 
-# 配置config/train.conf
+# 打印帮助
+bin/train h
 
-# train
+# train （配置文件为config/train.conf，可以通过命令行参数补充或覆盖配置文件中的配置项）
 bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=4 verbose=0 epoch=20 solver=adam batch_size=1000 mf=txt om=model_1029_txt
 # dim=15时，test AUC 0.7765，在我的4核（至强E-2224G CPU）机器上训练速度为25万样本/S。
 
@@ -123,7 +122,7 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
 ### train
 
-1. 编译train程序：make即可。FM的embedding维数不支持参数配置，而是在编译时指定，默认为DIM=15，如果要修改维数，比如改为32维，使用make DIM=32。
+1. 编译train程序：make即可。FM的embedding维数不支持参数配置，而是在编译时指定，默认为dim=15，如果要修改维数，比如改为32维，使用make dim=32。
 
 2. 配置config/train.conf。根据config/train.conf中的注释进行配置即可，主要要配置的内容有：
 
@@ -178,9 +177,13 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
 2. #### 在线预估
 
-   1. ##### lib库 ： 该部分只粗略的实现功能且未测试。
+   1. ##### 动态库(lib/fm_pred.so) 
 
-      编译后会生成一个lib目录，包括一个so动态库 + include，用法为：
+      **该部分功能未使用过、未测试，使用前请做测试，特别是通过java调用的话需要做长时间压测，有问题可以联系作者。**
+
+      编译后会生成一个lib目录，包括一个so动态库 + include文件。
+
+      ###### c++项目的调用方法：
 
       1）创建FmModel对象（多线程/多进程共享一个即可）：
 
@@ -208,7 +211,7 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
       FmPredictInstance* fm_instance = fm_model.getFmPredictInstance();
       ```
 
-      调用预估
+      3）调用预估
 
       ```c++
       // 方式1
@@ -228,6 +231,35 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
       fm_instance->fm_pred(input_vec, scores);
       ```
 
+      ###### java项目的调用方法
+
+      可以调用以下几个c方法（同样声明在lib_fm_pred.h中）：
+
+      ```c++
+      extern "C" {
+      
+      //创建模型
+      FmModel* fmModelCreate(const char* config_path,
+                             const char* input_columns); // 如果用于predict的数据为csv格式需要通过input_columns指定列名
+      void fmModelRelease(FmModel* fm_model);
+      
+      
+      // 每个线程创建自己的用于predict的instance
+      FmPredictInstance * fmPredictInstanceCreate(FmModel* fm_model);
+      void fmPredictInstanceRelease(FmPredictInstance* fm_instance);
+      
+      //调用预估
+      /*
+      @param input_str : support csv / libsvm formart
+      @param output_str : output memory allocated by caller, will fill with scorelist joind by ','
+      @param output_len : memory size of output_str
+      @return: 0 : success;  other : faild
+      */
+      int fmPredict(FmPredictInstance * fm_instance, char* input_str, char* output_str, int output_len);
+      
+      }
+      ```
+
    2. ##### rpc / http_server ： 未支持
 
 3. #### 用于召回
@@ -235,10 +267,10 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
    如果没有用到user与item的交叉特征，那么可以将该模型用于召回。根据FM的公式，可以将公式拆分为以下3个部分：
 
    1. user特征的一阶权重加和、所有user特征两两embedding点积之和。在线上预估时，该部分对所有item都一样，所以可以丢弃。
-   2. item特征的一阶权重加和、所有item特征两两embedding点积之和
-   3. “user embedding加和” 与 “item embedding加和” 的点积
+   2. item特征的一阶权重加和、所有item特征两两embedding点积之和。
+   3. “user embedding加和” 与 “item embedding加和” 的点积。
 
-   为了支持faiss检索，需要写成点积的形式，所以将向量改造，itemEmbedding为该item所有特征embedding加和，并增广1维，增广的这一维数值为 “所有Item特征一阶权重之和"和“所有Item特征隐向量两两点积之和”，线上召回时，先计算好userEmbedding，然后增广1维，增广的这一维数值为1。
+   为了支持faiss检索，需要写成点积的形式，所以将向量改造，itemEmbedding为该item所有特征embedding加和，并增广1维，增广的这一维数值为 “所有Item特征一阶权重之和" + “所有Item特征隐向量两两点积之和”，线上召回时，先计算好userEmbedding，然后增广1维，增广的这一维数值为1。
 
    1. 离线：
       1. 每小时筛选出一部分适合召回的候选item（e.g.,过去7天至少被点击过3次的）。
