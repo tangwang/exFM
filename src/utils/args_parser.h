@@ -10,7 +10,7 @@
 
 class ArgsParser {
  public:
-  ArgsParser() : parse_status(true) {}
+  ArgsParser() : parse_status(true), verbose(true) {}
   ~ArgsParser() {}
 
   // 如果有必要参数未得到解析，或者有不认识的参数，将被设为false
@@ -91,7 +91,7 @@ class ArgsParser {
         // v非空使用设定的值，否则，使用默认值
         if (!arg.v.empty()) {
           v = utils::cast_type<const char*, value_type>(arg.v.c_str());
-          std::cout << "arg    " << setiosflags(ios::left)
+          if (verbose) std::cout << "arg    " << setiosflags(ios::left)
                     << console_color::green << setw(20) << key
                     << console_color::reset << " is set to "
                     << console_color::green << v << console_color::reset
@@ -126,7 +126,7 @@ class ArgsParser {
                        << console_color::reset << std::endl;
         }
 
-        std::cout << "option " << setiosflags(ios::left) << console_color::green
+        if (verbose) std::cout << "option " << setiosflags(ios::left) << console_color::green
                  << setw(20) << key << console_color::reset << " is setted "
                  << console_color::reset << endl;
 
@@ -155,6 +155,10 @@ class ArgsParser {
     std::cerr << help_message.str() << endl;
   }
 
+  void setVerbose(bool print_args) {
+    verbose = print_args;
+  }
+
 private:
   struct Arg {
   public:
@@ -170,4 +174,6 @@ private:
   const char* program_name;
   std::vector<Arg> args;
   std::stringstream help_message;
+
+  bool verbose;
 };

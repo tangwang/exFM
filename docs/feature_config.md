@@ -79,19 +79,18 @@
 
 ## sparse_features
 
-离散特征都将被映射到一个整形ID，作为参数词典的下标。
+离散特征都将被映射到一个整形ID，模型将以该ID为数组下标从参数词典中读取参数。
 
-default_id为0。当取不到特征时，直接映射为default_id，并忽略下面的特征操作。
+关于default_id和unknown_id的约定：
 
-unknown_id都为vocab_size-1（即最大有效ID+1）
+default_id为0。当取不到特征时或者特征值为空字符串时，将原始特征映射为default_id。
 
-mapping_type=="orig_id"时：小于0或者大于max_id的特征值将被映射为unknown_id。 
+unknown_id都为vocab_size-1（即最大有效ID+1），在以下情况，将原始特征映射为unknown_id：
 
-mapping_type=="dict"时：匹配不到特征ID词典的特征值将被映射为unknown_id。
-
-mapping_type=="dynamic_dict" 时： 新ID都将被加入词典，所以不需要unknown_id。
-
-mapping_type=="hash"时：所有的特征值都将被映射为合法的ID，所以不需要unknown_id。
+1. mapping_type=="orig_id"时：小于0或者大于max_id的特征值将被映射为unknown_id。 
+2. mapping_type=="dict"时：匹配不到特征ID词典的特征值将被映射为unknown_id。
+3. mapping_type=="dynamic_dict" 时： 新ID都将被加入词典，所以不需要unknown_id。
+4. mapping_type=="hash"时：所有的特征值都将被映射为合法的ID，所以不需要unknown_id。
 
 | 特征属性名称          | 值类型 | 是否必须 | 说明                                                         | 示例            |
 | --------------------- | ------ | -------- | ------------------------------------------------------------ | --------------- |

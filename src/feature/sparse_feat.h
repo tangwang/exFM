@@ -59,7 +59,7 @@ class SparseFeatConfig : public CommonFeatConfig {
     feat_value2id_dict.setNullValue(unknown_id);
     if (feat_value2id_dict.create(mapping_dict_path,
                                   train_opt.feat_id_dict_seperator)) {
-      std::cout << "load dict <" << mapping_dict_path << "> ok, size <"
+      VERBOSE_OUT(1) << "load dict <" << mapping_dict_path << "> ok, size <"
                 << feat_value2id_dict.size() << ">" << std::endl;
       for (auto iter = feat_value2id_dict.begin();
            iter != feat_value2id_dict.end(); iter++) {

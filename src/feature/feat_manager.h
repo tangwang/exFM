@@ -29,6 +29,6 @@ class FeatManager {
   unordered_map<string, shared_ptr<ParamContainerInterface>> shared_param_container_map;
 
 private:
-  bool initModelParams(bool show_cfg = false);
+  bool initModelParams();
 
 };

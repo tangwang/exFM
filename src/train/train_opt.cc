@@ -10,6 +10,7 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 
   arg_parser.loadArgs(config_file_path);
   arg_parser.loadArgs(argc, argv);
+  arg_parser.setVerbose(train_opt.verbose > 0);
 
   // 训练参数相关配置
 

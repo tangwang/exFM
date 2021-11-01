@@ -83,8 +83,10 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
   }
   if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
     utils::split_string(train_opt.csv_columns, train_opt.feat_seperator, csv_columns);
-    cout << "csv_columns size: " << csv_columns.size() << endl;
-    cout << "csv_columns : " << csv_columns << endl;
+
+    VERBOSE_OUT(1) << "csv_columns size: " << csv_columns.size() << endl;
+    VERBOSE_OUT(1) << "csv_columns : " << csv_columns << endl;
+
     assert(!csv_columns.empty());
     
     for (size_t i = 0; i < csv_columns.size(); i++) {

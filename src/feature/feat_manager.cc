@@ -43,36 +43,36 @@ bool FeatManager::loadByFeatureConfig(string config_path) {
   fin.close();
 
   if (ret) {
-    ret = initModelParams(train_opt.verbose > 0);
+    ret = initModelParams();
   }
 
   return ret;
 }
 
-bool FeatManager::initModelParams(bool show_cfg) {
+bool FeatManager::initModelParams() {
   for (auto &feat : dense_feat_cfgs) {
     if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
     }
-    cout << "feature config " << feat.name << " init ok" << endl;
-    if (show_cfg) cout << feat << endl;
+    VERBOSE_OUT(1) << "feature config " << feat.name << " init ok" << endl;
+    VERBOSE_OUT(2) << feat << endl;
   }
   for (auto &feat : sparse_feat_cfgs) {
     if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
     }
-    cout << "feature config " << feat.name << " init ok" << endl;
-    if (show_cfg) cout << feat << endl;
+    VERBOSE_OUT(1) << "feature config " << feat.name << " init ok" << endl;
+    VERBOSE_OUT(2) << feat << endl;
   }
   for (auto &feat : varlen_feat_cfgs) {
     if (!feat.initParams(shared_param_container_map)) {
       cerr << " feature config " << feat.name << " init failed" << endl;
       return false;
     }
-    cout << "feature config " << feat.name << " init ok" << endl;
-    if (show_cfg) cout << feat << endl;
+    VERBOSE_OUT(1) << "feature config " << feat.name << " init ok" << endl;
+    VERBOSE_OUT(2) << feat << endl;
   }
   return true;
 }
@@ -97,7 +97,7 @@ bool FeatManager::dumpModel() {
       }
     }
 
-    cout << "begin to dump model: " << endl;
+    VERBOSE_OUT(1) << "begin to dump model: " << endl;
     for (auto &feat : dense_feat_cfgs) {
       if (!ret) break;
       ret = feat.dumpModel();
@@ -111,7 +111,7 @@ bool FeatManager::dumpModel() {
       ret = feat.dumpModel() && feat.dumpFeatIdDict(feat_id_dict_path);
     }
     if (ret) {
-        cout << "dump model all finished" << endl;
+        VERBOSE_OUT(1) << "dump model all finished" << endl;
     } else {
         cerr << "dump model faild" << endl;
     }

@@ -1,12 +1,12 @@
-# exFM - FM with some useful extensions
+# exFM - FM model with some useful extensions
 
 ## features
 
-定义了一套工业界比较标准的特征处理方式，可以自己手动配置或者基于make_feat_conf.py自动产出该特征处理配置文件，包括：
+易用：定义了一套比较标准的特征处理方式，通过配置文件自动处理连续特征、字符串或数值类型的离散特征、变长特征（序列特征）。可以自己手动配置，也可以基于内部的工具自动产出配置。包括：
 
 1. 支持对连续型特征的离散化，包括等频和等宽分桶，也可以基于对特征的理解配置非线性映射（取对数、指数）后进行等宽分桶。
 
-2. 支持对离散特征自动的进行ID映射，映射方式支持dict（事先统计好映射词典）、dynamic_dict（边训练变更新映射词典）、hash、orig_id（直接使用原始值）。原始值支持数值、字符串。
+2. 支持对离散特征进行ID映射，映射方式支持静态词典、动态词典、hash等多种方式。
 
 3. 支持序列特征（sum_pooling/avg_pooling）。
 
@@ -23,29 +23,31 @@
 ```
 git clone https://github.com/tangwang/exFM.git
 # 编译，通过dim配置embedding_size，生成bin/train
+cd exFM
 make dim=15 -j 4
 
-# 准备你的训练数据
+# 准备你的训练数据，这里使用项目附带的一个60万criteo数据集
 cd data
 xz -d criteo_sampled_data.csv.tar.xz
 tar -xf criteo_sampled_data.csv.tar
 cd -
 
 # 利用make_conf.py和训练数据，生成一个特征转换配置文件。 也可以基于你对你的特征的理解自行编写一个特征处理的配置文件。
+cpu_num=`cat /proc/cpuinfo | grep processor | wc -l`
 cd config
 cp conf_criteo.py conf.py
 # 可以使用部分数据，比如top10w行来产出一个特征转换的配置
-cat ../data/criteo_sampled_data.csv.train ../data/criteo_sampled_data.csv.test  | python3 make_feat_conf.py -o criteo --cpu_num 4
+cat ../data/criteo_sampled_data.csv.train ../data/criteo_sampled_data.csv.test  | python3 make_feat_conf.py -o criteo --cpu_num $cpu_num
 cd -
 
 # 打印帮助
 bin/train h
 
 # train （配置文件为config/train.conf，可以通过命令行参数补充或覆盖配置文件中的配置项）
-bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=4 verbose=0 epoch=20 solver=adam batch_size=1000 mf=txt om=model_1029_txt
+bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=$cpu_num verbose=1 epoch=20 solver=adam batch_size=1000 mf=txt om=model_1029_txt
 # dim=15时，test AUC 0.7765，在我的4核（至强E-2224G CPU）机器上训练速度为25万样本/S。
 
-bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=4 verbose=0 epoch=30 solver=ftrl batch_size=10
+bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=$cpu_num verbose=1 epoch=30 solver=ftrl batch_size=10
 # 使用FTRL batch_size=10，test AUC 0.7783
 
 # predict
@@ -59,7 +61,7 @@ cat data/for_predict.csv | bin/predict data_formart=csv feat_sep=, feat_cfg=crit
 
 ### 产出特征配置
 
-特征方面支持连续特征（denseFeat）、稀疏特征（sparseFeat 支持ID型和字符串类型）、变长特征（varlenSparseFeat），内置了一套工业界比较标准、实用的特征处理的方法，你可以用make_feat_conf.py工具产出一个特征处理的配置文件，该配置文件将定义好你所需要的每个连续特征、离散特征、序列特征的处理方式。
+你只需要配置连续特征、稀疏特征、变长特征（序列特征）的特征名称，然后基于make_feat_conf.py工具自动产出一个特征处理的配置文件，该配置文件将定义好你所需要的每个特征的处理方式。
 
 make_feat_conf.py的使用方式：
 
@@ -117,8 +119,10 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
 这时将在simple_feat_conf目录下产生一套简单的特征处理配置文件，特征配置文件的规范和解释见文档[特征处理配置文件](https://github.com/tangwang/exFM/blob/main/docs/feature_config.md)。这时可以直接到下一步训练模型，也可以对特征处理配置文件进行一些调整，比如：
 1. 对于连续特征，都自动配上了2种等宽分桶+2种等频分桶的离散化方式，你可以对某些特征做细化的调整，或者根据各自的取值分布做不同的处理，典型的，比如对于点击频次做log处理然后等宽分桶，对item的上架天数做0.5次方然后做等宽分桶，等。
-3. 对于离散特征或序列特征，调整映射方式（支持 dict / dynamic_dict / hash / orig_id ）。
-4. 对于序列特征，调整长度限定max_len。
+2. 对于离散特征或序列特征，调整映射方式（支持 dict / dynamic_dict / hash / orig_id ）。
+3. 对于序列特征，调整长度限定max_len。
+
+借助make_feat_conf.py工具来产生特征处理配置文件的好处是，它自动的帮你跑出了每个特征的分布，并产出了一套基本可用的特征处理配置。你也可以基于[特征处理配置文件](https://github.com/tangwang/exFM/blob/main/docs/feature_config.md)直接编写一个特征处理的配置文件。
 
 ### train
 

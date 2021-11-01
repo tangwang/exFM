@@ -30,17 +30,17 @@ class CommonFeatConfig {
   bool dumpModel() {
     bool ret = true;
     if (!train_opt.model_path.empty()) {
-      cout << "dump model for " << name << " ... ";
+      VERBOSE_OUT(1) << "dump model for " << name << " ... ";
       if (param_container) {
         if (0 == param_container->dump(train_opt.model_path + "/" + name,
                                     train_opt.model_format)) {
-          cout << " ok " << endl;
+          VERBOSE_OUT(1) << " ok " << endl;
         } else {
           ret = false;
-          cout << " faild " << endl;
+          VERBOSE_OUT(1) << " faild " << endl;
         }
       } else {
-        cout << " param_container is empty! " << endl;
+        VERBOSE_OUT(1) << " param_container is empty! " << endl;
       }
     }
     return ret;

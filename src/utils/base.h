@@ -32,6 +32,7 @@ using std::cin;
 using std::cout;
 using std::cerr;
 using std::endl;
+#define VERBOSE_OUT(level) if (train_opt.verbose >= level) std::cout
 
 // file IO
 using std::istream;

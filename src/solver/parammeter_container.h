@@ -147,7 +147,7 @@ class ParamContainerInterface {
           return -2;
       }
     }
-    std::cout << "load model ok: " << path <<  " total_feat_num: " << total_feat_num <<  std::endl;
+    VERBOSE_OUT(1) << "load model ok: " << path <<  " total_feat_num: " << total_feat_num <<  std::endl;
     return ret;
   }
 

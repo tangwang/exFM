@@ -49,7 +49,6 @@ class TrainWorker {
   void task_process_thread_loop() {
     std::vector<string> local_task_queue;
     int counter_for_evalution = 0;
-    const bool verbose_debug = train_opt.verbose > 1;
 
     sleep(2);
 
@@ -58,8 +57,7 @@ class TrainWorker {
     do {
       task_queue.FeachAll(local_task_queue);
       int task_queue_size = local_task_queue.size();
-      if (verbose_debug)
-        std::cout << "task " << task_name_ << " fetched " << task_queue_size
+      DEBUG_OUT << "task " << task_name_ << " fetched " << task_queue_size
                   << " lines" << std::endl;
 
       for (int i = 0; i < task_queue_size; i++) {
