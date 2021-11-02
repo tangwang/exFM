@@ -21,7 +21,7 @@
 这里给出一个极简的样例。详细说明见下面的usage。
 
 ```
-git clone https://github.com/tangwang/exFM.git
+git clone https://github.com/tangwang/exFM.git --depth=1
 # 编译，通过dim配置embedding_size，生成bin/train
 cd exFM
 make dim=15 -j 4
@@ -51,10 +51,8 @@ bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_
 # 使用FTRL batch_size=10，test AUC 0.7783
 
 # predict
-# 因为criteo_sampled_data.csv.test没有header line，补充一下
-head -1 data/criteo_sampled_data.csv.train > data/for_predict.csv
-cat data/criteo_sampled_data.csv.test >> data/for_predict.csv
-cat data/for_predict.csv | bin/predict data_formart=csv feat_sep=, feat_cfg=criteo  verbose=0 mf=txt im=model_1029_txt verbose=0 
+# 因为criteo_sampled_data.csv.test没有header line，所以需要通过csv_columns配置列名称
+cat data/criteo_sampled_data.csv.test | bin/predict data_formart=csv feat_sep=, feat_cfg=criteo  verbose=0 mf=txt im=model_1029_txt verbose=0 csv_columns=label,I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,I12,I13,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20,C21,C22,C23,C24,C25,C26
 ```
 
 ## usage
@@ -201,7 +199,7 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
       // feat_cfg         特征处理配置
       // mf               模型格式
       // im               模型地址
-      // 如果是csv格式，需在第二个参数指定input_columns
+      // 如果是csv格式，必须在配置文件中设定csv_columns参数
       FmModel fm_model;
       int model_init_ret = fm_model.init("config/train.conf", "item_id,chanel,item_tags,item_clicks,item_price,user_click_list,user_age");
       if (0 != model_init_ret) {
@@ -243,8 +241,7 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
       extern "C" {
       
       //创建模型
-      FmModel* fmModelCreate(const char* config_path,
-                             const char* input_columns); // 如果用于predict的数据为csv格式需要通过input_columns指定列名
+      FmModel* fmModelCreate(const char* config_path);
       void fmModelRelease(FmModel* fm_model);
       
       

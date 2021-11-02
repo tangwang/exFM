@@ -43,9 +43,9 @@ all : bin/train bin/predict lib/fm_pred.so
 CC = g++
 LIB= -lpthread
 INC = -I./third_party  -I./src
-DEBUG_CCFLAGS = -g -O0 -fno-inline -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes
-LIB_CCFLAGS =  -fPIC -shared -O3 -funroll-loops -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes -march=native 
-CCFLAGS = -g -O3 -funroll-loops -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes -march=native 
+DEBUG_CCFLAGS = -g -O0 -fno-inline -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-unused-value -Wno-attributes 
+LIB_CCFLAGS =  -fPIC -shared -O3 -funroll-loops -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes -Wno-unused-value -march=native 
+CCFLAGS = -g -O3 -funroll-loops -std=c++11 -Wall -fmax-errors=4 -DDIM=${dim} -Wno-unused-local-typedefs -Wno-attributes -Wno-unused-value -march=native 
 
 lib/fm_pred.so: ${OBJS_PRED_LIB} 
 	-mkdir -p lib/include

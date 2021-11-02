@@ -8,17 +8,16 @@
 
 FmModel::FmModel() {}
 
-int FmModel::init(const char * config_path, const char* input_columns) {
+int FmModel::init(const char * config_path) {
   train_opt.config_file_path = config_path;
   train_opt.solver = "pred";
 
   // 如果是csv格式，解析头行
   if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
-    if ((input_columns == NULL)) {
-      cerr << "need specify input_columns for your csv data" << endl;
+    if (train_opt.csv_columns.empty()) {
+      cerr << "need set csv_columns in your config" << endl;
       return -1;
     }
-    train_opt.csv_columns = input_columns;
   }
 
   if (!train_opt.parse_cfg_and_cmdlines(0, NULL)) {
@@ -97,11 +96,9 @@ double FmPredictInstance::predict_line(const string& line) {
 extern "C" {
 
 // @param config_path 配置文件地址
-// @param input_columns:  如果数据为csv格式，在这里指定csv的表头内容
-FmModel* fmModelCreate(const char* config_path,
-                       const char* input_columns) {
+FmModel* fmModelCreate(const char* config_path) {
   FmModel* fm_model = new FmModel;
-  int ret = fm_model->init(config_path, input_columns);
+  int ret = fm_model->init(config_path);
   if (ret != 0) {
     delete fm_model;
     return NULL;

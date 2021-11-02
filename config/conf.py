@@ -1,6 +1,9 @@
-# 训练数据格式，支持csv和libsvm，如果是csv格式必须确保第一行为表头（各列列名）,并且第一列为label
-# label为0/1  或者-1/1，特征取值支持连续特征(float), 离散特征(int / string), 序列特征(list of int / string)
+# 训练数据格式，支持csv和libsvm
+# label>0为正样本，否则视为负样本。特征取值支持连续特征(float), 离散特征(int / string), 序列特征(list of int / string)
 data_formart =  "csv"
+
+# 如果是csv格式，通过csv_columns设定列名，或者设置csv_columns=[]，将输入数据的第一行读取为列名
+csv_columns = ['label', 'item_id', 'chanel', 'item_tags', 'item_clicks', 'item_price', 'user_click_list', 'user_age']
 
 # 对于csv和libsvm都需要配置域分隔符和序列特征中多个值的分隔符
 feat_sep = ','

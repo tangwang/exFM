@@ -19,9 +19,9 @@
 // feat_cfg         特征处理配置
 // mf               模型格式
 // im               模型地址
-// 如果是csv格式，需在第二个参数指定input_columns
+// 如果是csv格式，必须通过csv_columns参数设定列名
 FmModel fm_model;
-int model_init_ret = fm_model.init("config/train.conf", "item_id,chanel,item_tags,item_clicks,item_price,user_click_list,user_age");
+int model_init_ret = fm_model.init("config/train.conf");
 if (0 != model_init_ret) {
   std::cout << " model init error : " << ret << std::endl;
 }
@@ -53,10 +53,9 @@ class FeatManager;
 class FmModel {
  public:
   // @param config_path 配置文件地址
-  // @param input_columns:  如果数据为csv格式，在这里指定csv的表头内容
   FmModel();
 
-  int init(const char * config_path, const char* input_columns = NULL);
+  int init(const char * config_path);
 
   ~FmModel();
 
@@ -96,8 +95,7 @@ class FmPredictInstance {
 extern "C" {
 
 //创建模型
-FmModel* fmModelCreate(const char* config_path,
-                       const char* input_columns); // 如果用于predict的数据为csv格式需要通过input_columns指定列名
+FmModel* fmModelCreate(const char* config_path);
 void fmModelRelease(FmModel* fm_model);
 
 

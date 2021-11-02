@@ -82,7 +82,7 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
     feat_map[v.feat_cfg->name] = &v;
   }
   if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
-    utils::split_string(train_opt.csv_columns, train_opt.feat_seperator, csv_columns);
+    utils::split_string(train_opt.csv_columns, ',', csv_columns);
 
     VERBOSE_OUT(1) << "csv_columns size: " << csv_columns.size() << endl;
     VERBOSE_OUT(1) << "csv_columns : " << csv_columns << endl;
@@ -97,8 +97,8 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
      }
     }
     if (feat_entries.size() != feat_map.size()) {
-        cerr << "some feature_name not found in csv header, check your feature_config or your csv header line." << endl;
-        std::abort();
+        cerr << "feature names not match csv_columns, check your feature_config or your csv header line, exit." << endl;
+        std::exit(1);
      }
   }
 }

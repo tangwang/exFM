@@ -25,9 +25,12 @@ int main(int argc, char *argv[]) {
 
   cin.sync_with_stdio(false);
 
-// 如果是csv格式，解析头行
+  // 如果是csv格式，解析头行
   if (train_opt.data_formart == TrainOption::DataFormart_CSV) {
-    std::getline(cin, train_opt.csv_columns);
+    if (train_opt.csv_columns.empty()) {
+      std::getline(cin, train_opt.csv_columns);
+      utils::replace_all(train_opt.csv_columns, std::to_string(train_opt.feat_seperator), std::to_string(','));
+    }
   }
 
   // init trainning workers

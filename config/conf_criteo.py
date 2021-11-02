@@ -3,6 +3,9 @@
 # label为0/1  或者-1/1，特征取值支持连续特征(float), 离散特征(int / string), 序列特征(list of int / string)
 data_formart =  "csv"
 
+# 如果是csv格式，通过csv_columns设定列名，或者设置csv_columns=[]，将输入数据的第一行读取为列名
+csv_columns = []
+
 # 对于csv和libsvm都需要配置域分隔符和序列特征中多个值的分隔符
 feat_sep = ','
 feat_values_sep = ';'

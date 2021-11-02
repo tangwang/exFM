@@ -29,20 +29,23 @@ def proc_line__csv(job_queue, process_id, dict_feat_name_to_id,
     print('processor ', process_id, ' started.')
 
     max_column_id = max(dict_feat_name_to_id.values())
-
-    dense_feat_dict = {dict_feat_name_to_id[k] : [] for k in dense_feat_list if k in dict_feat_name_to_id}
-    sparse_id_feat_dict = {dict_feat_name_to_id[k] : [] for k in sparse_id_feat_list if k in dict_feat_name_to_id}
-    varlen_sparse_id_feat_dict = {dict_feat_name_to_id[k] : [] for k in varlen_sparse_id_feat_list if k in dict_feat_name_to_id}
-    varlen_sparse_id_feat_len_dict = {dict_feat_name_to_id[k] : [] for k in varlen_sparse_id_feat_list if k in dict_feat_name_to_id}
-    sparse_str_feat_dict = {dict_feat_name_to_id[k] : [] for k in sparse_str_feat_list if k in dict_feat_name_to_id}
-    varlen_sparse_str_feat_dict = {dict_feat_name_to_id[k] : [] for k in varlen_sparse_str_feat_list if k in dict_feat_name_to_id}
-    varlen_sparse_str_feat_len_dict = {dict_feat_name_to_id[k] : [] for k in varlen_sparse_str_feat_list if k in dict_feat_name_to_id}
+    try:
+        dense_feat_dict = {dict_feat_name_to_id[k] : [] for k in dense_feat_list}
+        sparse_id_feat_dict = {dict_feat_name_to_id[k] : [] for k in sparse_id_feat_list}
+        varlen_sparse_id_feat_dict = {dict_feat_name_to_id[k] : [] for k in varlen_sparse_id_feat_list}
+        varlen_sparse_id_feat_len_dict = {dict_feat_name_to_id[k] : [] for k in varlen_sparse_id_feat_list}
+        sparse_str_feat_dict = {dict_feat_name_to_id[k] : [] for k in sparse_str_feat_list}
+        varlen_sparse_str_feat_dict = {dict_feat_name_to_id[k] : [] for k in varlen_sparse_str_feat_list}
+        varlen_sparse_str_feat_len_dict = {dict_feat_name_to_id[k] : [] for k in varlen_sparse_str_feat_list}
+    except Exception as e:
+        print('error: feature names not match with column names. exception: ', e)
+        return
 
     while True:
         line = job_queue.get()
         if line is None:
             break
-        segs = line.rstrip().split(feat_sep)
+        segs = line.rstrip('\n').split(feat_sep)
         if len(segs) < max_column_id + 1:
             continue
 
@@ -122,7 +125,7 @@ def proc_line__libsvm(job_queue, process_id,
         line = job_queue.get()
         if line is None:
             break
-        segs = line.rstrip().split(feat_sep)[1:]
+        segs = line.rstrip('\n').split(feat_sep)[1:]
 
         for kv in segs:
             k, v = kv.split(feat_kv_sep)
@@ -221,8 +224,9 @@ if __name__ == '__main__':
 
     workers = []
     if data_formart == 'csv':
-        column_names = sys.stdin.readline().rstrip('\n').split(feat_sep)
-        dict_feat_name_to_id = dict((v, j) for j,v in enumerate(column_names))
+        if len(csv_columns) == 0:
+            csv_columns = sys.stdin.readline().rstrip('\n').split(feat_sep)
+        dict_feat_name_to_id = dict((v, j) for j,v in enumerate(csv_columns))
         for i in range(cpu_num):
             worker = pool.apply_async(proc_line__csv, (job_queues[i], i, dict_feat_name_to_id, 
                 list_of__dense_feat_dict                [i],
