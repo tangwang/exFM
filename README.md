@@ -2,19 +2,11 @@
 
 ## features
 
-易用：定义了一套比较标准的特征处理方式，通过配置文件自动处理连续特征、字符串或数值类型的离散特征、变长特征（序列特征）。可以自己手动配置，也可以基于内部的工具自动产出配置。包括：
+易用：通常拿到一份数据，可能要做很多特征工程，比如离散的特征有ID型的、字符串的、变长（多值/序列）的，都需要做些特征处理，连续特征可能要做离散化或者非线性映射等，然后要基于TensorFlow/pytorch等框架编写一些训练的代码。该项目就是通过定义一套特征处理配置文件规范，提供一个配置产出工具，一套FM训练和预测工具，从而使得这些工作基本可用省去。
 
-1. 支持对连续型特征的离散化，包括等频和等宽分桶，也可以基于对特征的理解配置非线性映射（取对数、指数）后进行等宽分桶。
+可靠：针对FM对内置的adamW/FTRL等优化器和batch训练进行了精心的调参，使用默认配置可以得到一个不错的baseline。已经在千万日活的业务体中用于召回和粗排。
 
-2. 支持对离散特征进行ID映射，映射方式支持静态词典、动态词典、hash等多种方式。
-
-3. 支持序列特征（sum_pooling/avg_pooling）。
-
-支持ftrl / adam / adagrad等优化器，支持batch训练。
-
-支持通过模型保存和初始化实现增量训练。
-
-高性能：使用cpu训练的情况下，性能比TensorFlow/pytorch实现的FM高很多。
+高效：使用cpu的情况下，训练速度相比TensorFlow/pytorch实现的FM快很多倍。
 
 ### examples
 
@@ -50,7 +42,7 @@ bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_
 bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=$cpu_num verbose=1 epoch=30 solver=ftrl batch_size=10
 # 使用FTRL batch_size=10，test AUC 0.7783
 
-# predict
+# predict （也会config/train.conf）
 # 因为criteo_sampled_data.csv.test没有header line，所以需要通过csv_columns配置列名称
 cat data/criteo_sampled_data.csv.test | bin/predict data_formart=csv feat_sep=, feat_cfg=criteo  verbose=0 mf=txt im=model_1029_txt verbose=0 csv_columns=label,I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,I12,I13,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20,C21,C22,C23,C24,C25,C26
 ```
@@ -139,7 +131,7 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
    5. 配置优化器： 比如 solver  = adam （目前支持adam (adamW) / adagrad / rmpprop / ftrl / sgdm )。
 
       建议使用ftrl/adam。
-      FM模型的参数通常是大规模稀疏特征的参数，较适合于用FTRL进行更新，所以通常能在ftrl上取得最优效果。FTRL适合逐个样本的流试训练，所以batch_size不能过大，可设为1或者10左右。
+      FM模型的参数通常是大规模稀疏特征的参数，较适合于用FTRL进行更新，所以通常能在ftrl上取得最优效果。FTRL适合逐个样本的流式训练，所以batch_size不能过大，可设为1或者10左右。
       
       adam / adamW / adagrad  / rmsprop + mini_batch也能基本上与FTRL的效果持平，batch_size不能过小（否则需要极低的学习率，较难调参），可以设置为1000左右。
       sgdm没有仔细调试，试了一些数据集效果较差。
@@ -168,15 +160,13 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
    ​	加载模型 im=xxx
 
-   ​	如果数据为csv格式，确保header line为列名称，确保feat_cfg配置目录下的特征配置json的特征名称都能在csv的header line列名中找到。
-
    ```
    # 因为项目中附带的criteo_sampled_data.csv.test没有header line，补充一下
    head -1 data/criteo_sampled_data.csv.train > data/for_predict.csv
    cat data/criteo_sampled_data.csv.test >> data/for_predict.csv
    cat data/for_predict.csv | bin/predict data_formart=csv feat_sep=, feat_cfg=criteo  verbose=0 mf=txt im=model_1029_txt verbose=0 
    ```
-
+   
 2. #### 在线预估
 
    1. ##### 动态库(lib/fm_pred.so) 
@@ -201,7 +191,7 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
       // im               模型地址
       // 如果是csv格式，必须在配置文件中设定csv_columns参数
       FmModel fm_model;
-      int model_init_ret = fm_model.init("config/train.conf", "item_id,chanel,item_tags,item_clicks,item_price,user_click_list,user_age");
+      int model_init_ret = fm_model.init("config/train.conf");
       if (0 != model_init_ret) {
         std::cout << " model init error : " << ret << std::endl;
       }
@@ -235,7 +225,7 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
       ###### java项目的调用方法
 
-      可以调用以下几个c方法（同样声明在lib_fm_pred.h中）：
+      可以通过jni调用以下几个c方法（同样声明在lib_fm_pred.h中）：
 
       ```c++
       extern "C" {
@@ -261,8 +251,6 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
       }
       ```
 
-   2. ##### rpc / http_server ： 未支持
-
 3. #### 用于召回
 
    如果没有用到user与item的交叉特征，那么可以将该模型用于召回。根据FM的公式，可以将公式拆分为以下3个部分：
@@ -275,9 +263,9 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
    1. 离线：
       1. 每小时筛选出一部分适合召回的候选item（e.g.,过去7天至少被点击过3次的）。
-      2. 针对每个候选item，提取其所有特征的一阶权重w和隐向量v，计算$Item Embedding=concat(\sum w+\frac{1}{2}ReduceSum[(\sum v)^2-\sum v^2],\sum v)$
+      2. 针对每个候选item，提取其所有特征的一阶权重w和隐向量v，计算$$Item Embedding=concat(\sum w+\frac{1}{2}ReduceSum[(\sum v)^2-\sum v^2],\sum v)$$
       3. 将所有item embedding灌入FAISS建立索引。
    2. 在线：
-      1. 用户请求到来时，提取其所有特征的隐向量v，计算$User Embedding=concat(1,\sum v)$
+      1. 用户请求到来时，提取其所有特征的隐向量v，计算$$User Embedding=concat(1,\sum v)$$
       2. 检索距离User Embedding最近的Top N item embedding。
 
