@@ -154,19 +154,8 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
 1. #### 离线批量预估
 
-   依赖：
+   bin/predict 。 使用方法见examples中bin/predict的使用。
 
-   ​	特征配置 feat_cfg=xxx
-
-   ​	加载模型 im=xxx
-
-   ```
-   # 因为项目中附带的criteo_sampled_data.csv.test没有header line，补充一下
-   head -1 data/criteo_sampled_data.csv.train > data/for_predict.csv
-   cat data/criteo_sampled_data.csv.test >> data/for_predict.csv
-   cat data/for_predict.csv | bin/predict data_formart=csv feat_sep=, feat_cfg=criteo  verbose=0 mf=txt im=model_1029_txt verbose=0 
-   ```
-   
 2. #### 在线预估
 
    1. ##### 动态库(lib/fm_pred.so) 
