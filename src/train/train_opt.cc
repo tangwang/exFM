@@ -10,10 +10,14 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
 
   arg_parser.loadArgs(config_file_path);
   arg_parser.loadArgs(argc, argv);
-  arg_parser.setVerbose(train_opt.verbose > 0);
+
+  arg_parser.setVerbose(false);
+  arg_parser.parse_arg("verbose", verbose, 1,
+                  "0: only trainning logs. 1: open feature config messages, 2 "
+                  ": open debug messages");
+  arg_parser.setVerbose(verbose > 0);
 
   // 训练参数相关配置
-
   string feat_cfg;
   arg_parser.parse_arg("feat_cfg", feat_cfg, string(),
                    "feature config name(dir) under config dir", true);
@@ -111,10 +115,6 @@ bool TrainOption::parse_cfg_and_cmdlines(int argc, char *argv[]) {
   arg_parser.parse_arg("ftrl.l2w", ftrl.l2_reg_w, 5.0,  "l2 regularization of w");
   arg_parser.parse_arg("ftrl.l1v", ftrl.l1_reg_V, 0.05, "l1 regularization of V");
   arg_parser.parse_arg("ftrl.l2v", ftrl.l2_reg_V, 5.0,  "l2 regularization of V");
-
-  arg_parser.parse_arg("verbose", verbose, 1,
-                  "0: only trainning logs. 1: open feature config messages, 2 "
-                  ": open debug messages");
 
   print_help = arg_parser.parse_option("h", "print help message");
 
