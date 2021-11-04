@@ -220,7 +220,7 @@ if __name__ == '__main__':
     list_of__varlen_sparse_str_feat_dict       = [manager.dict() for i in range(cpu_num)]
     list_of__varlen_sparse_str_feat_len_dict   = [manager.dict() for i in range(cpu_num)]
 
-    pool = multiprocessing.Pool(cpu_num + 1)
+    pool = multiprocessing.Pool(cpu_num)
 
     workers = []
     if data_formart == 'csv':

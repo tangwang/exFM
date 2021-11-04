@@ -161,7 +161,7 @@ real_t BaseSolver::feedLine_libSVM(const string & aline) {
   Sample &sample = batch_samples[sample_idx];
 
   // parse label
-  sample.label.i = int(pos) > 0 ? 1 : -1;
+  sample.label.i = atoi(pos) > 0 ? 1 : -1;
 
   // parse featrues
   size_t fm_node_idx = 0;
@@ -198,7 +198,7 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   Sample &sample = batch_samples[sample_idx];
 
   // parse label
-  sample.label.i = int(pos) > 0 ? 1 : -1;
+  sample.label.i = atoi(line_split_buff[0].c_str()) > 0 ? 1 : -1;
 
   // parse featrues
   size_t fm_node_idx = 0;

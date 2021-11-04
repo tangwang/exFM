@@ -1,4 +1,4 @@
-# exFM - FM model with some useful extensions
+# exFM
 
 ## features
 
