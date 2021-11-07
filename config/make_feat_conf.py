@@ -17,7 +17,7 @@ max_hash_buckets = 10000000
 min_hash_buckets = 200
 feat_kv_sep = ':'
 
-def proc_line__csv(job_queue, process_id, dict_feat_name_to_id,
+def proc_line__csv(job_file_name, process_id, dict_feat_name_to_id,
     a_dense_feat_dict,
     a_sparse_id_feat_dict,
     a_varlen_sparse_id_feat_dict,
@@ -41,48 +41,47 @@ def proc_line__csv(job_queue, process_id, dict_feat_name_to_id,
         print('error: feature names not match with column names. exception: ', e)
         return
 
-    while True:
-        line = job_queue.get()
-        if line is None:
-            break
-        segs = line.rstrip('\n').split(feat_sep)
-        if len(segs) < max_column_id + 1:
-            continue
+    with open(job_file_name) as f:
+        for line in f:
+            segs = line.rstrip('\n').split(feat_sep)
+            if len(segs) != max_column_id + 1:
+                print('line segs num not match with csv columns! please check feat_sep, and csv_columns. len(segs) is : ', len(segs), 'line: ', line.rstrip('\n'))
+                continue
 
-        for column_id, column_list in dense_feat_dict.items():
-            column_list.append(float(segs[column_id]) if segs[column_id] else 0.0)
-        for column_id, column_list in sparse_id_feat_dict.items():
-            # 兼容有多个值的情况
-            v = segs[column_id]
-            if not v:
-                continue
-            if feat_values_sep in v:
-                v = v.split(feat_values_sep)[0]
-            column_list.append(parse_id(v) if '.' in v else int(v))
-        for column_id, column_list in varlen_sparse_id_feat_dict.items():
-            v = segs[column_id]
-            if not v:
-                continue
-            value_list = [parse_id(x) for x in v.split(feat_values_sep)]
-            column_list.extend(value_list)
-            varlen_sparse_id_feat_len_dict[column_id].append(len(value_list))
+            for column_id, column_list in dense_feat_dict.items():
+                column_list.append(float(segs[column_id]) if segs[column_id] else 0.0)
+            for column_id, column_list in sparse_id_feat_dict.items():
+                # 兼容有多个值的情况
+                v = segs[column_id]
+                if not v:
+                    continue
+                if feat_values_sep in v:
+                    v = v.split(feat_values_sep)[0]
+                column_list.append(parse_id(v) if '.' in v else int(v))
+            for column_id, column_list in varlen_sparse_id_feat_dict.items():
+                v = segs[column_id]
+                if not v:
+                    continue
+                value_list = [parse_id(x) for x in v.split(feat_values_sep)]
+                column_list.extend(value_list)
+                varlen_sparse_id_feat_len_dict[column_id].append(len(value_list))
 
-        for column_id, column_list in sparse_str_feat_dict.items():
-            v = segs[column_id]
-            if not v:
-                continue
-            # 兼容有多个值的情况
-            if feat_values_sep in v:
-                v = v.split(feat_values_sep)[0]
-            column_list.append(v)
+            for column_id, column_list in sparse_str_feat_dict.items():
+                v = segs[column_id]
+                if not v:
+                    continue
+                # 兼容有多个值的情况
+                if feat_values_sep in v:
+                    v = v.split(feat_values_sep)[0]
+                column_list.append(v)
 
-        for column_id, column_list in varlen_sparse_str_feat_dict.items():
-            v = segs[column_id]
-            if not v:
-                continue
-            value_list = [parse_id(x) for x in v.split(feat_values_sep)]
-            column_list.extend(value_list)
-            varlen_sparse_str_feat_len_dict[column_id].append(len(value_list))
+            for column_id, column_list in varlen_sparse_str_feat_dict.items():
+                v = segs[column_id]
+                if not v:
+                    continue
+                value_list = [parse_id(x) for x in v.split(feat_values_sep)]
+                column_list.extend(value_list)
+                varlen_sparse_str_feat_len_dict[column_id].append(len(value_list))
 
     dict_feat_id_to_name = dict((v, k) for k, v in dict_feat_name_to_id.items())
     dense_feat_dict                   = dict((dict_feat_id_to_name[k], v) for k, v in dense_feat_dict                .items())
@@ -102,7 +101,7 @@ def proc_line__csv(job_queue, process_id, dict_feat_name_to_id,
     a_varlen_sparse_str_feat_len_dict   .update(varlen_sparse_str_feat_len_dict)
 
 
-def proc_line__libsvm(job_queue, process_id, 
+def proc_line__libsvm(job_file_name, process_id, 
     a_dense_feat_dict,
     a_sparse_id_feat_dict,
     a_varlen_sparse_id_feat_dict,
@@ -121,42 +120,40 @@ def proc_line__libsvm(job_queue, process_id,
     varlen_sparse_str_feat_dict = {k : [] for k in varlen_sparse_str_feat_list}
     varlen_sparse_str_feat_len_dict = {k : [] for k in varlen_sparse_str_feat_list}
 
-    while True:
-        line = job_queue.get()
-        if line is None:
-            break
-        segs = line.rstrip('\n').split(feat_sep)[1:]
+    with open(job_file_name) as f:
+        for line in f:
+            segs = line.rstrip('\n').split(feat_sep)[1:]
 
-        for kv in segs:
-            k, v = kv.split(feat_kv_sep)
-            if not v:
-                continue
+            for kv in segs:
+                k, v = kv.split(feat_kv_sep)
+                if not v:
+                    continue
 
-            if k in dense_feat_dict:
-                dense_feat_dict[k].append(float(v))
-            elif k in sparse_id_feat_dict:
-                # 兼容有多个值的情况
-                if feat_values_sep in v:
-                    v = v.split(feat_values_sep)[0]
-                sparse_id_feat_dict[k].append(parse_id(v) if '.' in v else int(v))
-            
-            elif k in varlen_sparse_id_feat_dict:
-                #varlen_sparse_id_feat_dict[k].append([int(x) for x in v.split(feat_values_sep)])
-                value_list = [parse_id(x) for x in v.split(feat_values_sep)]
-                varlen_sparse_id_feat_dict[k].extend(value_list)
-                varlen_sparse_id_feat_len_dict[k].append(len(value_list))
+                if k in dense_feat_dict:
+                    dense_feat_dict[k].append(float(v))
+                elif k in sparse_id_feat_dict:
+                    # 兼容有多个值的情况
+                    if feat_values_sep in v:
+                        v = v.split(feat_values_sep)[0]
+                    sparse_id_feat_dict[k].append(parse_id(v) if '.' in v else int(v))
+                
+                elif k in varlen_sparse_id_feat_dict:
+                    #varlen_sparse_id_feat_dict[k].append([int(x) for x in v.split(feat_values_sep)])
+                    value_list = [parse_id(x) for x in v.split(feat_values_sep)]
+                    varlen_sparse_id_feat_dict[k].extend(value_list)
+                    varlen_sparse_id_feat_len_dict[k].append(len(value_list))
 
-            elif k in sparse_str_feat_dict:
-                # 兼容有多个值的情况
-                if feat_values_sep in v:
-                    v = v.split(feat_values_sep)[0]
-                sparse_id_feat_dict[k].append(v)
-            
-            elif k in varlen_sparse_str_feat_dict:
-                #varlen_sparse_id_feat_dict[k].append([int(x) for x in v.split(feat_values_sep)])
-                value_list = v.split(feat_values_sep)
-                varlen_sparse_str_feat_dict[k].extend(value_list)
-                varlen_sparse_str_feat_len_dict[k].append(len(value_list))
+                elif k in sparse_str_feat_dict:
+                    # 兼容有多个值的情况
+                    if feat_values_sep in v:
+                        v = v.split(feat_values_sep)[0]
+                    sparse_id_feat_dict[k].append(v)
+                
+                elif k in varlen_sparse_str_feat_dict:
+                    #varlen_sparse_id_feat_dict[k].append([int(x) for x in v.split(feat_values_sep)])
+                    value_list = v.split(feat_values_sep)
+                    varlen_sparse_str_feat_dict[k].extend(value_list)
+                    varlen_sparse_str_feat_len_dict[k].append(len(value_list))
 
     a_dense_feat_dict                   .update(dense_feat_dict                )
     a_sparse_id_feat_dict               .update(sparse_id_feat_dict            )
@@ -197,6 +194,7 @@ def save_feat_id_dict(mapping_dict_path, feat_num_statis_dict_path, feat_name, f
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--intput_path', type=str)
     parser.add_argument('-o', '--output_path', type=str)
     parser.add_argument('--cpu_num', default=10, type=int)
     args = parser.parse_args()
@@ -209,9 +207,12 @@ if __name__ == '__main__':
     # 解析数据
     ##########################################
     cpu_num = args.cpu_num
+    if (cpu_num > 99):
+        cpu_num = 99
     manager = multiprocessing.Manager()
-    #job_queue = manager.Queue(maxsize = 500000)
-    job_queues = [manager.Queue(maxsize = 20000) for i in range(cpu_num)]
+    # job_queues = [manager.Queue(maxsize = 20000) for i in range(cpu_num)]
+    os.system(f'split -n {cpu_num} {args.intput_path} -d {args.intput_path}.tmp_split_file.')
+    job_file_nanes = [(f'{args.intput_path}.tmp_split_file.' + ('%02d' % i )) for i in range(cpu_num)]
     list_of__dense_feat_dict                   = [manager.dict() for i in range(cpu_num)]
     list_of__sparse_id_feat_dict               = [manager.dict() for i in range(cpu_num)]
     list_of__varlen_sparse_id_feat_dict        = [manager.dict() for i in range(cpu_num)]
@@ -228,7 +229,7 @@ if __name__ == '__main__':
             csv_columns = sys.stdin.readline().rstrip('\n').split(feat_sep)
         dict_feat_name_to_id = dict((v, j) for j,v in enumerate(csv_columns))
         for i in range(cpu_num):
-            worker = pool.apply_async(proc_line__csv, (job_queues[i], i, dict_feat_name_to_id, 
+            worker = pool.apply_async(proc_line__csv, (job_file_nanes[i], i, dict_feat_name_to_id, 
                 list_of__dense_feat_dict                [i],
                 list_of__sparse_id_feat_dict            [i],
                 list_of__varlen_sparse_id_feat_dict     [i],
@@ -240,7 +241,7 @@ if __name__ == '__main__':
             workers.append(worker)
     elif data_formart == 'libsvm':
         for i in range(cpu_num):
-            worker = pool.apply_async(proc_line__libsvm, (job_queues[i], i, 
+            worker = pool.apply_async(proc_line__libsvm, (job_file_nanes[i], i, 
                 list_of__dense_feat_dict                [i],
                 list_of__sparse_id_feat_dict            [i],
                 list_of__varlen_sparse_id_feat_dict     [i],
@@ -254,15 +255,10 @@ if __name__ == '__main__':
         print('data_formart must be libsvm / csv. exit..')
         exit(1)
 
-    idx = 0
-    for line in sys.stdin:
-        job_queues[idx % cpu_num].put(line)
-        idx += 1
-    for i in range(cpu_num):
-        job_queues[i].put(None)
-
     for worker in workers:
         worker.get()
+
+    os.system(f'rm {args.intput_path}.tmp_split_file.* -f')
 
     dense_feat_dict                  = {}
     sparse_id_feat_dict              = {}
@@ -297,7 +293,9 @@ if __name__ == '__main__':
         v = np.array(sorted(v), dtype=np.float)
         min_v = float(np.min(v))
         max_v = float(np.max(v))
-        mean = float(np.mean(v))
+        mean_v = float(np.mean(v))
+        max_v += max(0, (max_v-mean_v)*0.2)
+        min_v -= max(0, (mean_v-min_v)*0.2)
         std = np.std(v)
         num = len(v)
         percentile_values = []
@@ -313,7 +311,7 @@ if __name__ == '__main__':
         print(f' dense_feat: {k} ')
         print('min_clip', min_v)
         print('max_clip', max_v)
-        print('mean', mean)
+        print('mean', mean_v)
         print('std', std)
         print('num', num)
         print('percentile_values', percentile_values)

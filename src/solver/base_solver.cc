@@ -191,7 +191,8 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   line_split_buff.clear();
   utils::split_string(aline, train_opt.feat_seperator, line_split_buff);
 
-  if (unlikely(line_split_buff.size() < csv_columns.size() || line_split_buff[0].empty())) {
+  if (unlikely(line_split_buff.size() != csv_columns.size() || line_split_buff[0].empty())) {
+    cerr << "line segs num not match with csv columns, or label is empty" << endl;
     return -1;
   }
   

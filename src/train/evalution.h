@@ -35,9 +35,10 @@ class Evalution {
 
   // 打印当前的统计信息，并将其清理
   void output(const char* name, bool for_validation = false) {
-    double recall = double(tp) / (tp + fn);
+    double tpr = double(tp) / (tp + fn);
+    double fpr = double(fp) / (fp + tn);
     double precision = double(tp) / (tp + fp);
-    double f1 = recall + precision > 0.0 ? 2 * recall * precision / (recall + precision) : 0.0;
+    double f1 = tpr + precision > 0.0 ? 2 * tpr * precision / (tpr + precision) : 0.0;
     double acc = double(tp + tn) / (tn + fp + fn + tp);
 
     // 计算AUC
@@ -74,10 +75,11 @@ class Evalution {
           << ", maxAUC=" << max_auc
           << ", N|tn,fp,fn,tp=" << total_samples << '|' << tn << ',' << fp << ',' << fn << ',' << tp
           << ", acc=" << acc
-          << " recall=" << recall
+          << " tpr=" << tpr
+          << " fpr=" << fpr
           << " precision=" << precision
           << " f1=" << f1
-          << endl;          
+          << endl;
     } else {
       cout << std::fixed << std::setprecision(4) << name << " total="
           << total_samples_processed << " ("
@@ -87,7 +89,8 @@ class Evalution {
           << ", grad=" << sum_grad / total_samples << ',' << sum_abs_grad / total_samples
           << ", N|tn,fp,fn,tp=" << total_samples << '|' << tn << ',' << fp << ',' << fn << ',' << tp
           << ", acc=" << acc
-          << " recall=" << recall
+          << " tpr=" << tpr
+          << " fpr=" << fpr
           << " precision=" << precision 
           << " f1=" << f1
           << endl;

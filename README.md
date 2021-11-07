@@ -29,7 +29,7 @@ cpu_num=`cat /proc/cpuinfo | grep processor | wc -l`
 cd config
 cp conf_criteo.py conf.py
 # 可以使用部分数据，比如top10w行来产出一个特征转换的配置
-cat ../data/criteo_sampled_data.csv.train ../data/criteo_sampled_data.csv.test  | python3 make_feat_conf.py -o criteo --cpu_num $cpu_num
+python3 make_feat_conf.py -i ../data/criteo_sampled_data.csv.train -o criteo --cpu_num $cpu_num
 cd -
 
 # 打印帮助
@@ -41,6 +41,8 @@ bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_
 
 bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=$cpu_num verbose=1 epoch=30 solver=ftrl batch_size=10
 # 使用FTRL batch_size=10，test AUC 0.7783
+
+# 这里数据量较少，所以AUC较低。使用全部数据集（head 4400w行做训练集，tail 1840617行做测试集），3 epoch dim=15时AUC=0.8008，dim=32时候0.8024，5 epoch 0.8039
 
 # predict （也会config/train.conf）
 # 因为criteo_sampled_data.csv.test没有header line，所以需要通过csv_columns配置列名称
