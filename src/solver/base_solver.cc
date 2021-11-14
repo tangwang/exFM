@@ -96,10 +96,11 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
         feat_entries.push_back(make_pair(i, got->second));
      }
     }
-    if (feat_entries.size() != feat_map.size()) {
-        cerr << "feature names not match csv_columns, check your feature_config or your csv header line, exit." << endl;
-        std::exit(1);
-     }
+    if (feat_entries.size() < feat_map.size()) {
+      cerr << "feature names not match csv_columns, check your feature_config or your csv header line, exit."
+           << endl;
+      std::exit(1);
+    }
   }
 }
 
@@ -191,13 +192,13 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   line_split_buff.clear();
   utils::split_string(aline, train_opt.feat_seperator, line_split_buff);
 
-  if (unlikely(line_split_buff.size() != csv_columns.size() || line_split_buff[0].empty())) {
-    cerr << "line segs num not match with csv columns, or label is empty" << endl;
+  if (unlikely(line_split_buff.size() != csv_columns.size())) {
+    cerr << "line segs num not match with csv columns" << endl;
     return -1;
   }
   
   Sample &sample = batch_samples[sample_idx];
-
+  // TODO 如果是预测的话，不需要label，第一列不一定是label
   // parse label
   sample.label.i = atoi(line_split_buff[0].c_str()) > 0 ? 1 : -1;
 

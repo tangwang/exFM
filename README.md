@@ -38,6 +38,10 @@ bin/train h
 # train （配置文件为config/train.conf，可以通过命令行参数补充或覆盖配置文件中的配置项）
 bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=$cpu_num verbose=1 epoch=20 solver=adam batch_size=1000 mf=txt om=model_1029_txt
 # dim=15时，test AUC 0.7765，在我的4核（至强E-2224G CPU）机器上训练速度为25万样本/S。
+# 公司数据集：50特征（包含多个变长特征，如点击序列、tag序列等），96核机器，运行参数：
+# 1) threads=94 solver=adam batch_size=1000，每线程2360/S，合计22.2w每秒
+# 2) threads=94 solver=ftrl batch_size=10，每线程1140/S，合计10.7万每秒
+
 
 bin/train data_formart=csv feat_sep=, feat_cfg=criteo train=data/criteo_sampled_data.csv.train valid=data/criteo_sampled_data.csv.test threads=$cpu_num verbose=1 epoch=30 solver=ftrl batch_size=10
 # 使用FTRL batch_size=10，test AUC 0.7783

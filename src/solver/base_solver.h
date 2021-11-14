@@ -54,7 +54,7 @@ protected:
   vector<DenseFeatContext> dense_feats;
   vector<SparseFeatContext> sparse_feats;
   vector<VarlenSparseFeatContext> varlen_feats;
-  std::unordered_map<string, CommonFeatContext *> feat_map; // libsvm格式数据的特征索引
+  std::unordered_map<string, CommonFeatContext *> feat_map;
   vector<pair<size_t, CommonFeatContext *>> feat_entries;                 // csv格式数据的特征索引
   vector<string> line_split_buff;   // csv格式数据的解析中间变量
   const size_t batch_size;

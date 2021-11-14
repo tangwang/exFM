@@ -41,7 +41,7 @@ def proc_line__csv(job_file_name, process_id, dict_feat_name_to_id,
         print('error: feature names not match with column names. exception: ', e)
         return
 
-    with open(job_file_name) as f:
+    with open(job_file_name, errors = 'ignore') as f:
         for line in f:
             segs = line.rstrip('\n').split(feat_sep)
             if len(segs) != max_column_id + 1:
@@ -120,7 +120,7 @@ def proc_line__libsvm(job_file_name, process_id,
     varlen_sparse_str_feat_dict = {k : [] for k in varlen_sparse_str_feat_list}
     varlen_sparse_str_feat_len_dict = {k : [] for k in varlen_sparse_str_feat_list}
 
-    with open(job_file_name) as f:
+    with open(job_file_name, errors = 'ignore') as f:
         for line in f:
             segs = line.rstrip('\n').split(feat_sep)[1:]
 
@@ -430,9 +430,12 @@ if __name__ == '__main__':
         feat_counts = Counter(v)
         save_feat_id_dict(mapping_dict_path, feat_num_statis_dict_path, k, feat_counts)
 
+        mapping_type = sparse_feat_mapping_type
+        if mapping_type == 'orig_id':
+            mapping_type = 'dict'
         sparse_features.append( {'name' : k, 
                 'value_type' : 'str',
-                 "mapping_type" : sparse_feat_mapping_type,
+                 "mapping_type" : mapping_type,
                 'ids_num' : ids_num,
                 'vocab_size' : vocab_size,
                 'mapping_dict_name' : mapping_dict_name,
@@ -468,11 +471,14 @@ if __name__ == '__main__':
         feat_counts = Counter(v)
         save_feat_id_dict(mapping_dict_path, feat_num_statis_dict_path, k, feat_counts)
 
+        mapping_type = sparse_feat_mapping_type
+        if mapping_type == 'orig_id':
+            mapping_type = 'dict'
         varlen_sparse_features.append( {'name' : k,
                 'value_type' : 'str',
                 'ids_num' : ids_num,
                 'vocab_size' : vocab_size,
-                "mapping_type" : sparse_feat_mapping_type,
+                "mapping_type" : mapping_type,
                 'mapping_dict_name' : mapping_dict_name,
                 'shared_embedding_name' : '',
                 'max_len' : min(seq_feat_max_len, max_len),

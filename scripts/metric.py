@@ -1,12 +1,11 @@
 import sys
-import logging
 import traceback
-import cgitb
 import os
-from optparse import OptionParser
 
 test_file = sys.argv[1]
-pred_file = sys.argv[2]
+test_column = int(sys.argv[2])
+pred_file = sys.argv[3]
+pred_column = int(sys.argv[4])
 
 def calAUC(prob,labels):
     f = list(zip(prob,labels))
@@ -29,10 +28,10 @@ pred = []
 
 with open(pred_file, 'r') as infile:
     for line in infile:
-        pred.append(float(line.strip().split(' ')[1]))
+        pred.append(float(line.strip().split(' ')[pred_column]))
 with open(test_file, 'r') as infile:
     for line in infile:
-        y.append(int(line.strip().split(' ')[0]))
+        y.append(int(line.strip().split(' ')[test_column]))
 print(len(y))
 print(len(pred))
 print(calAUC(pred,y))
