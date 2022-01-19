@@ -96,11 +96,6 @@ BaseSolver::BaseSolver(const FeatManager &feat_manager)
         feat_entries.push_back(make_pair(i, got->second));
      }
     }
-    if (feat_entries.size() < feat_map.size()) {
-      cerr << "feature names not match csv_columns, check your feature_config or your csv header line, exit."
-           << endl;
-      std::exit(1);
-    }
   }
 }
 

@@ -78,7 +78,6 @@ class TrainWorker {
   void validation_thread_loop(std::ifstream &input_stream) {
     string line_buff;
     int sleep_seconds = 0;
-    const bool verbose_debug = train_opt.verbose > 1;
     do {
       sleep(2);
       sleep_seconds += 2;
@@ -88,8 +87,6 @@ class TrainWorker {
         continue;
       else
         sleep_seconds = 0;
-      if (verbose_debug)
-        std::cout << "validation thread begin forward... " << std::endl;
 
       while (std::getline(input_stream, line_buff)) {
         // solver->train_fm_flattern(y, logit, true);

@@ -166,8 +166,6 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
    1. ##### 动态库(lib/fm_pred.so) 
 
-      **该部分功能未使用过、未测试，使用前请做测试，特别是通过java调用的话需要做长时间压测，有问题可以联系作者。**
-
       编译后会生成一个lib目录，包括一个so动态库 + include文件。
 
       ###### c++项目的调用方法：

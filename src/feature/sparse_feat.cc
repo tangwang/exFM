@@ -211,7 +211,8 @@ void from_json(const json &j, SparseFeatConfig &p) {
   }
 
   if (str_mapping_type == "dynamic_dict") {
-    if (feat_value_type == "int32") {
+    j.at("vocab_size").get_to(p.vocab_size);
+   if (feat_value_type == "int32") {
       p.mapping_type = SparseFeatConfig::mapping_by_dynamic_dict_int32;
     } else if (feat_value_type == "int64") {
       p.mapping_type = SparseFeatConfig::mapping_by_dynamic_dict_int64;

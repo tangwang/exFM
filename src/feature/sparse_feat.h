@@ -14,7 +14,8 @@ class SparseFeatConfig : public CommonFeatConfig {
 
   // mapping_type == "orig_id" 时，vocab_size由max_id确定
   // mapping_type == "hash" 时，vocab_size从配置文件读取
-  // mapping_type == "dict" 时，vocab_size由配置词典大小确定
+  // mapping_type == "dict" 时，vocab_size由配置的映射词典中的最大ID确定
+  // mapping_type == "dynamic_dict" 时，vocab_size由配置的映射词典中的最大ID、以及配置的vocab_size共同决定
   feat_id_t vocab_size;
   // default_id 约定永远为0
   // unknown_id 约定永远为vocab_size-1
