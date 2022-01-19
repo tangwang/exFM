@@ -42,6 +42,8 @@ def proc_line__csv(job_file_name, process_id, dict_feat_name_to_id,
         return
 
     with open(job_file_name, errors = 'ignore') as f:
+        if process_id == 0:
+            f.readline() # 如果有headline，去掉headline
         for line in f:
             segs = line.rstrip('\n').split(feat_sep)
             if len(segs) != max_column_id + 1:
@@ -225,8 +227,8 @@ if __name__ == '__main__':
 
     workers = []
     if data_formart == 'csv':
-        if len(csv_columns) == 0:
-            csv_columns = sys.stdin.readline().rstrip('\n').split(feat_sep)
+        #if len(csv_columns) == 0:
+        #    csv_columns = sys.stdin.readline().rstrip('\n').split(feat_sep)
         dict_feat_name_to_id = dict((v, j) for j,v in enumerate(csv_columns))
         for i in range(cpu_num):
             worker = pool.apply_async(proc_line__csv, (job_file_nanes[i], i, dict_feat_name_to_id, 
