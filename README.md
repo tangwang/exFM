@@ -2,7 +2,7 @@
 
 ## features
 
-易用：通常拿到一份数据，可能要做很多特征工程，比如离散的特征有ID型的、字符串的、变长（多值/序列）的，都需要做些特征处理，连续特征可能要做离散化或者非线性映射等，然后要基于TensorFlow/pytorch等框架编写一些训练的代码。该项目就是通过定义一套特征处理配置文件规范，提供一个配置产出工具，一套FM训练和预测工具，从而使得这些工作基本可用省去。
+易用：通常拿到一份训练样本，可能要做很多特征工程，比如离散的特征有ID型的、字符串的、变长（多值/序列）的，都需要做些特征处理，连续特征可能要做离散化或者非线性映射等，然后要基于TensorFlow/pytorch等框架编写一些训练的代码。该项目就是通过定义一套特征处理配置文件规范，提供一个配置产出工具，一套FM训练和预测工具，从而使得这些工作基本可用省去。
 
 可靠：针对FM对内置的adamW/FTRL等优化器和batch训练进行了精心的调参，使用默认配置可以得到一个不错的baseline。已经在千万日活的业务体中用于召回和粗排。
 
@@ -261,4 +261,41 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
    2. 在线：
       1. 用户请求到来时，提取其所有特征的隐向量v，计算$$User Embedding=concat(1,\sum v)$$
       2. 检索距离User Embedding最近的Top N item embedding。
+
+   
+
+   ## TODO
+
+   需注意：
+
+   1. 对于libSVM格式，label和特征的分隔，特征之间的分隔，用了同一个变量：train_opt.feat_seperator
+   2. 如果需要在命令行参数中指定feat_values_sep=; 或者|，需要注意有时候需要转义
+
+   
+
+   需要降低使用成本，只需要极简配置就可以跑起来：
+   dense特征：
+   1）维护1w的抽样数据，第N条数据以1w/N的概率替换其中的一条。onehot：取分位数
+   2）内置N种非线性映射器，pow(x + bias), log(x + bias)取信息量最大的非线性映射器（参考ES的modifier：log 、 log1p 、 log2p 、 ln 、 ln1p 、 ln2p 、 square 、 sqrt 以及 reciprocal）
+   3）AutoDis
+   sparse特征：
+   dynamic_dict需要配置vocab_size，需要事先统计每个特征的值的个数，使用不方便
+
+   deepFM：dnn 不同于标准的deepFM，deep部分的输入：
+   1，每个sparse特征的embedding做linear之后得到一个打分
+   2，每个二阶交叉的打分（NFM）
+   3，每个dense特征的分位数
+   deep结构：deep部分的学习，只更新MLP参数和每个embedding的linear映射参数，不更新特征embedding
+   readme：常量embedding：补充说明，比如bid，可以带上他的title 的bert embedding。
+
+
+
+不用shuffer，直接用rand() % cpu_num，分发到worker
+
+
+
+配置自动生成工具：
+
+1. make_feat_conf 不支持csv header
+2. split -n 会有一些行不完整，是否要改成split -l
 

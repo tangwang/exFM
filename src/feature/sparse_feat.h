@@ -57,7 +57,6 @@ class SparseFeatConfig : public CommonFeatConfig {
   bool loadFeatIdDict(const string& mapping_dict_path,
                       Dict<DictKeyType, feat_id_t>& feat_value2id_dict) const {
     bool ret = false;
-    feat_value2id_dict.setNullValue(unknown_id);
     if (feat_value2id_dict.create(mapping_dict_path,
                                   train_opt.feat_id_dict_seperator)) {
       VERBOSE_OUT(1) << "load dict <" << mapping_dict_path << "> ok, size <"

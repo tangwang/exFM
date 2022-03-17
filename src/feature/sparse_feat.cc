@@ -129,6 +129,9 @@ bool SparseFeatConfig::initParams(unordered_map<string, shared_ptr<ParamContaine
 
   vocab_size = std::max(vocab_size, max_feat_id_of_mapping_dict + 2);
   unknown_id = vocab_size - 1;
+  i32_feat_id_dict.setNullValue(unknown_id);
+  i64_feat_id_dict.setNullValue(unknown_id);
+  str_feat_id_dict.setNullValue(unknown_id);
 
   // initail mutexes
   feat_id_t mutex_nums = vocab_size;
