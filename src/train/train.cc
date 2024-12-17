@@ -81,7 +81,9 @@ int main(int argc, char *argv[]) {
     if (train_opt.csv_columns.empty()) {
       has_csv_header = true;
       std::getline(*input_stream, train_opt.csv_columns);
-      utils::replace_all(train_opt.csv_columns, std::to_string(train_opt.feat_seperator), std::to_string(','));
+      if (train_opt.feat_seperator != ',') {
+        utils::replace_all(train_opt.csv_columns, std::to_string(train_opt.feat_seperator), std::to_string(','));
+      }
     }
   }
 

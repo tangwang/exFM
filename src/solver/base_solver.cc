@@ -171,6 +171,7 @@ real_t BaseSolver::feedLine_libSVM(const string & aline) {
       if (feat_end) *feat_end = '\0';
       auto got = feat_map.find(feat_beg);
       if (got != feat_map.end()) {
+        DEBUG_OUT << "Original feature value: " << feat_kv_pos + 1 << endl;
         DEBUG_OUT << " feed : "<< fm_node_idx << " " << feat_beg << " " << feat_kv_pos + 1 << endl;
         got->second->feedSample(feat_kv_pos + 1, feat_len, sample.fm_layer_nodes[fm_node_idx++]);
       }
@@ -178,7 +179,9 @@ real_t BaseSolver::feedLine_libSVM(const string & aline) {
   } while (feat_end != NULL);
   sample.fm_layer_nodes_size = fm_node_idx;
 
-  return sample.forward();
+  real_t logit = sample.forward();
+  DEBUG_OUT << "Predicted logit: " << logit << endl;
+  return logit;
 }
 
 real_t BaseSolver::feedLine_CSV(const string & aline) {
@@ -188,7 +191,7 @@ real_t BaseSolver::feedLine_CSV(const string & aline) {
   utils::split_string(aline, train_opt.feat_seperator, line_split_buff);
 
   if (unlikely(line_split_buff.size() != csv_columns.size())) {
-    cerr << "line segs num not match with csv columns" << endl;
+    cerr << "line segs num not match with csv columns" << endl << "line_split_buff size: " << line_split_buff.size() << ", csv_columns size: " << csv_columns.size() << endl;
     return -1;
   }
   

@@ -1,0 +1,829 @@
+{
+    "dense_features": [
+        {
+            "name": "I1",
+            "min_clip": -0.25,
+            "max_clip": 44.15,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    1.0,
+                    4.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    5.0,
+                    8.0
+                ]
+            ]
+        },
+        {
+            "name": "I2",
+            "min_clip": -19.73673469387755,
+            "max_clip": 3582.6632653061224,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    1.0,
+                    2.5,
+                    7.0,
+                    19.0,
+                    53.0,
+                    158.0
+                ],
+                [
+                    -1.0,
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.4000000000000057,
+                    5.0,
+                    7.0,
+                    11.0,
+                    17.0,
+                    22.80000000000001,
+                    35.0,
+                    53.0,
+                    67.39999999999995,
+                    98.99999999999991,
+                    181.20000000000002,
+                    370.0
+                ]
+            ]
+        },
+        {
+            "name": "I3",
+            "min_clip": -7.162244897959184,
+            "max_clip": 3370.837755102041,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    7.0,
+                    11.0,
+                    23.0,
+                    52.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    5.200000000000017,
+                    7.0,
+                    8.0,
+                    9.600000000000023,
+                    13.0,
+                    19.0,
+                    23.0,
+                    29.0,
+                    38.19999999999999,
+                    60.400000000000006,
+                    105.7999999999999
+                ]
+            ]
+        },
+        {
+            "name": "I4",
+            "min_clip": -1.469387755102041,
+            "max_clip": 102.93061224489796,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    5.0,
+                    7.0,
+                    12.0,
+                    21.5
+                ],
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                    11.0,
+                    12.0,
+                    15.0,
+                    20.0,
+                    22.0,
+                    30.599999999999966
+                ]
+            ]
+        },
+        {
+            "name": "I5",
+            "min_clip": -3247.4081632653065,
+            "max_clip": 605552.1918367348,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    5.0,
+                    48.0,
+                    292.0,
+                    1470.0,
+                    1955.0,
+                    3412.0,
+                    6446.0,
+                    13528.0,
+                    26706.5
+                ],
+                [
+                    0.0,
+                    2.0,
+                    8.0,
+                    24.799999999999997,
+                    48.0,
+                    123.59999999999998,
+                    259.8000000000002,
+                    357.0,
+                    906.8000000000005,
+                    1470.0,
+                    1600.0,
+                    1791.8,
+                    2404.800000000003,
+                    3052.0000000000014,
+                    3412.0,
+                    4595.4,
+                    5779.8,
+                    8162.000000000005,
+                    10939.599999999991,
+                    13528.0,
+                    17291.19999999999,
+                    21253.799999999996,
+                    36859.00000000002,
+                    76092.79999999994
+                ]
+            ]
+        },
+        {
+            "name": "I6",
+            "min_clip": -19.57857142857143,
+            "max_clip": 2507.6214285714286,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    5.0,
+                    14.5,
+                    30.0,
+                    61.0,
+                    96.0,
+                    192.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    3.0,
+                    5.0,
+                    9.0,
+                    11.0,
+                    17.80000000000001,
+                    21.200000000000017,
+                    30.0,
+                    38.0,
+                    50.0,
+                    65.0,
+                    74.19999999999993,
+                    96.0,
+                    125.79999999999998,
+                    164.0,
+                    265.0000000000002,
+                    646.4
+                ]
+            ]
+        },
+        {
+            "name": "I7",
+            "min_clip": -2.3418367346938775,
+            "max_clip": 358.85816326530613,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    5.0,
+                    8.0,
+                    12.0,
+                    25.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    7.2000000000000455,
+                    9.0,
+                    10.199999999999989,
+                    12.0,
+                    16.599999999999966,
+                    22.599999999999994,
+                    27.80000000000001,
+                    52.399999999999864
+                ]
+            ]
+        },
+        {
+            "name": "I8",
+            "min_clip": -2.5377551020408164,
+            "max_clip": 56.262244897959185,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    7.0,
+                    10.0,
+                    17.5,
+                    25.0,
+                    35.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    9.0,
+                    10.0,
+                    13.799999999999997,
+                    16.0,
+                    19.0,
+                    20.0,
+                    25.0,
+                    30.0,
+                    33.0,
+                    35.0,
+                    42.0
+                ]
+            ]
+        },
+        {
+            "name": "I9",
+            "min_clip": -21.15408163265306,
+            "max_clip": 1219.645918367347,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    1.0,
+                    4.0,
+                    11.0,
+                    20.0,
+                    37.0,
+                    68.0,
+                    98.0,
+                    144.0,
+                    281.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    2.1999999999999993,
+                    4.0,
+                    5.0,
+                    9.0,
+                    11.799999999999997,
+                    18.200000000000003,
+                    20.0,
+                    25.799999999999997,
+                    33.0,
+                    39.400000000000006,
+                    55.0,
+                    68.0,
+                    83.6,
+                    98.0,
+                    105.80000000000001,
+                    117.79999999999995,
+                    144.0,
+                    173.59999999999988,
+                    258.1999999999998,
+                    365.20000000000044,
+                    531.9999999999995
+                ]
+            ]
+        },
+        {
+            "name": "I10",
+            "min_clip": -0.06122448979591837,
+            "max_clip": 3.538775510204082,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    1.0
+                ],
+                [
+                    0.0,
+                    1.0
+                ]
+            ]
+        },
+        {
+            "name": "I11",
+            "min_clip": -0.45408163265306123,
+            "max_clip": 37.94591836734694,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    6.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    7.0,
+                    9.199999999999989
+                ]
+            ]
+        },
+        {
+            "name": "I12",
+            "min_clip": -0.022448979591836737,
+            "max_clip": 8.377551020408163,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0
+                ],
+                [
+                    0.0,
+                    1.0
+                ]
+            ]
+        },
+        {
+            "name": "I13",
+            "min_clip": -1.9428571428571428,
+            "max_clip": 120.45714285714286,
+            "default_value": 0,
+            "sparse_by_wide_bins_numbs": [
+                10,
+                25
+            ],
+            "sparse_by_splits": [
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    5.0,
+                    10.0,
+                    16.0,
+                    29.5
+                ],
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    11.0,
+                    13.199999999999989,
+                    16.0,
+                    20.0,
+                    25.0,
+                    32.400000000000006,
+                    40.599999999999966
+                ]
+            ]
+        }
+    ],
+    "sparse_features": [
+        {
+            "name": "C1",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 27,
+            "vocab_size": 370,
+            "mapping_dict_name": "C1.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C2",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 90,
+            "vocab_size": 1000,
+            "mapping_dict_name": "C2.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C3",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 168,
+            "vocab_size": 1780,
+            "mapping_dict_name": "C3.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C4",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 153,
+            "vocab_size": 1630,
+            "mapping_dict_name": "C4.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C5",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 11,
+            "vocab_size": 210,
+            "mapping_dict_name": "C5.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C6",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 6,
+            "vocab_size": 200,
+            "mapping_dict_name": "C6.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C7",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 179,
+            "vocab_size": 1890,
+            "mapping_dict_name": "C7.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C8",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 19,
+            "vocab_size": 290,
+            "mapping_dict_name": "C8.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C9",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 2,
+            "vocab_size": 200,
+            "mapping_dict_name": "C9.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C10",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 139,
+            "vocab_size": 1490,
+            "mapping_dict_name": "C10.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C11",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 169,
+            "vocab_size": 1790,
+            "mapping_dict_name": "C11.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C12",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 166,
+            "vocab_size": 1760,
+            "mapping_dict_name": "C12.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C13",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 162,
+            "vocab_size": 1720,
+            "mapping_dict_name": "C13.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C14",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 14,
+            "vocab_size": 240,
+            "mapping_dict_name": "C14.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C15",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 166,
+            "vocab_size": 1760,
+            "mapping_dict_name": "C15.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C16",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 164,
+            "vocab_size": 1740,
+            "mapping_dict_name": "C16.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C17",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 9,
+            "vocab_size": 200,
+            "mapping_dict_name": "C17.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C18",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 125,
+            "vocab_size": 1350,
+            "mapping_dict_name": "C18.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C19",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 43,
+            "vocab_size": 530,
+            "mapping_dict_name": "C19.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C20",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 3,
+            "vocab_size": 200,
+            "mapping_dict_name": "C20.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C21",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 165,
+            "vocab_size": 1750,
+            "mapping_dict_name": "C21.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C22",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 5,
+            "vocab_size": 200,
+            "mapping_dict_name": "C22.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C23",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 10,
+            "vocab_size": 200,
+            "mapping_dict_name": "C23.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C24",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 121,
+            "vocab_size": 1310,
+            "mapping_dict_name": "C24.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C25",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 19,
+            "vocab_size": 290,
+            "mapping_dict_name": "C25.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "C26",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 85,
+            "vocab_size": 950,
+            "mapping_dict_name": "C26.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I1",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 14,
+            "vocab_size": 240,
+            "mapping_dict_name": "I1.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I2",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 67,
+            "vocab_size": 770,
+            "mapping_dict_name": "I2.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I3",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 54,
+            "vocab_size": 640,
+            "mapping_dict_name": "I3.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I4",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 35,
+            "vocab_size": 450,
+            "mapping_dict_name": "I4.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I5",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 169,
+            "vocab_size": 1790,
+            "mapping_dict_name": "I5.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I6",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 90,
+            "vocab_size": 1000,
+            "mapping_dict_name": "I6.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I7",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 40,
+            "vocab_size": 500,
+            "mapping_dict_name": "I7.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I8",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 41,
+            "vocab_size": 510,
+            "mapping_dict_name": "I8.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I9",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 110,
+            "vocab_size": 1200,
+            "mapping_dict_name": "I9.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I10",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 4,
+            "vocab_size": 200,
+            "mapping_dict_name": "I10.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I11",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 15,
+            "vocab_size": 250,
+            "mapping_dict_name": "I11.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I12",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 5,
+            "vocab_size": 200,
+            "mapping_dict_name": "I12.dict",
+            "shared_embedding_name": ""
+        },
+        {
+            "name": "I13",
+            "value_type": "str",
+            "mapping_type": "dynamic_dict",
+            "ids_num": 42,
+            "vocab_size": 520,
+            "mapping_dict_name": "I13.dict",
+            "shared_embedding_name": ""
+        }
+    ],
+    "varlen_sparse_features": []
+}

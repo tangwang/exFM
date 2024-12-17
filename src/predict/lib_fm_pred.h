@@ -2,6 +2,9 @@
  *  Copyright (c) 2021 by exFM Contributors
  * 该部分代码未测试，请不要使用
  */
+#ifndef LIB_FM_PRED_H
+#define LIB_FM_PRED_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -112,4 +115,10 @@ void fmPredictInstanceRelease(FmPredictInstance* fm_instance);
 */
 int fmPredict(FmPredictInstance * fm_instance, char* input_str, char* output_str, int output_len);
 
+// New function for Python interface
+int fmPredictBatch(FmPredictInstance* fm_instance, const char** input_strs, int input_count, double* output_scores, int print_debug_info);
+
 }
+
+
+#endif // LIB_FM_PRED_H

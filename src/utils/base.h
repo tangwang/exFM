@@ -52,6 +52,8 @@ using std::exp;
 using std::exception;
 
 // debugs
+// #define _DEBUG_VER_
+
 #ifdef _DEBUG_VER_
 #include <cassert>
 #define DEBUG_OUT std::cout

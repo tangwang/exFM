@@ -1,0 +1,28 @@
+{
+    "dense_features": [],
+    "sparse_features": [],
+    "varlen_sparse_features": [
+        {
+            "name": "f1",
+            "value_type": "str",
+            "ids_num": 10000,
+            "vocab_size": 10000,
+            "mapping_type": "hash",
+            "mapping_dict_name": "f1.dict",
+            "shared_embedding_name": "",
+            "max_len": 30,
+            "pooling_type": "sum"
+        },
+        {
+            "name": "f2",
+            "value_type": "str",
+            "ids_num": 10000,
+            "vocab_size": 10000,
+            "mapping_type": "hash",
+            "mapping_dict_name": "f2.dict",
+            "shared_embedding_name": "",
+            "max_len": 30,
+            "pooling_type": "sum"
+        }
+   ]
+}
