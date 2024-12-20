@@ -4,9 +4,13 @@
 
 易用：通常拿到一份训练样本，可能要做很多特征工程，比如离散的特征有ID型的、字符串的、变长（多值/序列）的，都需要做些特征处理，连续特征可能要做离散化或者非线性映射等，然后要基于TensorFlow/pytorch等框架编写一些训练的代码。该项目就是通过定义一套特征处理配置文件规范，提供一个配置产出工具，一套FM训练和预测工具，从而使得这些工作基本可用省去。
 
-可靠：针对FM对内置的adamW/FTRL等优化器和batch训练进行了精心的调参，使用默认配置可以得到一个不错的baseline。已经在千万日活的业务体中用于召回和粗排。
+可靠：针对FM对内置的adamW/FTRL等优化器和batch训练做了良好的适配。开源数据集上效果优秀；已经在千万日活的业务体中用于召回和粗排。
 
-高效：使用cpu的情况下，训练速度相比TensorFlow/pytorch实现的FM快很多倍。
+高效：使用cpu的情况下，训练速度相比TensorFlow/pytorch实现的FM快很多倍
+ - batch计算（批量梯度累积和参数提交）
+ - 减少锁竞争（粒度锁 基本无锁）
+ - 循环展开（编译期指定embeddingsize）
+ - 良好的内存管理（样本计算和特征参数池的对象预申请）
 
 ### examples
 
@@ -216,10 +220,14 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
       fm_instance->fm_pred(input_vec, scores);
       ```
 
-      ###### java项目的调用方法
+      ###### python项目的调用方法：
 
+      参考 docs/predict_python/fm_pred_example.py
+
+      ###### java项目的调用方法：
+      
       可以通过jni调用以下几个c方法（同样声明在lib_fm_pred.h中）：
-
+      
       ```c++
       extern "C" {
       
@@ -266,36 +274,21 @@ cat ../data/train.csv | python3 make_feat_conf.py -o simple_feat_conf --cpu_num 
 
    ## TODO
 
-   需注意：
+   #### dense特征
+   - 维护1w的抽样数据，第N条数据以1w/N的概率替换其中的一条。onehot：取分位数
+   - 内置N种非线性映射器，pow(x + bias), log(a*x + bias)等方式参考信息量与分桶个数自动从抽样样本中得到较好的映射方式。
+   #### sparse特征
+   dynamic_dict需要配置vocab_size，需要事先统计每个特征的值的个数，可以简化配置 / AutoDis
+   #### [deepFM](https://github.com/tangwang/deepFM)
+在exFM的基础上扩展deep网络结构，新增的特性有：
 
-   1. 对于libSVM格式，label和特征的分隔，特征之间的分隔，用了同一个变量：train_opt.feat_seperator
-   2. 如果需要在命令行参数中指定feat_values_sep=; 或者|，需要注意有时候需要转义
-
-   
-
-   需要降低使用成本，只需要极简配置就可以跑起来：
-   dense特征：
-   1）维护1w的抽样数据，第N条数据以1w/N的概率替换其中的一条。onehot：取分位数
-   2）内置N种非线性映射器，pow(x + bias), log(x + bias)取信息量最大的非线性映射器（参考ES的modifier：log 、 log1p 、 log2p 、 ln 、 ln1p 、 ln2p 、 square 、 sqrt 以及 reciprocal）
-   3）AutoDis
-   sparse特征：
-   dynamic_dict需要配置vocab_size，需要事先统计每个特征的值的个数，使用不方便
-
-   deepFM：dnn 不同于标准的deepFM，deep部分的输入：
-   1，每个sparse特征的embedding做linear之后得到一个打分
-   2，每个二阶交叉的打分（NFM）
-   3，每个dense特征的分位数
-   deep结构：deep部分的学习，只更新MLP参数和每个embedding的linear映射参数，不更新特征embedding
-   readme：常量embedding：补充说明，比如bid，可以带上他的title 的bert embedding。
+ - 支持多个特征共享embedding参数。
+ 支持多个特征共享embedding：itemID、tagID通常会出现在多个field（出现在item侧、user侧），如果ID特别稀疏配置为共享参数会有好处。但是对于FM如果做参数共享将导致信息丢失（特征是在哪个field），需要适当的修改网络结构。在deepFM中则没有这个问题。
+ - 不再支持多种优化器，在fm部分选用ftrl，deep部分用adam 。
+ - early stoping
+ - 一个项目搞定特征处理、训练、在线的粗排（先对topN进行FM打分）、精排（对粗排的topM补充计算deep网络的打分）。
+ - 稠密特征除了离散化后进入FM，还可以归一化后进入MLP
+ - sparse特征可以附带embedding属性，作为常量embedding并入MLP网络的输入
 
 
-
-不用shuffer，直接用rand() % cpu_num，分发到worker
-
-
-
-配置自动生成工具：
-
-1. make_feat_conf 不支持csv header
-2. split -n 会有一些行不完整，是否要改成split -l
 
